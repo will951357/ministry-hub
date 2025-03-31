@@ -8,7 +8,7 @@ export function MainLayout({ children }: PropsWithChildren) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   
   return (
-    <div className="min-h-screen bg-church-background-light flex">
+    <div className="min-h-screen bg-church-background flex">
       {/* Sidebar */}
       <SideNav isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       

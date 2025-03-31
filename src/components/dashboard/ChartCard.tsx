@@ -10,10 +10,10 @@ interface ChartCardProps {
 
 export function ChartCard({ title, description, children }: ChartCardProps) {
   return (
-    <Card>
+    <Card className="border-church-border bg-white">
       <CardHeader className="pb-2">
-        <CardTitle>{title}</CardTitle>
-        {description && <CardDescription>{description}</CardDescription>}
+        <CardTitle className="text-church-primary">{title}</CardTitle>
+        {description && <CardDescription className="text-church-secondary">{description}</CardDescription>}
       </CardHeader>
       <CardContent>{children}</CardContent>
     </Card>

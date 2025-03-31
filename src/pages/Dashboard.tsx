@@ -12,8 +12,8 @@ export default function Dashboard() {
     <MainLayout>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <div className="text-sm text-muted-foreground">
+          <h1 className="text-3xl font-bold text-church-primary">Dashboard</h1>
+          <div className="text-sm text-church-secondary">
             <span className="font-medium">Today is:</span> Sunday, October 15, 2023
           </div>
         </div>
@@ -61,7 +61,7 @@ export default function Dashboard() {
         <div className="grid gap-4 md:grid-cols-2">
           <RecentMembers />
           <ChartCard title="Engagement & Growth">
-            <div className="flex h-[300px] items-center justify-center text-muted-foreground">
+            <div className="flex h-[300px] items-center justify-center text-church-secondary">
               Engagement metrics chart coming soon...
             </div>
           </ChartCard>

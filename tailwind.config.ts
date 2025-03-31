@@ -63,15 +63,16 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Church management theme colors
+				// Church management theme colors - updated with classic biblical aesthetic
 				church: {
-					primary: '#4F86C6', // Peaceful blue
-					secondary: '#65B891', // Soft sage green
-					accent: '#6A75CA', // Gentle purple
-					muted: '#F1F5F9', // Light gray-blue
-					warm: '#F9C784', // Warm gold
-					danger: '#E76F51', // Soft coral
-					"background-light": '#F8FAFC', // Very light blue-gray for backgrounds
+					primary: '#706152', // Warm earthy brown (headings & important content)
+					secondary: '#323E4E', // Deep blue-gray (secondary text)
+					accent: '#A68A64', // Muted gold/beige (buttons, links, highlights)
+					muted: '#EDE9E2', // Light parchment tone (aged paper background)
+					background: '#F8F8F8', // Soft neutral (background & cards)
+					border: '#BFB5AB', // Soft grayish border derived from primary
+					danger: '#9E4D4D', // Muted red for errors/warnings
+					"background-light": '#F8F8F8', // Soft neutral background
 				}
 			},
 			borderRadius: {

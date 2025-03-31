@@ -40,18 +40,18 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
   return (
     <aside 
       className={cn(
-        "fixed left-0 top-0 h-full border-r bg-white shadow-sm transition-all duration-300 ease-in-out",
+        "fixed left-0 top-0 h-full border-r border-church-border bg-church-muted shadow-sm transition-all duration-300 ease-in-out",
         isOpen ? "w-64" : "w-16"
       )}
     >
-      <div className="flex h-16 items-center px-4 border-b">
+      <div className="flex h-16 items-center px-4 border-b border-church-border">
         {isOpen ? (
           <div className="flex items-center space-x-2">
-            <PanelLeft className="h-6 w-6 text-church-primary" />
+            <PanelLeft className="h-6 w-6 text-church-accent" />
             <span className="font-semibold text-xl text-church-primary">ChurchHub</span>
           </div>
         ) : (
-          <PanelLeft className="h-6 w-6 mx-auto text-church-primary" />
+          <PanelLeft className="h-6 w-6 mx-auto text-church-accent" />
         )}
       </div>
       
@@ -64,8 +64,8 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
               className={cn(
                 "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-all",
                 activeItem === item.id 
-                  ? "bg-church-primary text-white" 
-                  : "text-gray-700 hover:bg-gray-100",
+                  ? "bg-church-accent text-white" 
+                  : "text-church-primary hover:bg-white",
                 !isOpen && "justify-center"
               )}
               onClick={() => setActiveItem(item.id)}
@@ -80,7 +80,7 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
       <div className="absolute bottom-4 left-0 right-0 flex justify-center">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="p-2 rounded-full hover:bg-gray-100 transition-all"
+          className="p-2 rounded-full hover:bg-white transition-all text-church-primary"
         >
           {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
         </button>
