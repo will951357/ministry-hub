@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { 
   Home, 
@@ -15,7 +15,12 @@ import {
   ChevronLeft,
   PanelLeft,
   CopyCheck,
-  BookOpen
+  BookOpen,
+  UserCheck,
+  UserPlus,
+  Map,
+  CalendarClock,
+  Cake
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -27,6 +32,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface SideNavProps {
   isOpen: boolean;
@@ -34,11 +40,40 @@ interface SideNavProps {
 }
 
 export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
-  const [activeItem, setActiveItem] = useState('people');
+  const location = useLocation();
+  const [activeItem, setActiveItem] = useState(() => {
+    // Determine the active item based on the current path
+    const path = location.pathname;
+    if (path === '/') return 'dashboard';
+    if (path.startsWith('/people')) return 'people';
+    return path.substring(1); // Remove the leading slash
+  });
+  
+  const [openSubmenus, setOpenSubmenus] = useState<string[]>(['people']);
+  
+  const toggleSubmenu = (id: string) => {
+    setOpenSubmenus(prev => 
+      prev.includes(id) 
+        ? prev.filter(item => item !== id) 
+        : [...prev, id]
+    );
+  };
   
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <Home size={20} />, href: '/' },
-    { id: 'people', label: 'People', icon: <Users size={20} />, href: '/people' },
+    { 
+      id: 'people', 
+      label: 'People', 
+      icon: <Users size={20} />, 
+      href: '/people',
+      subItems: [
+        { id: 'members', label: 'Members', icon: <UserCheck size={18} />, href: '/people/members' },
+        { id: 'visitors', label: 'Visitors', icon: <UserPlus size={18} />, href: '/people/visitors' },
+        { id: 'journeys', label: 'Journeys', icon: <Map size={18} />, href: '/people/journeys' },
+        { id: 'appointments', label: 'Appointments', icon: <CalendarClock size={18} />, href: '/people/appointments' },
+        { id: 'birthdays', label: 'Birthdays', icon: <Cake size={18} />, href: '/people/birthdays' },
+      ]
+    },
     { id: 'ministries', label: 'Ministries', icon: <CopyCheck size={20} />, href: '/ministries' },
     { id: 'groups', label: 'Groups', icon: <UsersRound size={20} />, href: '/groups' },
     { id: 'events', label: 'Events', icon: <Calendar size={20} />, href: '/events' },
@@ -51,7 +86,7 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
   return (
     <aside 
       className={cn(
-        "fixed left-0 top-0 h-full bg-sidebar text-sidebar-foreground transition-all duration-300 ease-in-out",
+        "fixed left-0 top-0 h-full bg-sidebar text-sidebar-foreground transition-all duration-300 ease-in-out z-20",
         isOpen ? "w-64" : "w-16"
       )}
     >
@@ -66,24 +101,87 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
         )}
       </div>
       
-      <div className="py-4">
+      <div className="py-4 overflow-y-auto h-[calc(100vh-4rem-6rem)]">
         <nav className="space-y-1 px-2">
           {navItems.map((item) => (
-            <Link
-              key={item.id}
-              to={item.href}
-              className={cn(
-                "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-all",
-                activeItem === item.id 
-                  ? "bg-church-accent text-white" 
-                  : "text-sidebar-foreground hover:bg-sidebar-accent/20",
-                !isOpen && "justify-center"
-              )}
-              onClick={() => setActiveItem(item.id)}
-            >
-              <span className="mr-3">{item.icon}</span>
-              {isOpen && <span>{item.label}</span>}
-            </Link>
+            item.subItems ? (
+              <Collapsible 
+                key={item.id}
+                open={openSubmenus.includes(item.id) && isOpen}
+                className="w-full"
+              >
+                <CollapsibleTrigger asChild>
+                  <button
+                    className={cn(
+                      "flex items-center w-full rounded-md px-3 py-2 text-sm font-medium transition-all",
+                      activeItem === item.id 
+                        ? "bg-church-accent text-white" 
+                        : "text-sidebar-foreground hover:bg-sidebar-accent/20",
+                      !isOpen && "justify-center"
+                    )}
+                    onClick={() => {
+                      if (isOpen) {
+                        toggleSubmenu(item.id);
+                      } else {
+                        setIsOpen(true);
+                        if (!openSubmenus.includes(item.id)) {
+                          toggleSubmenu(item.id);
+                        }
+                      }
+                      setActiveItem(item.id);
+                    }}
+                  >
+                    <span className={cn("mr-3", !isOpen && "mr-0")}>{item.icon}</span>
+                    {isOpen && (
+                      <>
+                        <span className="flex-1 text-left">{item.label}</span>
+                        <ChevronRight 
+                          className={cn("h-4 w-4 transition-transform", 
+                            openSubmenus.includes(item.id) && "transform rotate-90"
+                          )} 
+                        />
+                      </>
+                    )}
+                  </button>
+                </CollapsibleTrigger>
+                {isOpen && (
+                  <CollapsibleContent className="pl-9 pr-2 pt-1 space-y-1">
+                    {item.subItems.map((subItem) => (
+                      <Link
+                        key={subItem.id}
+                        to={subItem.href}
+                        className={cn(
+                          "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-all",
+                          location.pathname === subItem.href || location.pathname === item.href && subItem.id === "members"
+                            ? "bg-sidebar-accent/30 text-white" 
+                            : "text-sidebar-foreground/90 hover:bg-sidebar-accent/10 hover:text-sidebar-foreground"
+                        )}
+                        onClick={() => setActiveItem(item.id)}
+                      >
+                        <span className="mr-3">{subItem.icon}</span>
+                        <span>{subItem.label}</span>
+                      </Link>
+                    ))}
+                  </CollapsibleContent>
+                )}
+              </Collapsible>
+            ) : (
+              <Link
+                key={item.id}
+                to={item.href}
+                className={cn(
+                  "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-all",
+                  activeItem === item.id 
+                    ? "bg-church-accent text-white" 
+                    : "text-sidebar-foreground hover:bg-sidebar-accent/20",
+                  !isOpen && "justify-center"
+                )}
+                onClick={() => setActiveItem(item.id)}
+              >
+                <span className={cn("mr-3", !isOpen && "mr-0")}>{item.icon}</span>
+                {isOpen && <span>{item.label}</span>}
+              </Link>
+            )
           ))}
         </nav>
       </div>
