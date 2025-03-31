@@ -26,6 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
 
 interface SideNavProps {
   isOpen: boolean;
@@ -33,7 +34,7 @@ interface SideNavProps {
 }
 
 export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
-  const [activeItem, setActiveItem] = useState('dashboard');
+  const [activeItem, setActiveItem] = useState('people');
   
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <Home size={20} />, href: '/' },
@@ -50,15 +51,15 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
   return (
     <aside 
       className={cn(
-        "fixed left-0 top-0 h-full border-r border-church-border bg-church-muted shadow-sm transition-all duration-300 ease-in-out",
+        "fixed left-0 top-0 h-full bg-sidebar text-sidebar-foreground transition-all duration-300 ease-in-out",
         isOpen ? "w-64" : "w-16"
       )}
     >
-      <div className="flex h-16 items-center px-4 border-b border-church-border">
+      <div className="flex h-16 items-center px-4 border-b border-sidebar-border">
         {isOpen ? (
           <div className="flex items-center space-x-2">
             <PanelLeft className="h-6 w-6 text-church-accent" />
-            <span className="font-semibold text-xl text-church-primary">ChurchHub</span>
+            <span className="font-semibold text-xl text-white">ChurchHub</span>
           </div>
         ) : (
           <PanelLeft className="h-6 w-6 mx-auto text-church-accent" />
@@ -75,7 +76,7 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
                 "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-all",
                 activeItem === item.id 
                   ? "bg-church-accent text-white" 
-                  : "text-church-primary hover:bg-white",
+                  : "text-sidebar-foreground hover:bg-sidebar-accent/20",
                 !isOpen && "justify-center"
               )}
               onClick={() => setActiveItem(item.id)}
@@ -89,7 +90,7 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
       
       {isOpen && (
         <div className="absolute bottom-24 left-0 right-0 px-4">
-          <div className="flex items-center space-x-3 py-4 border-t border-church-border">
+          <div className="flex items-center space-x-3 py-4 border-t border-sidebar-border">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center space-x-3">
@@ -98,8 +99,8 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
                     <AvatarFallback className="bg-church-accent text-white">GC</AvatarFallback>
                   </Avatar>
                   <div className="text-left">
-                    <p className="text-sm font-medium text-church-primary">Pastor John</p>
-                    <p className="text-xs text-church-secondary">Admin</p>
+                    <p className="text-sm font-medium text-sidebar-foreground">Pastor John</p>
+                    <p className="text-xs text-sidebar-foreground/70">Admin</p>
                   </div>
                 </button>
               </DropdownMenuTrigger>
@@ -118,12 +119,14 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
       )}
       
       <div className="absolute bottom-4 left-0 right-0 flex justify-center">
-        <button
+        <Button
           onClick={() => setIsOpen(!isOpen)}
-          className="p-2 rounded-full hover:bg-white transition-all text-church-primary"
+          className="p-2 rounded-full bg-sidebar-border/20 hover:bg-sidebar-border/30 transition-all text-sidebar-foreground"
+          variant="ghost"
+          size="icon"
         >
           {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-        </button>
+        </Button>
       </div>
     </aside>
   );
