@@ -14,8 +14,18 @@ import {
   ChevronRight, 
   ChevronLeft,
   PanelLeft,
-  CopyCheck
+  CopyCheck,
+  BookOpen
 } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface SideNavProps {
   isOpen: boolean;
@@ -76,6 +86,36 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
           ))}
         </nav>
       </div>
+      
+      {isOpen && (
+        <div className="absolute bottom-24 left-0 right-0 px-4">
+          <div className="flex items-center space-x-3 py-4 border-t border-church-border">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center space-x-3">
+                  <Avatar className="h-10 w-10 border border-church-border">
+                    <AvatarImage src="https://github.com/shadcn.png" alt="User" />
+                    <AvatarFallback className="bg-church-accent text-white">GC</AvatarFallback>
+                  </Avatar>
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-church-primary">Pastor John</p>
+                    <p className="text-xs text-church-secondary">Admin</p>
+                  </div>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="bg-white border-church-border">
+                <DropdownMenuLabel className="text-church-primary">My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-church-border" />
+                <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted">Profile</DropdownMenuItem>
+                <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted">Settings</DropdownMenuItem>
+                <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted">Switch Church</DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-church-border" />
+                <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted">Log out</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      )}
       
       <div className="absolute bottom-4 left-0 right-0 flex justify-center">
         <button
