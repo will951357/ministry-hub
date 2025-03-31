@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,16 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Church management theme colors
+				church: {
+					primary: '#4F86C6', // Peaceful blue
+					secondary: '#65B891', // Soft sage green
+					accent: '#6A75CA', // Gentle purple
+					muted: '#F1F5F9', // Light gray-blue
+					warm: '#F9C784', // Warm gold
+					danger: '#E76F51', // Soft coral
+					"background-light": '#F8FAFC', // Very light blue-gray for backgrounds
 				}
 			},
 			borderRadius: {
