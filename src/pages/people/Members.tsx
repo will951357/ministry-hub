@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Filter, Plus, Search, Pencil, Trash2 } from "lucide-react";
+import { Filter, Plus, Search, Pencil, Trash2, Bell, Download } from "lucide-react";
 import { 
   Popover,
   PopoverContent, 
@@ -18,6 +18,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Members() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -26,6 +28,9 @@ export default function Members() {
     department: "all",
     joinDate: "all"
   });
+  const [showNotificationDialog, setShowNotificationDialog] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const { toast } = useToast();
 
   // Mock data - in a real app this would come from an API
   const memberStats = {
@@ -87,6 +92,40 @@ export default function Members() {
     console.log(`Edit member with ID: ${id}`);
   };
 
+  const handleSendNotification = () => {
+    // In a real app, this would send the notification to members via an API
+    console.log(`Sending notification: ${notificationMessage}`);
+    toast({
+      title: "Notification Sent",
+      description: `Successfully sent notification to all members.`,
+    });
+    setShowNotificationDialog(false);
+    setNotificationMessage("");
+  };
+
+  const handleDownloadMemberList = () => {
+    // In a real app, this would generate a CSV from actual data
+    const csvContent = [
+      ["Name", "Email", "Phone"],
+      ...members.map(member => [member.name, member.email, member.phone])
+    ].map(row => row.join(",")).join("\n");
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'member_list.csv');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    toast({
+      title: "Download Started",
+      description: "Member list is being downloaded as a CSV file.",
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -120,8 +159,8 @@ export default function Members() {
         </div>
       </Card>
 
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
+      <div className="flex flex-col sm:flex-row gap-4 flex-wrap items-center justify-between">
+        <div className="relative flex-1 min-w-[250px]">
           <Search className="absolute left-3 top-3 h-4 w-4 text-church-secondary" />
           <Input
             placeholder="Search members..."
@@ -130,75 +169,87 @@ export default function Members() {
             className="pl-10"
           />
         </div>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className="flex items-center gap-2">
-              <Filter className="h-4 w-4" />
-              <span>Filters</span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80">
-            <div className="space-y-4">
-              <h3 className="font-medium text-church-primary">Filter Members</h3>
-              
-              <div className="space-y-2">
-                <label className="text-sm text-church-secondary">Status</label>
-                <select 
-                  className="w-full rounded-md border border-church-border p-2 text-church-primary"
-                  value={filters.status}
-                  onChange={(e) => setFilters({...filters, status: e.target.value})}
-                >
-                  <option value="all">All</option>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="pending">Pending</option>
-                </select>
-              </div>
+        <div className="flex gap-2 flex-wrap">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-2">
+                <Filter className="h-4 w-4" />
+                <span>Filters</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+              <div className="space-y-4">
+                <h3 className="font-medium text-church-primary">Filter Members</h3>
+                
+                <div className="space-y-2">
+                  <label className="text-sm text-church-secondary">Status</label>
+                  <select 
+                    className="w-full rounded-md border border-church-border p-2 text-church-primary"
+                    value={filters.status}
+                    onChange={(e) => setFilters({...filters, status: e.target.value})}
+                  >
+                    <option value="all">All</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="pending">Pending</option>
+                  </select>
+                </div>
 
-              <div className="space-y-2">
-                <label className="text-sm text-church-secondary">Department</label>
-                <select 
-                  className="w-full rounded-md border border-church-border p-2 text-church-primary"
-                  value={filters.department}
-                  onChange={(e) => setFilters({...filters, department: e.target.value})}
-                >
-                  <option value="all">All</option>
-                  <option value="worship">Worship</option>
-                  <option value="children">Children</option>
-                  <option value="youth">Youth</option>
-                  <option value="hospitality">Hospitality</option>
-                </select>
-              </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-church-secondary">Department</label>
+                  <select 
+                    className="w-full rounded-md border border-church-border p-2 text-church-primary"
+                    value={filters.department}
+                    onChange={(e) => setFilters({...filters, department: e.target.value})}
+                  >
+                    <option value="all">All</option>
+                    <option value="worship">Worship</option>
+                    <option value="children">Children</option>
+                    <option value="youth">Youth</option>
+                    <option value="hospitality">Hospitality</option>
+                  </select>
+                </div>
 
-              <div className="space-y-2">
-                <label className="text-sm text-church-secondary">Joined Date</label>
-                <select 
-                  className="w-full rounded-md border border-church-border p-2 text-church-primary"
-                  value={filters.joinDate}
-                  onChange={(e) => setFilters({...filters, joinDate: e.target.value})}
-                >
-                  <option value="all">All Time</option>
-                  <option value="last30">Last 30 Days</option>
-                  <option value="last90">Last 90 Days</option>
-                  <option value="lastyear">Last Year</option>
-                </select>
-              </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-church-secondary">Joined Date</label>
+                  <select 
+                    className="w-full rounded-md border border-church-border p-2 text-church-primary"
+                    value={filters.joinDate}
+                    onChange={(e) => setFilters({...filters, joinDate: e.target.value})}
+                  >
+                    <option value="all">All Time</option>
+                    <option value="last30">Last 30 Days</option>
+                    <option value="last90">Last 90 Days</option>
+                    <option value="lastyear">Last Year</option>
+                  </select>
+                </div>
 
-              <div className="flex justify-between">
-                <Button variant="outline" onClick={() => setFilters({
-                  status: "all",
-                  department: "all",
-                  joinDate: "all"
-                })}>
-                  Reset
-                </Button>
-                <Button className="bg-church-primary hover:bg-church-accent text-white">
-                  Apply Filters
-                </Button>
+                <div className="flex justify-between">
+                  <Button variant="outline" onClick={() => setFilters({
+                    status: "all",
+                    department: "all",
+                    joinDate: "all"
+                  })}>
+                    Reset
+                  </Button>
+                  <Button className="bg-church-primary hover:bg-church-accent text-white">
+                    Apply Filters
+                  </Button>
+                </div>
               </div>
-            </div>
-          </PopoverContent>
-        </Popover>
+            </PopoverContent>
+          </Popover>
+          
+          <Button variant="outline" onClick={() => setShowNotificationDialog(true)} className="flex items-center gap-2">
+            <Bell className="h-4 w-4" />
+            <span>Send Notification</span>
+          </Button>
+          
+          <Button variant="outline" onClick={handleDownloadMemberList} className="flex items-center gap-2">
+            <Download className="h-4 w-4" />
+            <span>Download List</span>
+          </Button>
+        </div>
       </div>
 
       {/* Member list table */}
@@ -255,6 +306,34 @@ export default function Members() {
           </Table>
         </div>
       </Card>
+
+      {/* Send Notification Dialog */}
+      <Dialog open={showNotificationDialog} onOpenChange={setShowNotificationDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Send Push Notification</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <label className="text-sm text-church-secondary block mb-2">Notification Message</label>
+            <textarea 
+              className="w-full rounded-md border border-church-border p-2 text-church-primary h-32" 
+              placeholder="Enter notification message..."
+              value={notificationMessage}
+              onChange={(e) => setNotificationMessage(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowNotificationDialog(false)}>Cancel</Button>
+            <Button 
+              onClick={handleSendNotification} 
+              className="bg-church-primary hover:bg-church-accent text-white"
+              disabled={!notificationMessage.trim()}
+            >
+              Send Notification
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
