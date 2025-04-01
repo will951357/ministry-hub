@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Filter, Plus, Search, Pencil, Trash2, Bell, Download } from "lucide-react";
+import { Filter, Plus, Search, Pencil, Trash2, Bell, Download, Calendar, Phone, Mail, User, Camera } from "lucide-react";
 import { 
   Popover,
   PopoverContent, 
@@ -20,6 +20,28 @@ import {
 } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { format } from "date-fns";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Calendar } from "@/components/ui/calendar";
+import { NewMemberForm } from "@/components/members/NewMemberForm";
 
 export default function Members() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,6 +52,7 @@ export default function Members() {
   });
   const [showNotificationDialog, setShowNotificationDialog] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
+  const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
   const { toast } = useToast();
 
   // Mock data - in a real app this would come from an API
@@ -151,7 +174,10 @@ export default function Members() {
             </div>
           </div>
           <div className="mt-4 md:mt-0">
-            <Button className="bg-church-primary hover:bg-church-accent text-white">
+            <Button 
+              className="bg-church-primary hover:bg-church-accent text-white"
+              onClick={() => setShowAddMemberDialog(true)}
+            >
               <Plus className="mr-2 h-4 w-4" />
               Add a new member
             </Button>
@@ -332,6 +358,22 @@ export default function Members() {
               Send Notification
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add New Member Dialog */}
+      <Dialog open={showAddMemberDialog} onOpenChange={setShowAddMemberDialog}>
+        <DialogContent className="sm:max-w-[700px]">
+          <DialogHeader>
+            <DialogTitle>Add New Member</DialogTitle>
+          </DialogHeader>
+          <NewMemberForm onSuccess={() => {
+            setShowAddMemberDialog(false);
+            toast({
+              title: "Member Added",
+              description: "The new member has been successfully added.",
+            });
+          }} />
         </DialogContent>
       </Dialog>
     </div>
