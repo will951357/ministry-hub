@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Filter, Plus, Search, Pencil, Trash2, Bell, Download, Calendar, Phone, Mail, User, Camera } from "lucide-react";
+import { Filter, Plus, Search, Pencil, Trash2, Bell, Download, Calendar as CalendarIcon, Phone, Mail, User, Camera } from "lucide-react";
 import { 
   Popover,
   PopoverContent, 
