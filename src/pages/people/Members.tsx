@@ -3,12 +3,21 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Filter, Plus, Search } from "lucide-react";
+import { Filter, Plus, Search, Pencil, Trash2 } from "lucide-react";
 import { 
   Popover,
   PopoverContent, 
   PopoverTrigger 
 } from "@/components/ui/popover";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export default function Members() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -22,6 +31,60 @@ export default function Members() {
   const memberStats = {
     total: 247,
     capacity: 500
+  };
+
+  // Mock members data
+  const members = [
+    {
+      id: 1,
+      name: "John Smith",
+      email: "john.smith@example.com",
+      phone: "(555) 123-4567",
+      avatar: "JS",
+      image: "",
+    },
+    {
+      id: 2,
+      name: "Maria Garcia",
+      email: "maria.garcia@example.com",
+      phone: "(555) 987-6543",
+      avatar: "MG",
+      image: "",
+    },
+    {
+      id: 3,
+      name: "Robert Johnson",
+      email: "robert.j@example.com",
+      phone: "(555) 234-5678",
+      avatar: "RJ",
+      image: "",
+    },
+    {
+      id: 4,
+      name: "Lisa Wang",
+      email: "lisa.wang@example.com",
+      phone: "(555) 456-7890",
+      avatar: "LW",
+      image: "",
+    },
+    {
+      id: 5,
+      name: "David Rodriguez",
+      email: "david.r@example.com",
+      phone: "(555) 567-8901",
+      avatar: "DR",
+      image: "",
+    },
+  ];
+
+  const handleDeleteMember = (id: number) => {
+    // In a real app, this would call an API to delete the member
+    console.log(`Delete member with ID: ${id}`);
+  };
+
+  const handleEditMember = (id: number) => {
+    // In a real app, this would open an edit form or navigate to an edit page
+    console.log(`Edit member with ID: ${id}`);
   };
 
   return (
@@ -138,11 +201,59 @@ export default function Members() {
         </Popover>
       </div>
 
-      {/* Member list table placeholder */}
-      <Card className="p-6 bg-white border-church-border">
-        <p className="text-church-secondary text-center py-10">
-          Member list will be displayed here.
-        </p>
+      {/* Member list table */}
+      <Card className="bg-white border-church-border">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Member</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Phone</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {members.map((member) => (
+                <TableRow key={member.id}>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        <AvatarImage src={member.image} alt={member.name} />
+                        <AvatarFallback>{member.avatar}</AvatarFallback>
+                      </Avatar>
+                      <span>{member.name}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>{member.email}</TableCell>
+                  <TableCell>{member.phone}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleEditMember(member.id)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <span className="sr-only">Edit member</span>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleDeleteMember(member.id)}
+                        className="h-8 w-8 p-0 hover:text-red-500"
+                      >
+                        <span className="sr-only">Delete member</span>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </Card>
     </div>
   );
