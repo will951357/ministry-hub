@@ -67,9 +67,7 @@ type MemberFormProps = {
 };
 
 export function NewMemberForm({ onSuccess, initialData, isEditing = false }: MemberFormProps) {
-  const [photoPreview, setPhotoPreview] = useState<string | null>(
-    initialData?.photo as string || null
-  );
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   
   // Initialize the form
   const form = useForm<MemberFormValues>({
