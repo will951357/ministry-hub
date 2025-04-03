@@ -17,13 +17,50 @@ import {
   Calendar, 
   UserPlus, 
   AtSign, 
-  UserCheck 
+  UserCheck,
+  Smartphone,
+  Building
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+// Type for visitor
+type VisitMethod = "app" | "in-person";
+
+type Visitor = {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  lastVisit: string;
+  visits: number;
+  cellGroup: string;
+  visitMethod: VisitMethod;
+};
 
 // Mock data - in a real app, this would come from an API
-const mockVisitors = [
+const mockVisitors: Visitor[] = [
   {
     id: "1",
     name: "Sarah Johnson",
@@ -31,7 +68,8 @@ const mockVisitors = [
     email: "sarah.j@example.com",
     lastVisit: "2025-03-25",
     visits: 3,
-    cellGroup: "North Side"
+    cellGroup: "North Side",
+    visitMethod: "in-person"
   },
   {
     id: "2",
@@ -40,7 +78,8 @@ const mockVisitors = [
     email: "mchen@example.com",
     lastVisit: "2025-04-01",
     visits: 1,
-    cellGroup: "Youth Group"
+    cellGroup: "Youth Group",
+    visitMethod: "app"
   },
   {
     id: "3",
@@ -49,7 +88,8 @@ const mockVisitors = [
     email: "emily.r@example.com",
     lastVisit: "2025-03-18",
     visits: 2,
-    cellGroup: "Downtown"
+    cellGroup: "Downtown",
+    visitMethod: "in-person"
   },
   {
     id: "4",
@@ -58,7 +98,8 @@ const mockVisitors = [
     email: "d.washington@example.com",
     lastVisit: "2025-03-30",
     visits: 4,
-    cellGroup: "West Side"
+    cellGroup: "West Side",
+    visitMethod: "app"
   },
   {
     id: "5",
@@ -67,7 +108,8 @@ const mockVisitors = [
     email: "aisha.p@example.com",
     lastVisit: "2025-04-02",
     visits: 1,
-    cellGroup: "College Ministry"
+    cellGroup: "College Ministry",
+    visitMethod: "in-person"
   }
 ];
 
@@ -81,6 +123,19 @@ const cellGroups = [
   "College Ministry"
 ];
 
+// Schema for new visitor form
+const visitorSchema = z.object({
+  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  phone: z.string().min(5, { message: "Please enter a valid phone number." }),
+  email: z.string().email({ message: "Please enter a valid email address." }),
+  cellGroup: z.string().min(1, { message: "Please select a cell group." }),
+  visitMethod: z.enum(["app", "in-person"], { 
+    required_error: "Please select how the visitor attended." 
+  })
+});
+
+type VisitorFormValues = z.infer<typeof visitorSchema>;
+
 export default function Visitors() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
@@ -88,6 +143,20 @@ export default function Visitors() {
   const [selectedCellGroup, setSelectedCellGroup] = useState("All Groups");
   const [visitsFilter, setVisitsFilter] = useState<number | null>(null);
   const [selectedVisitors, setSelectedVisitors] = useState<string[]>([]);
+  const [visitors, setVisitors] = useState<Visitor[]>(mockVisitors);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // Form for adding new visitors
+  const form = useForm<VisitorFormValues>({
+    resolver: zodResolver(visitorSchema),
+    defaultValues: {
+      name: "",
+      phone: "",
+      email: "",
+      cellGroup: "",
+      visitMethod: "in-person"
+    },
+  });
 
   // Calculate metrics
   const visitorsLast30Days = 23; // Mock data
@@ -95,7 +164,7 @@ export default function Visitors() {
   const variationPercentage = ((visitorsLast30Days - previousPeriodVisitors) / previousPeriodVisitors) * 100;
   
   // Filter visitors based on search term and filters
-  const filteredVisitors = mockVisitors.filter(visitor => {
+  const filteredVisitors = visitors.filter(visitor => {
     const matchesSearch = 
       visitor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       visitor.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -134,7 +203,7 @@ export default function Visitors() {
       return;
     }
 
-    const selectedNames = mockVisitors
+    const selectedNames = visitors
       .filter(v => selectedVisitors.includes(v.id))
       .map(v => v.name)
       .join(", ");
@@ -142,6 +211,28 @@ export default function Visitors() {
     toast({
       title: "Email preparation started",
       description: `Preparing to send email to ${selectedVisitors.length} visitor(s): ${selectedNames}`,
+    });
+  };
+
+  const handleAddVisitor = (data: VisitorFormValues) => {
+    const newVisitor: Visitor = {
+      id: (visitors.length + 1).toString(),
+      name: data.name,
+      phone: data.phone,
+      email: data.email,
+      cellGroup: data.cellGroup,
+      visitMethod: data.visitMethod,
+      lastVisit: new Date().toISOString().split('T')[0],
+      visits: 1
+    };
+
+    setVisitors(prev => [...prev, newVisitor]);
+    form.reset();
+    setIsDialogOpen(false);
+
+    toast({
+      title: "Visitor added",
+      description: `${data.name} has been added as a visitor.`,
     });
   };
 
@@ -239,6 +330,136 @@ export default function Visitors() {
             <Mail size={16} className="mr-2" />
             Email Selected
           </Button>
+          
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="default">
+                <UserPlus size={16} className="mr-2" />
+                Add Visitor
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Add New Visitor</DialogTitle>
+                <DialogDescription>
+                  Enter the details of the new visitor. All fields are required.
+                </DialogDescription>
+              </DialogHeader>
+              
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleAddVisitor)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="John Doe" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone Number</FormLabel>
+                        <FormControl>
+                          <Input placeholder="(555) 123-4567" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email Address</FormLabel>
+                        <FormControl>
+                          <Input placeholder="john.doe@example.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="cellGroup"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Cell Group</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a cell group" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {cellGroups.filter(group => group !== "All Groups").map((group) => (
+                              <SelectItem key={group} value={group}>
+                                {group}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="visitMethod"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Visit Method</FormLabel>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="How did they attend?" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="in-person">
+                              <div className="flex items-center">
+                                <Building size={16} className="mr-2" />
+                                In Person
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="app">
+                              <div className="flex items-center">
+                                <Smartphone size={16} className="mr-2" />
+                                Via App
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <DialogFooter className="mt-6">
+                    <DialogClose asChild>
+                      <Button type="button" variant="outline">Cancel</Button>
+                    </DialogClose>
+                    <Button type="submit">Add Visitor</Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -263,12 +484,13 @@ export default function Visitors() {
                 <TableHead>Last Visit</TableHead>
                 <TableHead className="hidden lg:table-cell">Cell Group</TableHead>
                 <TableHead className="hidden lg:table-cell">Visits</TableHead>
+                <TableHead>Visit Method</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredVisitors.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                  <TableCell colSpan={8} className="text-center py-8 text-gray-500">
                     No visitors found matching your search criteria.
                   </TableCell>
                 </TableRow>
@@ -305,6 +527,19 @@ export default function Visitors() {
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
                       <Badge>{visitor.visits}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      {visitor.visitMethod === "app" ? (
+                        <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200">
+                          <Smartphone size={14} className="mr-1" />
+                          App
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">
+                          <Building size={14} className="mr-1" />
+                          In Person
+                        </Badge>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))
