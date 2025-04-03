@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Index, NotFound } from "./pages";
 import People from "./pages/People";
 import Members from "./pages/people/Members";
+import EditMember from "./pages/people/EditMember";
 import Visitors from "./pages/people/Visitors";
 import Journeys from "./pages/people/Journeys";
 import Appointments from "./pages/people/Appointments";
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/people" element={<People />}>
             <Route index element={<Members />} />
             <Route path="members" element={<Members />} />
+            <Route path="members/:id" element={<EditMember />} />
             <Route path="visitors" element={<Visitors />} />
             <Route path="journeys" element={<Journeys />} />
             <Route path="appointments" element={<Appointments />} />

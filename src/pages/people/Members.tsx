@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,32 +19,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { format } from "date-fns";
 import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar } from "@/components/ui/calendar";
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 import { NewMemberForm } from "@/components/members/NewMemberForm";
 
 export default function Members() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
     status: "all",
@@ -53,6 +41,8 @@ export default function Members() {
   const [showNotificationDialog, setShowNotificationDialog] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState<number | null>(null);
   const { toast } = useToast();
 
   // Mock data - in a real app this would come from an API
@@ -106,13 +96,25 @@ export default function Members() {
   ];
 
   const handleDeleteMember = (id: number) => {
+    setMemberToDelete(id);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDeleteMember = () => {
     // In a real app, this would call an API to delete the member
-    console.log(`Delete member with ID: ${id}`);
+    console.log(`Delete member with ID: ${memberToDelete}`);
+    
+    toast({
+      title: "Member Deleted",
+      description: "The member has been successfully removed.",
+    });
+    
+    setShowDeleteDialog(false);
+    setMemberToDelete(null);
   };
 
   const handleEditMember = (id: number) => {
-    // In a real app, this would open an edit form or navigate to an edit page
-    console.log(`Edit member with ID: ${id}`);
+    navigate(`/people/members/${id}`);
   };
 
   const handleSendNotification = () => {
@@ -356,6 +358,37 @@ export default function Members() {
               disabled={!notificationMessage.trim()}
             >
               Send Notification
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Member Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Member</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this member? This action cannot be undone.
+              <br /><br />
+              Note: Member interactions and donation records will be retained.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setShowDeleteDialog(false);
+                setMemberToDelete(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive"
+              onClick={confirmDeleteMember}
+            >
+              Delete
             </Button>
           </DialogFooter>
         </DialogContent>

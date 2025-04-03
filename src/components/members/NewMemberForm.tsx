@@ -58,15 +58,23 @@ const memberFormSchema = z.object({
   baptismDate: z.date().optional(),
 });
 
-type MemberFormValues = z.infer<typeof memberFormSchema>;
+export type MemberFormValues = z.infer<typeof memberFormSchema>;
 
-export function NewMemberForm({ onSuccess }: { onSuccess: () => void }) {
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+type MemberFormProps = {
+  onSuccess: () => void;
+  initialData?: MemberFormValues;
+  isEditing?: boolean;
+};
+
+export function NewMemberForm({ onSuccess, initialData, isEditing = false }: MemberFormProps) {
+  const [photoPreview, setPhotoPreview] = useState<string | null>(
+    initialData?.photo as string || null
+  );
   
   // Initialize the form
   const form = useForm<MemberFormValues>({
     resolver: zodResolver(memberFormSchema),
-    defaultValues: {
+    defaultValues: initialData || {
       fullName: "",
       email: "",
       phone1: "",
@@ -104,95 +112,39 @@ export function NewMemberForm({ onSuccess }: { onSuccess: () => void }) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <Tabs defaultValue="contact" className="w-full">
+        <Tabs defaultValue="personal" className="w-full">
           <TabsList className="grid grid-cols-3 mb-4">
-            <TabsTrigger value="contact">Contact</TabsTrigger>
             <TabsTrigger value="personal">Personal Data</TabsTrigger>
+            <TabsTrigger value="contact">Contact</TabsTrigger>
             <TabsTrigger value="ecclesiastical">Ecclesiastical Data</TabsTrigger>
           </TabsList>
 
-          {/* Contact Tab */}
-          <TabsContent value="contact" className="space-y-4">
-            <div className="space-y-4">
-              <div className="flex items-center justify-center mb-6">
-                <div className="relative">
-                  <Avatar className="h-24 w-24">
-                    {photoPreview ? (
-                      <AvatarImage src={photoPreview} alt="Preview" />
-                    ) : (
-                      <AvatarFallback>
-                        <User className="h-12 w-12" />
-                      </AvatarFallback>
-                    )}
-                  </Avatar>
-                  <label htmlFor="photo-upload" className="absolute bottom-0 right-0 bg-primary rounded-full p-1.5 cursor-pointer">
-                    <Camera className="h-4 w-4 text-white" />
-                    <input
-                      type="file"
-                      id="photo-upload"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handlePhotoChange}
-                    />
-                  </label>
-                </div>
-              </div>
-
-              <FormField
-                control={form.control}
-                name="phone1"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone 1</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Phone className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input className="pl-8" placeholder="Your primary phone number" {...field} />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="phone2"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone 2 (Optional)</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Phone className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input className="pl-8" placeholder="Your secondary phone number" {...field} />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Mail className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input className="pl-8" placeholder="Your email address" {...field} />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </TabsContent>
-
-          {/* Personal Data Tab */}
+          {/* Personal Data Tab - Now first */}
           <TabsContent value="personal" className="space-y-4">
+            <div className="flex items-center justify-center mb-6">
+              <div className="relative">
+                <Avatar className="h-24 w-24">
+                  {photoPreview ? (
+                    <AvatarImage src={photoPreview} alt="Preview" />
+                  ) : (
+                    <AvatarFallback>
+                      <User className="h-12 w-12" />
+                    </AvatarFallback>
+                  )}
+                </Avatar>
+                <label htmlFor="photo-upload" className="absolute bottom-0 right-0 bg-primary rounded-full p-1.5 cursor-pointer">
+                  <Camera className="h-4 w-4 text-white" />
+                  <input
+                    type="file"
+                    id="photo-upload"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handlePhotoChange}
+                  />
+                </label>
+              </div>
+            </div>
+
             <FormField
               control={form.control}
               name="fullName"
@@ -325,7 +277,61 @@ export function NewMemberForm({ onSuccess }: { onSuccess: () => void }) {
             </div>
           </TabsContent>
 
-          {/* Ecclesiastical Data Tab */}
+          {/* Contact Tab - Now second */}
+          <TabsContent value="contact" className="space-y-4">
+            <FormField
+              control={form.control}
+              name="phone1"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone 1</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Phone className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input className="pl-8" placeholder="Your primary phone number" {...field} />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="phone2"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone 2 (Optional)</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Phone className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input className="pl-8" placeholder="Your secondary phone number" {...field} />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Mail className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input className="pl-8" placeholder="Your email address" {...field} />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </TabsContent>
+
+          {/* Ecclesiastical Data Tab - Now third */}
           <TabsContent value="ecclesiastical" className="space-y-4">
             <FormField
               control={form.control}
@@ -497,7 +503,7 @@ export function NewMemberForm({ onSuccess }: { onSuccess: () => void }) {
 
         <div className="flex justify-end space-x-2">
           <Button type="submit" className="bg-church-primary hover:bg-church-accent text-white">
-            Add Member
+            {isEditing ? "Update Member" : "Add Member"}
           </Button>
         </div>
       </form>
