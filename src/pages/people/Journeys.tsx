@@ -11,7 +11,9 @@ import {
   Plus, 
   Award, 
   List, 
-  Trash2 
+  Trash2,
+  ChevronRight,
+  ArrowLeft
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,6 +24,40 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+
+// Sample data for journey participants
+const sampleParticipants = [
+  { id: 1, name: "John Smith", avatar: "/placeholder.svg" },
+  { id: 2, name: "Maria Garcia", avatar: "/placeholder.svg" },
+  { id: 3, name: "David Lee", avatar: "/placeholder.svg" },
+  { id: 4, name: "Sarah Johnson", avatar: "/placeholder.svg" },
+  { id: 5, name: "Michael Brown", avatar: "/placeholder.svg" },
+  { id: 6, name: "Lisa Chen", avatar: "/placeholder.svg" },
+  { id: 7, name: "James Wilson", avatar: "/placeholder.svg" },
+  { id: 8, name: "Emily Davis", avatar: "/placeholder.svg" },
+];
+
+// Sample data for step completions
+const generateStepCompletions = (stepId: string) => {
+  // For demo purposes, randomly select some participants who completed the step
+  const completedCount = Math.floor(Math.random() * 6) + 1; // 1 to 6 people
+  const participants = [...sampleParticipants]
+    .sort(() => 0.5 - Math.random())
+    .slice(0, completedCount);
+  
+  return participants.map(participant => ({
+    participantId: participant.id,
+    participantName: participant.name,
+    participantAvatar: participant.avatar,
+    completedDate: new Date(
+      2023, 
+      Math.floor(Math.random() * 12), 
+      Math.floor(Math.random() * 28) + 1
+    ),
+  }));
+};
 
 // Sample data for journeys - in a real app this would come from an API
 const sampleJourneys = [
@@ -33,6 +69,35 @@ const sampleJourneys = [
     status: "active",
     enrolledCount: 24,
     completedCount: 8,
+    steps: [
+      {
+        id: "step-1-1",
+        name: "Complete Foundations Course",
+        points: 50,
+        subSteps: [
+          { id: "sub-1-1", name: "Attend all 4 sessions" },
+          { id: "sub-1-2", name: "Complete workbook" }
+        ],
+        completions: generateStepCompletions("step-1-1")
+      },
+      {
+        id: "step-1-2",
+        name: "Daily Bible Reading (30 days)",
+        points: 100,
+        subSteps: [
+          { id: "sub-2-1", name: "Read Old Testament selections" },
+          { id: "sub-2-2", name: "Read New Testament selections" }
+        ],
+        completions: generateStepCompletions("step-1-2")
+      },
+      {
+        id: "step-1-3",
+        name: "Join a Small Group",
+        points: 75,
+        subSteps: [],
+        completions: generateStepCompletions("step-1-3")
+      }
+    ]
   },
   {
     id: 2,
@@ -42,6 +107,22 @@ const sampleJourneys = [
     status: "active",
     enrolledCount: 12,
     completedCount: 5,
+    steps: [
+      {
+        id: "step-2-1",
+        name: "Study the Meaning of Baptism",
+        points: 30,
+        subSteps: [],
+        completions: generateStepCompletions("step-2-1")
+      },
+      {
+        id: "step-2-2",
+        name: "Write Personal Testimony",
+        points: 50,
+        subSteps: [],
+        completions: generateStepCompletions("step-2-2")
+      }
+    ]
   },
   {
     id: 3,
@@ -51,6 +132,29 @@ const sampleJourneys = [
     status: "completed",
     enrolledCount: 18,
     completedCount: 15,
+    steps: [
+      {
+        id: "step-3-1",
+        name: "Leadership Training Sessions",
+        points: 200,
+        subSteps: [],
+        completions: generateStepCompletions("step-3-1")
+      },
+      {
+        id: "step-3-2",
+        name: "Serving in Ministry (weekly for 3 months)",
+        points: 300,
+        subSteps: [],
+        completions: generateStepCompletions("step-3-2")
+      },
+      {
+        id: "step-3-3",
+        name: "Complete Leadership Book Reading (3 books)",
+        points: 150,
+        subSteps: [],
+        completions: generateStepCompletions("step-3-3")
+      }
+    ]
   },
   {
     id: 4,
@@ -60,6 +164,22 @@ const sampleJourneys = [
     status: "active",
     enrolledCount: 14,
     completedCount: 0,
+    steps: [
+      {
+        id: "step-4-1",
+        name: "Attend Marriage Workshop Sessions",
+        points: 100,
+        subSteps: [],
+        completions: generateStepCompletions("step-4-1")
+      },
+      {
+        id: "step-4-2",
+        name: "Complete Marriage Devotional Together",
+        points: 75,
+        subSteps: [],
+        completions: generateStepCompletions("step-4-2")
+      }
+    ]
   },
   {
     id: 5,
@@ -69,6 +189,22 @@ const sampleJourneys = [
     status: "active",
     enrolledCount: 32,
     completedCount: 18,
+    steps: [
+      {
+        id: "step-5-1",
+        name: "Daily Prayer Challenge (21 days)",
+        points: 100,
+        subSteps: [],
+        completions: generateStepCompletions("step-5-1")
+      },
+      {
+        id: "step-5-2",
+        name: "Join Prayer Team (3 months)",
+        points: 250,
+        subSteps: [],
+        completions: generateStepCompletions("step-5-2")
+      }
+    ]
   },
 ];
 
@@ -78,11 +214,19 @@ type SubStep = {
   name: string;
 };
 
+type Completion = {
+  participantId: number;
+  participantName: string;
+  participantAvatar: string;
+  completedDate: Date;
+};
+
 type Step = {
   id: string;
   name: string;
   points: number;
   subSteps: SubStep[];
+  completions?: Completion[];
 };
 
 type Journey = {
@@ -99,6 +243,7 @@ type Journey = {
 export default function Journeys() {
   const [journeys, setJourneys] = useState<Journey[]>(sampleJourneys);
   const [isAddJourneyOpen, setIsAddJourneyOpen] = useState(false);
+  const [selectedJourney, setSelectedJourney] = useState<Journey | null>(null);
   const [newJourney, setNewJourney] = useState<{
     name: string;
     description: string;
@@ -225,7 +370,10 @@ export default function Journeys() {
       status: "active",
       enrolledCount: 0,
       completedCount: 0,
-      steps: newJourney.steps
+      steps: newJourney.steps.map(step => ({
+        ...step,
+        completions: [] // Initialize empty completions
+      }))
     };
 
     // Add to journeys list
@@ -243,6 +391,11 @@ export default function Journeys() {
       title: "Success",
       description: "Journey created successfully",
     });
+  };
+
+  // Handle journey selection for detailed view
+  const handleJourneyClick = (journey: Journey) => {
+    setSelectedJourney(journey);
   };
 
   return (
@@ -313,7 +466,11 @@ export default function Journeys() {
             </TableHeader>
             <TableBody>
               {journeys.map((journey) => (
-                <TableRow key={journey.id} className="cursor-pointer hover:bg-church-muted">
+                <TableRow 
+                  key={journey.id} 
+                  className="cursor-pointer hover:bg-church-muted"
+                  onClick={() => handleJourneyClick(journey)}
+                >
                   <TableCell>
                     <div>
                       <div className="font-medium">{journey.name}</div>
@@ -355,6 +512,135 @@ export default function Journeys() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Journey Details Sheet */}
+      <Sheet open={!!selectedJourney} onOpenChange={(open) => !open && setSelectedJourney(null)}>
+        <SheetContent className="sm:max-w-xl overflow-y-auto">
+          <SheetHeader className="pb-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setSelectedJourney(null)}
+              className="absolute left-4 top-4 p-0 w-8 h-8"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <SheetTitle className="text-xl pt-6">
+              {selectedJourney?.name}
+            </SheetTitle>
+            <SheetDescription>
+              {selectedJourney?.description}
+            </SheetDescription>
+            <div className="flex gap-2 mt-2">
+              <Badge 
+                variant={selectedJourney?.status === "active" ? "default" : "secondary"}
+                className={selectedJourney?.status === "active" 
+                  ? "bg-green-500 hover:bg-green-600" 
+                  : "bg-gray-500 hover:bg-gray-600"
+                }
+              >
+                {selectedJourney?.status === "active" ? "Active" : "Completed"}
+              </Badge>
+              <Badge variant="outline" className="flex gap-1">
+                <Calendar className="h-3 w-3" />
+                {selectedJourney?.createdAt ? format(selectedJourney.createdAt, "MMM d, yyyy") : ""}
+              </Badge>
+            </div>
+          </SheetHeader>
+
+          <div className="py-6">
+            <div className="mb-4 flex justify-between">
+              <h3 className="text-lg font-medium">Journey Steps</h3>
+              <div className="flex items-center text-sm text-muted-foreground">
+                <Users className="mr-1 h-3 w-3" />
+                <span>{selectedJourney?.enrolledCount} enrolled</span>
+                <span className="mx-1">•</span>
+                <CheckCircle className="mr-1 h-3 w-3" />
+                <span>{selectedJourney?.completedCount} completed</span>
+              </div>
+            </div>
+
+            <Accordion type="single" collapsible className="w-full">
+              {selectedJourney?.steps?.map((step, index) => (
+                <AccordionItem value={step.id} key={step.id}>
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex flex-1 items-center justify-between pr-4">
+                      <div className="flex items-center">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-church-accent/10 text-church-accent mr-2">
+                          {index + 1}
+                        </div>
+                        <span>{step.name}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Badge className="mr-2 bg-church-accent/80">
+                          <Award className="mr-1 h-3 w-3" />
+                          {step.points} pts
+                        </Badge>
+                        <Badge variant="outline">
+                          <Users className="mr-1 h-3 w-3" />
+                          {step.completions?.length || 0}
+                        </Badge>
+                      </div>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="pl-10 space-y-3">
+                      {/* Sub-steps if any */}
+                      {step.subSteps.length > 0 && (
+                        <div className="mb-3">
+                          <h4 className="text-sm font-medium mb-2">Sub-steps:</h4>
+                          <ul className="space-y-1 text-sm ml-2">
+                            {step.subSteps.map(subStep => (
+                              <li key={subStep.id} className="flex items-center">
+                                <ChevronRight className="h-3 w-3 mr-1 text-church-accent" />
+                                {subStep.name}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Completions */}
+                      <div>
+                        <h4 className="text-sm font-medium mb-2">Completed by:</h4>
+                        {step.completions && step.completions.length > 0 ? (
+                          <ul className="space-y-2">
+                            {step.completions.map(completion => (
+                              <li key={completion.participantId} className="flex items-center justify-between bg-gray-50 p-2 rounded text-sm">
+                                <div className="flex items-center">
+                                  <div className="h-6 w-6 rounded-full bg-gray-200 mr-2 overflow-hidden">
+                                    <img 
+                                      src={completion.participantAvatar} 
+                                      alt={completion.participantName}
+                                      className="h-full w-full object-cover"
+                                    />
+                                  </div>
+                                  <span>{completion.participantName}</span>
+                                </div>
+                                <span className="text-xs text-gray-500">
+                                  {format(completion.completedDate, "MMM d, yyyy")}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-sm text-gray-500 italic">No completions yet</p>
+                        )}
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+
+            {selectedJourney?.steps?.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                No steps defined for this journey.
+              </div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Add Journey Dialog */}
       <Dialog open={isAddJourneyOpen} onOpenChange={setIsAddJourneyOpen}>
