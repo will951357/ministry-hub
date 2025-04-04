@@ -3,6 +3,7 @@ import { useState } from "react";
 import { format, addDays, isSameDay } from "date-fns";
 import { Calendar as CalendarIcon, Filter, Plus } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
+import { DayProps } from "react-day-picker";
 import { 
   Card, 
   CardContent, 
@@ -105,22 +106,22 @@ export default function Appointments() {
   };
   
   // Custom day render for calendar with hover info
-  const renderCalendarDay = (props: React.ComponentProps<typeof Calendar>['components']['Day']) => {
-    // Day is part of the props passed to the component
-    if (!props || !props.date) return null;
+  const renderCalendarDay = (day: DayProps) => {
+    const currentDate = day.date;
+    if (!currentDate) return null;
     
-    const dayAppointments = getAppointmentsForDate(props.date);
+    const dayAppointments = getAppointmentsForDate(currentDate);
     const hasAppointments = dayAppointments.length > 0;
     
     if (!hasAppointments) {
-      return <div>{props.date.getDate()}</div>;
+      return <div>{currentDate.getDate()}</div>;
     }
     
     return (
       <HoverCard>
         <HoverCardTrigger asChild>
           <div className="relative flex items-center justify-center">
-            {props.date.getDate()}
+            {currentDate.getDate()}
             <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2">
               <div className="h-1 w-1 rounded-full bg-primary"></div>
             </div>
@@ -128,7 +129,7 @@ export default function Appointments() {
         </HoverCardTrigger>
         <HoverCardContent className="w-80 p-0">
           <div className="p-3">
-            <h4 className="font-semibold">{format(props.date, 'MMMM d, yyyy')}</h4>
+            <h4 className="font-semibold">{format(currentDate, 'MMMM d, yyyy')}</h4>
             <p className="text-xs text-muted-foreground mb-2">
               {dayAppointments.length} appointment{dayAppointments.length !== 1 ? 's' : ''}
             </p>
@@ -186,7 +187,7 @@ export default function Appointments() {
               onSelect={(newDate) => newDate && setDate(newDate)}
               className="rounded-md pointer-events-auto"
               components={{
-                Day: (props) => renderCalendarDay(props)
+                Day: renderCalendarDay
               }}
             />
             
