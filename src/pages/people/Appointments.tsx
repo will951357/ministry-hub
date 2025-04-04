@@ -105,19 +105,22 @@ export default function Appointments() {
   };
   
   // Custom day render for calendar with hover info
-  const renderCalendarDay = (day: Date, cellProps: any) => {
-    const dayAppointments = getAppointmentsForDate(day);
+  const renderCalendarDay = (props: React.ComponentProps<typeof Calendar>['components']['Day']) => {
+    // Day is part of the props passed to the component
+    if (!props || !props.date) return null;
+    
+    const dayAppointments = getAppointmentsForDate(props.date);
     const hasAppointments = dayAppointments.length > 0;
     
     if (!hasAppointments) {
-      return <div>{day.getDate()}</div>;
+      return <div>{props.date.getDate()}</div>;
     }
     
     return (
       <HoverCard>
         <HoverCardTrigger asChild>
           <div className="relative flex items-center justify-center">
-            {day.getDate()}
+            {props.date.getDate()}
             <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2">
               <div className="h-1 w-1 rounded-full bg-primary"></div>
             </div>
@@ -125,7 +128,7 @@ export default function Appointments() {
         </HoverCardTrigger>
         <HoverCardContent className="w-80 p-0">
           <div className="p-3">
-            <h4 className="font-semibold">{format(day, 'MMMM d, yyyy')}</h4>
+            <h4 className="font-semibold">{format(props.date, 'MMMM d, yyyy')}</h4>
             <p className="text-xs text-muted-foreground mb-2">
               {dayAppointments.length} appointment{dayAppointments.length !== 1 ? 's' : ''}
             </p>
@@ -183,7 +186,7 @@ export default function Appointments() {
               onSelect={(newDate) => newDate && setDate(newDate)}
               className="rounded-md pointer-events-auto"
               components={{
-                Day: ({ day, ...props }) => renderCalendarDay(day, props)
+                Day: (props) => renderCalendarDay(props)
               }}
             />
             
