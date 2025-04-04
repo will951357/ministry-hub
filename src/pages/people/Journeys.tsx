@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { format } from "date-fns";
 import { 
@@ -13,7 +12,8 @@ import {
   List, 
   Trash2,
   ChevronRight,
-  ArrowLeft
+  ArrowLeft,
+  FileDown
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,6 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
-// Sample data for journey participants
 const sampleParticipants = [
   { id: 1, name: "John Smith", avatar: "/placeholder.svg" },
   { id: 2, name: "Maria Garcia", avatar: "/placeholder.svg" },
@@ -39,10 +38,8 @@ const sampleParticipants = [
   { id: 8, name: "Emily Davis", avatar: "/placeholder.svg" },
 ];
 
-// Sample data for step completions
 const generateStepCompletions = (stepId: string) => {
-  // For demo purposes, randomly select some participants who completed the step
-  const completedCount = Math.floor(Math.random() * 6) + 1; // 1 to 6 people
+  const completedCount = Math.floor(Math.random() * 6) + 1;
   const participants = [...sampleParticipants]
     .sort(() => 0.5 - Math.random())
     .slice(0, completedCount);
@@ -59,7 +56,6 @@ const generateStepCompletions = (stepId: string) => {
   }));
 };
 
-// Sample data for journeys - in a real app this would come from an API
 const sampleJourneys = [
   {
     id: 1,
@@ -208,7 +204,6 @@ const sampleJourneys = [
   },
 ];
 
-// Type definitions for our journey structure
 type SubStep = {
   id: string;
   name: string;
@@ -255,15 +250,12 @@ export default function Journeys() {
   });
   const { toast } = useToast();
 
-  // Calculate metrics
   const activeJourneys = journeys.filter(journey => journey.status === "active").length;
   const totalEnrolled = journeys.reduce((total, journey) => total + journey.enrolledCount, 0);
   const totalCompleted = journeys.reduce((total, journey) => total + journey.completedCount, 0);
 
-  // Function to generate a unique ID for steps and sub-steps
   const generateId = () => Math.random().toString(36).substring(2, 9);
 
-  // Handlers for managing steps
   const addStep = () => {
     setNewJourney(prev => ({
       ...prev,
@@ -287,7 +279,6 @@ export default function Journeys() {
     }));
   };
 
-  // Handlers for managing sub-steps
   const addSubStep = (stepId: string) => {
     setNewJourney(prev => ({
       ...prev,
@@ -329,9 +320,7 @@ export default function Journeys() {
     }));
   };
 
-  // Handle form submission
   const handleSubmit = () => {
-    // Validate the form
     if (!newJourney.name.trim()) {
       toast({
         title: "Error",
@@ -361,7 +350,6 @@ export default function Journeys() {
       }
     }
 
-    // Create new journey
     const newJourneyEntry: Journey = {
       id: Math.max(0, ...journeys.map(j => j.id)) + 1,
       name: newJourney.name,
@@ -372,14 +360,12 @@ export default function Journeys() {
       completedCount: 0,
       steps: newJourney.steps.map(step => ({
         ...step,
-        completions: [] // Initialize empty completions
+        completions: []
       }))
     };
 
-    // Add to journeys list
     setJourneys([...journeys, newJourneyEntry]);
     
-    // Reset form and close dialog
     setNewJourney({
       name: "",
       description: "",
@@ -393,9 +379,64 @@ export default function Journeys() {
     });
   };
 
-  // Handle journey selection for detailed view
   const handleJourneyClick = (journey: Journey) => {
     setSelectedJourney(journey);
+  };
+
+  const generateJourneyExport = (journey: Journey): string => {
+    if (!journey) return '';
+    
+    let content = `Journey: ${journey.name}\n`;
+    content += `Description: ${journey.description}\n`;
+    content += `Created: ${format(journey.createdAt, "MMM d, yyyy")}\n`;
+    content += `Status: ${journey.status}\n`;
+    content += `Participants: ${journey.enrolledCount} enrolled, ${journey.completedCount} completed\n\n`;
+    
+    content += "STEPS:\n";
+    
+    journey.steps?.forEach((step, index) => {
+      content += `\n${index + 1}. ${step.name} (${step.points} points)\n`;
+      
+      if (step.subSteps && step.subSteps.length > 0) {
+        content += "   Sub-steps:\n";
+        step.subSteps.forEach(subStep => {
+          content += `   - ${subStep.name}\n`;
+        });
+      }
+      
+      content += "   Completed by:\n";
+      if (step.completions && step.completions.length > 0) {
+        step.completions.forEach(completion => {
+          content += `   - ${completion.participantName} (${format(completion.completedDate, "MMM d, yyyy")})\n`;
+        });
+      } else {
+        content += "   - No completions yet\n";
+      }
+    });
+    
+    return content;
+  };
+
+  const downloadJourneyData = (journey: Journey) => {
+    if (!journey) return;
+    
+    const content = generateJourneyExport(journey);
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${journey.name.replace(/\s+/g, '_')}_journey.txt`;
+    document.body.appendChild(a);
+    a.click();
+    
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Success",
+      description: "Journey data downloaded successfully",
+    });
   };
 
   return (
@@ -407,7 +448,6 @@ export default function Journeys() {
         </p>
       </div>
 
-      {/* Metrics Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-2">
@@ -440,7 +480,6 @@ export default function Journeys() {
         </Card>
       </div>
 
-      {/* Actions */}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-medium text-church-primary">All Journeys</h2>
         <Button 
@@ -452,7 +491,6 @@ export default function Journeys() {
         </Button>
       </div>
 
-      {/* Journeys List */}
       <Card>
         <CardContent className="p-0">
           <Table>
@@ -513,7 +551,6 @@ export default function Journeys() {
         </CardContent>
       </Card>
 
-      {/* Journey Details Sheet */}
       <Sheet open={!!selectedJourney} onOpenChange={(open) => !open && setSelectedJourney(null)}>
         <SheetContent className="sm:max-w-xl overflow-y-auto">
           <SheetHeader className="pb-2">
@@ -551,12 +588,23 @@ export default function Journeys() {
           <div className="py-6">
             <div className="mb-4 flex justify-between">
               <h3 className="text-lg font-medium">Journey Steps</h3>
-              <div className="flex items-center text-sm text-muted-foreground">
-                <Users className="mr-1 h-3 w-3" />
-                <span>{selectedJourney?.enrolledCount} enrolled</span>
-                <span className="mx-1">•</span>
-                <CheckCircle className="mr-1 h-3 w-3" />
-                <span>{selectedJourney?.completedCount} completed</span>
+              <div className="flex items-center gap-3">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center gap-1"
+                  onClick={() => selectedJourney && downloadJourneyData(selectedJourney)}
+                >
+                  <FileDown className="h-4 w-4" />
+                  <span>Download</span>
+                </Button>
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <Users className="mr-1 h-3 w-3" />
+                  <span>{selectedJourney?.enrolledCount} enrolled</span>
+                  <span className="mx-1">•</span>
+                  <CheckCircle className="mr-1 h-3 w-3" />
+                  <span>{selectedJourney?.completedCount} completed</span>
+                </div>
               </div>
             </div>
 
@@ -585,7 +633,6 @@ export default function Journeys() {
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="pl-10 space-y-3">
-                      {/* Sub-steps if any */}
                       {step.subSteps.length > 0 && (
                         <div className="mb-3">
                           <h4 className="text-sm font-medium mb-2">Sub-steps:</h4>
@@ -600,10 +647,9 @@ export default function Journeys() {
                         </div>
                       )}
 
-                      {/* Completions */}
-                      <div>
-                        <h4 className="text-sm font-medium mb-2">Completed by:</h4>
-                        {step.completions && step.completions.length > 0 ? (
+                      {step.completions && step.completions.length > 0 ? (
+                        <div>
+                          <h4 className="text-sm font-medium mb-2">Completed by:</h4>
                           <ul className="space-y-2">
                             {step.completions.map(completion => (
                               <li key={completion.participantId} className="flex items-center justify-between bg-gray-50 p-2 rounded text-sm">
@@ -623,10 +669,10 @@ export default function Journeys() {
                               </li>
                             ))}
                           </ul>
-                        ) : (
-                          <p className="text-sm text-gray-500 italic">No completions yet</p>
-                        )}
-                      </div>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-500 italic">No completions yet</p>
+                      )}
                     </div>
                   </AccordionContent>
                 </AccordionItem>
@@ -642,7 +688,6 @@ export default function Journeys() {
         </SheetContent>
       </Sheet>
 
-      {/* Add Journey Dialog */}
       <Dialog open={isAddJourneyOpen} onOpenChange={setIsAddJourneyOpen}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
@@ -653,7 +698,6 @@ export default function Journeys() {
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            {/* Journey Details */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Journey Details</h3>
               <div className="space-y-2">
@@ -681,7 +725,6 @@ export default function Journeys() {
               </div>
             </div>
 
-            {/* Steps Section */}
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-medium">Journey Steps</h3>
@@ -712,7 +755,6 @@ export default function Journeys() {
                 </div>
               )}
 
-              {/* Step List */}
               <div className="space-y-4">
                 {newJourney.steps.map((step, stepIndex) => (
                   <Card key={step.id} className="relative">
@@ -732,7 +774,6 @@ export default function Journeys() {
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      {/* Step Name and Points */}
                       <div className="grid grid-cols-3 gap-4">
                         <div className="col-span-2">
                           <label htmlFor={`step-name-${step.id}`} className="text-xs font-medium block mb-1">
@@ -763,7 +804,6 @@ export default function Journeys() {
                         </div>
                       </div>
 
-                      {/* Sub-Steps Section */}
                       <Collapsible>
                         <CollapsibleTrigger asChild>
                           <Button variant="ghost" size="sm" className="w-full justify-between border border-dashed">
