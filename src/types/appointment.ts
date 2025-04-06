@@ -23,3 +23,9 @@ export const appointmentTypes: Record<AppointmentType, AppointmentTypeInfo> = {
   worship: { label: "Worship Services", color: "destructive" },
   social: { label: "Social Actions", color: "outline" }
 };
+
+export const appointmentStatusColors = {
+  confirmed: "confirmed",
+  pending: "pending",
+  cancelled: "destructive"
+};

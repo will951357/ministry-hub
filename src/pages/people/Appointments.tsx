@@ -7,6 +7,7 @@ import { appointmentTypes } from "@/types/appointment";
 import { AppointmentCalendar } from "@/components/appointments/AppointmentCalendar";
 import { AppointmentTable } from "@/components/appointments/AppointmentTable";
 import { AppointmentHeader } from "@/components/appointments/AppointmentHeader";
+import { PendingAppointments } from "@/components/appointments/PendingAppointments";
 import { 
   Card, 
   CardContent, 
@@ -30,6 +31,11 @@ export default function Appointments() {
     return (view === "all" || appointment.type === view) && sameDay;
   });
 
+  // Get pending appointments
+  const pendingAppointments = appointments.filter(
+    appointment => appointment.status === "pending"
+  );
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -50,6 +56,21 @@ export default function Appointments() {
           </Button>
         </div>
       </div>
+      
+      {/* Pending Appointments Section */}
+      {pendingAppointments.length > 0 && (
+        <Card className="mb-6 border-church-border shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg font-medium">Waiting for Approval</CardTitle>
+            <CardDescription>
+              {pendingAppointments.length} appointment{pendingAppointments.length !== 1 ? 's' : ''} pending your approval
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <PendingAppointments appointments={pendingAppointments} />
+          </CardContent>
+        </Card>
+      )}
       
       <div className="grid md:grid-cols-4 gap-6">
         {/* Left sidebar with calendar */}
