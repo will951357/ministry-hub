@@ -45,20 +45,20 @@ export function AppointmentCalendar({
             </div>
           </div>
         </HoverCardTrigger>
-        <HoverCardContent className="w-80 p-0">
+        <HoverCardContent className="w-64 p-0 z-50">
           <div className="p-3">
             <h4 className="font-semibold">{format(currentDate, 'MMMM d, yyyy')}</h4>
             <p className="text-xs text-muted-foreground mb-2">
               {dayAppointments.length} appointment{dayAppointments.length !== 1 ? 's' : ''}
             </p>
-            <div className="space-y-1">
+            <div className="space-y-1 max-h-48 overflow-y-auto">
               {dayAppointments.map((apt) => (
                 <div key={apt.id} className="text-sm p-2 rounded-md bg-muted flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">{apt.title}</p>
-                    <p className="text-xs">{format(apt.date, 'h:mm a')} | {apt.location}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{apt.title}</p>
+                    <p className="text-xs truncate">{format(apt.date, 'h:mm a')} | {apt.location}</p>
                   </div>
-                  <Badge variant={appointmentTypes[apt.type].color}>
+                  <Badge variant={appointmentTypes[apt.type].color} className="ml-1 whitespace-nowrap">
                     {apt.type}
                   </Badge>
                 </div>
@@ -71,18 +71,18 @@ export function AppointmentCalendar({
   };
 
   return (
-    <>
+    <div className="flex flex-col space-y-4">
       <Calendar
         mode="single"
         selected={selectedDate}
         onSelect={(newDate) => newDate && onDateSelect(newDate)}
-        className="rounded-md pointer-events-auto"
+        className="rounded-md pointer-events-auto max-w-full"
         components={{
           Day: renderCalendarDay
         }}
       />
       
-      <div className="mt-6">
+      <div className="mt-4">
         <h3 className="text-sm font-medium mb-2">Appointment Types</h3>
         <div className="flex flex-col space-y-2">
           {Object.entries(appointmentTypes).map(([key, { label, color }]) => (
@@ -93,6 +93,6 @@ export function AppointmentCalendar({
           ))}
         </div>
       </div>
-    </>
+    </div>
   );
 }
