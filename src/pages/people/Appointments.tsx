@@ -52,13 +52,13 @@ export default function Appointments() {
       </div>
       
       <div className="grid md:grid-cols-4 gap-6">
-        {/* Left sidebar with calendar - ensure it stays in its column */}
-        <Card className="md:col-span-1 border-church-border h-fit">
-          <CardHeader>
-            <CardTitle className="text-lg">Calendar</CardTitle>
+        {/* Left sidebar with calendar */}
+        <Card className="md:col-span-1 border-church-border h-fit shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg font-medium">Calendar</CardTitle>
             <CardDescription>Select a date to view appointments</CardDescription>
           </CardHeader>
-          <CardContent className="overflow-hidden">
+          <CardContent className="px-2 pb-6">
             <AppointmentCalendar 
               selectedDate={date}
               appointments={appointments}
@@ -68,7 +68,7 @@ export default function Appointments() {
         </Card>
         
         {/* Main content area */}
-        <Card className="md:col-span-3 border-church-border">
+        <Card className="md:col-span-3 border-church-border shadow-sm">
           <CardHeader className="pb-2">
             <AppointmentHeader
               date={date}

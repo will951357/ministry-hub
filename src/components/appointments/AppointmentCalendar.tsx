@@ -71,24 +71,24 @@ export function AppointmentCalendar({
   };
 
   return (
-    <div className="flex flex-col space-y-4">
+    <div className="flex flex-col">
       <Calendar
         mode="single"
         selected={selectedDate}
         onSelect={(newDate) => newDate && onDateSelect(newDate)}
-        className="rounded-md pointer-events-auto max-w-full"
+        className="rounded-md pointer-events-auto w-full"
         components={{
           Day: renderCalendarDay
         }}
       />
       
-      <div className="mt-4">
-        <h3 className="text-sm font-medium mb-2">Appointment Types</h3>
-        <div className="flex flex-col space-y-2">
+      <div className="mt-8">
+        <h3 className="text-sm font-medium mb-3">Appointment Types</h3>
+        <div className="flex flex-col space-y-3">
           {Object.entries(appointmentTypes).map(([key, { label, color }]) => (
             <div key={key} className="flex items-center">
-              <Badge variant={color} className="mr-2 w-3 h-3 p-0" />
-              <span className="text-sm">{label}</span>
+              <Badge variant={color} className="mr-2 w-3 h-3 p-0 rounded-full" />
+              <span className="text-sm text-muted-foreground">{label}</span>
             </div>
           ))}
         </div>
