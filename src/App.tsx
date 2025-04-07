@@ -11,6 +11,7 @@ import EditMember from "./pages/people/EditMember";
 import Visitors from "./pages/people/Visitors";
 import Journeys from "./pages/people/Journeys";
 import Appointments from "./pages/people/Appointments";
+import CreateAppointment from "./pages/people/CreateAppointment";
 import Birthdays from "./pages/people/Birthdays";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="visitors" element={<Visitors />} />
             <Route path="journeys" element={<Journeys />} />
             <Route path="appointments" element={<Appointments />} />
+            <Route path="appointments/create" element={<CreateAppointment />} />
             <Route path="birthdays" element={<Birthdays />} />
           </Route>
           

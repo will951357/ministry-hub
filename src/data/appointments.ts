@@ -10,6 +10,8 @@ export const appointments: Appointment[] = [
     date: new Date(2025, 3, 5, 10, 0),
     location: "123 Main St",
     status: "confirmed",
+    memberName: "Sarah Johnson",
+    completed: false,
   },
   {
     id: 2,
@@ -18,6 +20,8 @@ export const appointments: Appointment[] = [
     date: new Date(2025, 3, 5, 14, 30),
     location: "Memorial Hospital, Room 305",
     status: "pending",
+    memberName: "Robert Williams",
+    completed: false,
   },
   {
     id: 3,
@@ -26,6 +30,8 @@ export const appointments: Appointment[] = [
     date: new Date(2025, 3, 6, 18, 0),
     location: "Church Sanctuary",
     status: "confirmed",
+    memberName: "Michael Davis",
+    completed: true,
   },
   {
     id: 4,
@@ -34,6 +40,8 @@ export const appointments: Appointment[] = [
     date: new Date(2025, 3, 8, 9, 0),
     location: "Community Center",
     status: "confirmed",
+    memberName: "Emma Thompson",
+    completed: false,
   },
   {
     id: 5,
@@ -42,6 +50,8 @@ export const appointments: Appointment[] = [
     date: new Date(2025, 3, 10, 13, 0),
     location: "Pastor's Office",
     status: "confirmed",
+    memberName: "James Smith",
+    completed: false,
   }
 ];
 

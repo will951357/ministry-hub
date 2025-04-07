@@ -11,7 +11,8 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, CheckCircle, User } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 interface AppointmentTableProps {
   appointments: Appointment[];
@@ -22,6 +23,11 @@ export function AppointmentTable({ appointments, filterType }: AppointmentTableP
   const filtered = filterType && filterType !== "all"
     ? appointments.filter(app => app.type === filterType)
     : appointments;
+  
+  const handleCompletedToggle = (id: number, isCompleted: boolean) => {
+    console.log(`Appointment ${id} marked as ${isCompleted ? 'completed' : 'not completed'}`);
+    // In a real app, you would call an API to update the appointment status
+  };
   
   if (filtered.length === 0) {
     const emptyMessage = filterType && filterType !== "all"
@@ -46,8 +52,10 @@ export function AppointmentTable({ appointments, filterType }: AppointmentTableP
           <TableHead>Time</TableHead>
           <TableHead>Title</TableHead>
           <TableHead>Type</TableHead>
+          <TableHead>Member</TableHead>
           <TableHead>Location</TableHead>
           <TableHead>Status</TableHead>
+          <TableHead>Completed</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -62,8 +70,21 @@ export function AppointmentTable({ appointments, filterType }: AppointmentTableP
                 {appointmentTypes[appointment.type].label}
               </Badge>
             </TableCell>
+            <TableCell>
+              <div className="flex items-center">
+                <User className="h-4 w-4 mr-2 text-muted-foreground" />
+                {appointment.memberName || "Unknown"}
+              </div>
+            </TableCell>
             <TableCell>{appointment.location}</TableCell>
             <TableCell className="capitalize">{appointment.status}</TableCell>
+            <TableCell>
+              <Switch 
+                checked={appointment.completed || false}
+                onCheckedChange={(checked) => handleCompletedToggle(appointment.id, checked)}
+                aria-label="Toggle appointment completion"
+              />
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

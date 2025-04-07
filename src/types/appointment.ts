@@ -8,6 +8,8 @@ export interface Appointment {
   date: Date;
   location: string;
   status: "confirmed" | "pending" | "cancelled";
+  memberName?: string;
+  completed?: boolean;
 }
 
 export type AppointmentType = "visit" | "prayer" | "worship" | "social";
@@ -29,3 +31,4 @@ export const appointmentStatusColors = {
   pending: "pending",
   cancelled: "destructive"
 };
+

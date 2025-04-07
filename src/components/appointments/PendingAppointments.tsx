@@ -1,6 +1,6 @@
 
 import { format } from "date-fns";
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle, User } from "lucide-react";
 import { Appointment, appointmentTypes } from "@/types/appointment";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -46,6 +46,7 @@ export function PendingAppointments({ appointments }: PendingAppointmentsProps) 
             <TableHead>Time</TableHead>
             <TableHead>Title</TableHead>
             <TableHead>Type</TableHead>
+            <TableHead>Requested By</TableHead>
             <TableHead>Location</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -62,6 +63,12 @@ export function PendingAppointments({ appointments }: PendingAppointmentsProps) 
                 >
                   {appointmentTypes[appointment.type].label}
                 </Badge>
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center">
+                  <User className="h-4 w-4 mr-2 text-muted-foreground" />
+                  {appointment.memberName || "Unknown"}
+                </div>
               </TableCell>
               <TableCell>{appointment.location}</TableCell>
               <TableCell className="text-right">

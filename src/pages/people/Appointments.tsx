@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { Filter, Plus } from "lucide-react";
+import { Filter, Plus, CalendarIcon } from "lucide-react";
 import { appointments } from "@/data/appointments";
 import { appointmentTypes } from "@/types/appointment";
 import { AppointmentCalendar } from "@/components/appointments/AppointmentCalendar";
@@ -17,10 +17,12 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from "react-router-dom";
 
 export default function Appointments() {
   const [date, setDate] = useState<Date>(new Date());
   const [view, setView] = useState<string>("all");
+  const navigate = useNavigate();
   
   // Filter appointments based on selected date
   const filteredAppointments = appointments.filter(appointment => {
@@ -36,6 +38,15 @@ export default function Appointments() {
     appointment => appointment.status === "pending"
   );
 
+  // Get incomplete appointments count
+  const incompleteAppointments = appointments.filter(
+    appointment => appointment.status === "confirmed" && !appointment.completed
+  );
+
+  const handleCreateAppointment = () => {
+    navigate("/people/appointments/create");
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -50,7 +61,7 @@ export default function Appointments() {
             <Filter className="h-4 w-4 mr-2" />
             Filter
           </Button>
-          <Button>
+          <Button onClick={handleCreateAppointment}>
             <Plus className="h-4 w-4 mr-2" />
             New Appointment
           </Button>
@@ -71,6 +82,22 @@ export default function Appointments() {
           </CardContent>
         </Card>
       )}
+
+      {/* Incomplete Appointments Counter */}
+      <Card className="mb-6 border-church-border shadow-sm">
+        <CardHeader className="pb-2 flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="text-lg font-medium">Appointments Not Completed</CardTitle>
+            <CardDescription>
+              {incompleteAppointments.length} appointment{incompleteAppointments.length !== 1 ? 's' : ''} need your attention
+            </CardDescription>
+          </div>
+          <div className="bg-amber-100 text-amber-800 rounded-full px-4 py-2 text-xl font-semibold flex items-center">
+            <CalendarIcon className="h-5 w-5 mr-2" />
+            {incompleteAppointments.length}
+          </div>
+        </CardHeader>
+      </Card>
       
       <div className="grid md:grid-cols-4 gap-6">
         {/* Left sidebar with calendar */}
