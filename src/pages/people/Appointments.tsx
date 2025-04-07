@@ -43,6 +43,7 @@ export default function Appointments() {
     appointment => appointment.status === "confirmed" && !appointment.completed
   );
 
+  // Handle creating a new appointment
   const handleCreateAppointment = () => {
     navigate("/people/appointments/create");
   };
@@ -100,18 +101,20 @@ export default function Appointments() {
       </Card>
       
       <div className="grid md:grid-cols-4 gap-6">
-        {/* Left sidebar with calendar */}
+        {/* Left sidebar with calendar - making it more responsive */}
         <Card className="md:col-span-1 border-church-border h-fit shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg font-medium">Calendar</CardTitle>
             <CardDescription>Select a date to view appointments</CardDescription>
           </CardHeader>
           <CardContent className="px-2 pb-6">
-            <AppointmentCalendar 
-              selectedDate={date}
-              appointments={appointments}
-              onDateSelect={setDate}
-            />
+            <div className="max-w-full overflow-x-auto">
+              <AppointmentCalendar 
+                selectedDate={date}
+                appointments={appointments}
+                onDateSelect={setDate}
+              />
+            </div>
           </CardContent>
         </Card>
         

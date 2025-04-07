@@ -13,6 +13,7 @@ import Journeys from "./pages/people/Journeys";
 import Appointments from "./pages/people/Appointments";
 import CreateAppointment from "./pages/people/CreateAppointment";
 import Birthdays from "./pages/people/Birthdays";
+import Ministries from "./pages/Ministries";
 
 const queryClient = new QueryClient();
 
@@ -37,8 +38,8 @@ const App = () => (
             <Route path="birthdays" element={<Birthdays />} />
           </Route>
           
-          {/* Placeholder routes for future implementation */}
-          <Route path="/ministries" element={<Index />} />
+          {/* Now using real components instead of placeholders */}
+          <Route path="/ministries" element={<Ministries />} />
           <Route path="/groups" element={<Index />} />
           <Route path="/events" element={<Index />} />
           <Route path="/finance" element={<Index />} />
