@@ -14,6 +14,7 @@ import Appointments from "./pages/people/Appointments";
 import CreateAppointment from "./pages/people/CreateAppointment";
 import Birthdays from "./pages/people/Birthdays";
 import Ministries from "./pages/Ministries";
+import Groups from "./pages/Groups";
 
 const queryClient = new QueryClient();
 
@@ -40,7 +41,7 @@ const App = () => (
           
           {/* Now using real components instead of placeholders */}
           <Route path="/ministries" element={<Ministries />} />
-          <Route path="/groups" element={<Index />} />
+          <Route path="/groups" element={<Groups />} />
           <Route path="/events" element={<Index />} />
           <Route path="/finance" element={<Index />} />
           <Route path="/sermons" element={<Index />} />
