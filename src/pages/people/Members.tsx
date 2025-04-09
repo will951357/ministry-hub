@@ -342,7 +342,7 @@ export default function Members() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead width={40}>
+                <TableHead className="w-24">
                   <Button 
                     variant="ghost" 
                     size="sm" 

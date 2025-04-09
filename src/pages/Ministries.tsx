@@ -22,6 +22,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { MainLayout } from "@/components/layout/MainLayout";
 
 // Define the Ministry type with a specific status type
 type Ministry = {
@@ -110,206 +111,208 @@ export default function Ministries() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-church-primary mb-2">Ministries</h1>
-        <p className="text-church-secondary">
-          Manage and organize your church's ministries and their members.
-        </p>
-      </div>
+    <MainLayout>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-semibold text-church-primary mb-2">Ministries</h1>
+          <p className="text-church-secondary">
+            Manage and organize your church's ministries and their members.
+          </p>
+        </div>
 
-      {/* Stats and chart overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="col-span-1">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Ministry Statistics</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <p className="text-sm text-muted-foreground">Active Ministries</p>
-              <p className="text-2xl font-semibold">{activeMinistries}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Total Members Involved</p>
-              <p className="text-2xl font-semibold">{totalMembers}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Average Members per Ministry</p>
-              <p className="text-2xl font-semibold">
-                {(totalMembers / MINISTRIES_DATA.length).toFixed(1)}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="col-span-1 md:col-span-2">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Ministry Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={statusData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {statusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Ministry list */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-church-primary">Ministry List</h2>
-        <Button onClick={() => setShowCreateDialog(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Ministry
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {MINISTRIES_DATA.map((ministry) => (
-          <Card 
-            key={ministry.id} 
-            className="cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => handleViewDetails(ministry)}
-          >
+        {/* Stats and chart overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="col-span-1">
             <CardHeader className="pb-2">
-              <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">{ministry.name}</CardTitle>
-                <Badge variant={ministry.status === "active" ? "default" : "destructive"}>
-                  {ministry.status === "active" ? "Active" : "Inactive"}
-                </Badge>
-              </div>
+              <CardTitle className="text-xl">Ministry Statistics</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                {ministry.description}
-              </p>
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-1 text-sm">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span>{ministry.members} members</span>
-                </div>
-                <Button variant="outline" size="sm" className="h-8">
-                  Details
-                  <ChevronRight className="ml-1 h-4 w-4" />
-                </Button>
+            <CardContent className="space-y-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Active Ministries</p>
+                <p className="text-2xl font-semibold">{activeMinistries}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Total Members Involved</p>
+                <p className="text-2xl font-semibold">{totalMembers}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Average Members per Ministry</p>
+                <p className="text-2xl font-semibold">
+                  {(totalMembers / MINISTRIES_DATA.length).toFixed(1)}
+                </p>
               </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
 
-      {/* Ministry Details Dialog */}
-      {selectedMinistry && (
-        <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle className="flex items-center justify-between">
-                <span>{selectedMinistry.name}</span>
-                <Badge variant={selectedMinistry.status === "active" ? "default" : "destructive"}>
-                  {selectedMinistry.status === "active" ? "Active" : "Inactive"}
-                </Badge>
-              </DialogTitle>
-              <DialogDescription>
-                {selectedMinistry.description}
-              </DialogDescription>
-            </DialogHeader>
+          <Card className="col-span-1 md:col-span-2">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl">Ministry Status</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={statusData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    >
+                      {statusData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-muted p-3 rounded-md flex items-center gap-2">
-                  <Users className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Members</p>
-                    <p className="font-medium">{selectedMinistry.members}</p>
+        {/* Ministry list */}
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold text-church-primary">Ministry List</h2>
+          <Button onClick={() => setShowCreateDialog(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            New Ministry
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {MINISTRIES_DATA.map((ministry) => (
+            <Card 
+              key={ministry.id} 
+              className="cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => handleViewDetails(ministry)}
+            >
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-start">
+                  <CardTitle className="text-lg">{ministry.name}</CardTitle>
+                  <Badge variant={ministry.status === "active" ? "default" : "destructive"}>
+                    {ministry.status === "active" ? "Active" : "Inactive"}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                  {ministry.description}
+                </p>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-1 text-sm">
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <span>{ministry.members} members</span>
+                  </div>
+                  <Button variant="outline" size="sm" className="h-8">
+                    Details
+                    <ChevronRight className="ml-1 h-4 w-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Ministry Details Dialog */}
+        {selectedMinistry && (
+          <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center justify-between">
+                  <span>{selectedMinistry.name}</span>
+                  <Badge variant={selectedMinistry.status === "active" ? "default" : "destructive"}>
+                    {selectedMinistry.status === "active" ? "Active" : "Inactive"}
+                  </Badge>
+                </DialogTitle>
+                <DialogDescription>
+                  {selectedMinistry.description}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-muted p-3 rounded-md flex items-center gap-2">
+                    <Users className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Members</p>
+                      <p className="font-medium">{selectedMinistry.members}</p>
+                    </div>
+                  </div>
+                  <div className="bg-muted p-3 rounded-md flex items-center gap-2">
+                    <Calendar className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Events</p>
+                      <p className="font-medium">5</p>
+                    </div>
                   </div>
                 </div>
-                <div className="bg-muted p-3 rounded-md flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Events</p>
-                    <p className="font-medium">5</p>
-                  </div>
-                </div>
+
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Leaders</TableHead>
+                      <TableHead>Role</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>John Doe</TableCell>
+                      <TableCell>Ministry Leader</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>Jane Smith</TableCell>
+                      <TableCell>Assistant Leader</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
               </div>
 
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Leaders</TableHead>
-                    <TableHead>Role</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>John Doe</TableCell>
-                    <TableCell>Ministry Leader</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Jane Smith</TableCell>
-                    <TableCell>Assistant Leader</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </div>
+              <DialogFooter>
+                <Button variant="outline">
+                  <UserCheck className="mr-2 h-4 w-4" />
+                  Manage Members
+                </Button>
+                <Button>
+                  <Settings className="mr-2 h-4 w-4" />
+                  Edit Ministry
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
 
+        {/* Create Ministry Dialog */}
+        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create New Ministry</DialogTitle>
+              <DialogDescription>
+                Add a new ministry to your church organization.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-4">
+              <p className="text-center text-muted-foreground">
+                Ministry creation feature will be implemented in the next update.
+              </p>
+            </div>
+            
             <DialogFooter>
-              <Button variant="outline">
-                <UserCheck className="mr-2 h-4 w-4" />
-                Manage Members
+              <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+                Cancel
               </Button>
-              <Button>
-                <Settings className="mr-2 h-4 w-4" />
-                Edit Ministry
+              <Button onClick={handleCreateMinistry}>
+                Create Ministry
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      )}
-
-      {/* Create Ministry Dialog */}
-      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create New Ministry</DialogTitle>
-            <DialogDescription>
-              Add a new ministry to your church organization.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-4">
-            <p className="text-center text-muted-foreground">
-              Ministry creation feature will be implemented in the next update.
-            </p>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleCreateMinistry}>
-              Create Ministry
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+      </div>
+    </MainLayout>
   );
 }
