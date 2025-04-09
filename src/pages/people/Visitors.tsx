@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,7 +18,9 @@ import {
   AtSign, 
   UserCheck,
   Smartphone,
-  Building
+  Building,
+  CheckSquare,
+  Square
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
@@ -235,6 +236,10 @@ export default function Visitors() {
       description: `${data.name} has been added as a visitor.`,
     });
   };
+
+  // Check if all filtered visitors are selected
+  const areAllSelected = filteredVisitors.length > 0 && 
+    selectedVisitors.length === filteredVisitors.length;
 
   return (
     <div className="space-y-6">
@@ -463,6 +468,26 @@ export default function Visitors() {
         </div>
       </div>
 
+      {/* Select All toggle outside the table */}
+      <div className="flex items-center justify-between bg-gray-50 p-3 rounded-md">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="flex items-center gap-2" 
+          onClick={handleSelectAll}
+        >
+          {areAllSelected ? (
+            <CheckSquare className="h-5 w-5 text-church-primary" />
+          ) : (
+            <Square className="h-5 w-5 text-gray-400" />
+          )}
+          <span>Select All</span>
+        </Button>
+        <div className="text-sm text-gray-500">
+          {selectedVisitors.length} of {filteredVisitors.length} visitors selected
+        </div>
+      </div>
+
       {/* Visitors Table */}
       <Card>
         <CardHeader className="pb-2">
@@ -473,10 +498,18 @@ export default function Visitors() {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-10">
-                  <Checkbox 
-                    checked={selectedVisitors.length === filteredVisitors.length && filteredVisitors.length > 0}
-                    onCheckedChange={handleSelectAll}
-                  />
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="p-0 h-6 w-6"
+                    onClick={handleSelectAll}
+                  >
+                    {areAllSelected ? (
+                      <CheckSquare className="h-5 w-5 text-church-primary" />
+                    ) : (
+                      <Square className="h-5 w-5 text-gray-400" />
+                    )}
+                  </Button>
                 </TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead className="hidden md:table-cell">Phone</TableHead>
@@ -498,10 +531,18 @@ export default function Visitors() {
                 filteredVisitors.map((visitor) => (
                   <TableRow key={visitor.id}>
                     <TableCell>
-                      <Checkbox 
-                        checked={selectedVisitors.includes(visitor.id)}
-                        onCheckedChange={() => handleSelectVisitor(visitor.id)}
-                      />
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="p-0 h-6 w-6"
+                        onClick={() => handleSelectVisitor(visitor.id)}
+                      >
+                        {selectedVisitors.includes(visitor.id) ? (
+                          <CheckSquare className="h-5 w-5 text-church-primary" />
+                        ) : (
+                          <Square className="h-5 w-5 text-gray-400" />
+                        )}
+                      </Button>
                     </TableCell>
                     <TableCell className="font-medium">{visitor.name}</TableCell>
                     <TableCell className="hidden md:table-cell">

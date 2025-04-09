@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Filter, Plus, Search, Pencil, Trash2, Bell, Download, Calendar as CalendarIcon, Phone, Mail, User, Camera } from "lucide-react";
+import { Filter, Plus, Search, Pencil, Trash2, Bell, Download, Calendar as CalendarIcon, Phone, Mail, User, Camera, CheckSquare, Square } from "lucide-react";
 import { 
   Popover,
   PopoverContent, 
@@ -43,6 +42,7 @@ export default function Members() {
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<number | null>(null);
+  const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
   const { toast } = useToast();
 
   // Mock data - in a real app this would come from an API
@@ -94,6 +94,13 @@ export default function Members() {
       image: "",
     },
   ];
+
+  // Filter members based on search
+  const filteredMembers = members.filter(member => 
+    member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    member.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    member.phone.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleDeleteMember = (id: number) => {
     setMemberToDelete(id);
@@ -150,6 +157,30 @@ export default function Members() {
       description: "Member list is being downloaded as a CSV file.",
     });
   };
+
+  // Toggle selection of a single member
+  const toggleMemberSelection = (id: number) => {
+    if (selectedMembers.includes(id)) {
+      setSelectedMembers(selectedMembers.filter(memberId => memberId !== id));
+    } else {
+      setSelectedMembers([...selectedMembers, id]);
+    }
+  };
+
+  // Toggle selection of all filtered members
+  const toggleAllMembers = () => {
+    if (selectedMembers.length === filteredMembers.length) {
+      // If all are selected, deselect all
+      setSelectedMembers([]);
+    } else {
+      // Otherwise, select all
+      setSelectedMembers(filteredMembers.map(member => member.id));
+    }
+  };
+
+  // Check if all filtered members are selected
+  const areAllSelected = filteredMembers.length > 0 && 
+    selectedMembers.length === filteredMembers.length;
 
   return (
     <div className="space-y-6">
@@ -268,7 +299,12 @@ export default function Members() {
             </PopoverContent>
           </Popover>
           
-          <Button variant="outline" onClick={() => setShowNotificationDialog(true)} className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setShowNotificationDialog(true)} 
+            className="flex items-center gap-2"
+            disabled={selectedMembers.length === 0}
+          >
             <Bell className="h-4 w-4" />
             <span>Send Notification</span>
           </Button>
@@ -280,12 +316,46 @@ export default function Members() {
         </div>
       </div>
 
+      {/* Select All control */}
+      <div className="flex justify-between items-center bg-gray-50 p-3 rounded-md">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="flex items-center gap-2"
+          onClick={toggleAllMembers}
+        >
+          {areAllSelected ? (
+            <CheckSquare className="h-5 w-5 text-church-primary" />
+          ) : (
+            <Square className="h-5 w-5 text-gray-400" />
+          )}
+          <span>Select All</span>
+        </Button>
+        <div className="text-sm text-gray-500">
+          {selectedMembers.length} of {filteredMembers.length} members selected
+        </div>
+      </div>
+
       {/* Member list table */}
       <Card className="bg-white border-church-border">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead width={40}>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="p-0 h-6 w-6"
+                    onClick={toggleAllMembers}
+                  >
+                    {areAllSelected ? (
+                      <CheckSquare className="h-5 w-5 text-church-primary" />
+                    ) : (
+                      <Square className="h-5 w-5 text-gray-400" />
+                    )}
+                  </Button>
+                </TableHead>
                 <TableHead>Member</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Phone</TableHead>
@@ -293,8 +363,22 @@ export default function Members() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {members.map((member) => (
+              {filteredMembers.map((member) => (
                 <TableRow key={member.id}>
+                  <TableCell>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="p-0 h-6 w-6"
+                      onClick={() => toggleMemberSelection(member.id)}
+                    >
+                      {selectedMembers.includes(member.id) ? (
+                        <CheckSquare className="h-5 w-5 text-church-primary" />
+                      ) : (
+                        <Square className="h-5 w-5 text-gray-400" />
+                      )}
+                    </Button>
+                  </TableCell>
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-3">
                       <Avatar>

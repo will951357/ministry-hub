@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { format, parseISO } from "date-fns";
-import { CalendarIcon, ChevronLeft, ChevronRight, Bell, Calendar, Plus } from "lucide-react";
+import { CalendarIcon, ChevronLeft, ChevronRight, Bell, Calendar, Plus, CheckSquare, Square } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -17,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { Switch } from "@/components/ui/switch";
 
 // Mock data for birthdays
 const BIRTHDAYS_DATA = [
@@ -119,6 +119,15 @@ export default function Birthdays() {
     }
   };
 
+  // Function to toggle all members selection
+  const toggleAllMembers = () => {
+    if (selectedMembers.length === filteredBirthdays.length) {
+      setSelectedMembers([]);
+    } else {
+      setSelectedMembers(filteredBirthdays.map(person => person.id));
+    }
+  };
+
   // Function to send notifications to selected members
   const sendNotification = () => {
     if (selectedMembers.length === 0) {
@@ -178,6 +187,9 @@ export default function Birthdays() {
     
     setShowCreateEventDialog(false);
   };
+
+  // Check if all filtered members are selected
+  const areAllSelected = filteredBirthdays.length > 0 && selectedMembers.length === filteredBirthdays.length;
 
   return (
     <div className="space-y-6">
@@ -251,6 +263,28 @@ export default function Birthdays() {
           <CardContent>
             {filteredBirthdays.length > 0 ? (
               <div className="space-y-4">
+                {/* Select All toggle */}
+                <div className="flex items-center justify-between bg-gray-50 p-2 rounded-md">
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="flex items-center gap-2 p-1 h-8"
+                      onClick={toggleAllMembers}
+                    >
+                      {areAllSelected ? (
+                        <CheckSquare className="h-5 w-5 text-church-primary" />
+                      ) : (
+                        <Square className="h-5 w-5 text-gray-400" />
+                      )}
+                      <span className="text-sm">Select All</span>
+                    </Button>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {selectedMembers.length} of {filteredBirthdays.length} selected
+                  </div>
+                </div>
+
                 {filteredBirthdays.map((person) => (
                   <div 
                     key={person.id}
@@ -277,12 +311,18 @@ export default function Birthdays() {
                       </div>
                     </div>
                     <div className="flex gap-2 items-center">
-                      <input
-                        type="checkbox"
-                        className="rounded border-gray-300 text-church-primary focus:ring-church-accent h-4 w-4"
-                        onChange={() => toggleMemberSelection(person.id)}
-                        checked={selectedMembers.includes(person.id)}
-                      />
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="p-0 h-6 w-6"
+                        onClick={() => toggleMemberSelection(person.id)}
+                      >
+                        {selectedMembers.includes(person.id) ? (
+                          <CheckSquare className="h-5 w-5 text-church-primary" />
+                        ) : (
+                          <Square className="h-5 w-5 text-gray-400" />
+                        )}
+                      </Button>
                       <Button 
                         variant="outline" 
                         size="sm"
