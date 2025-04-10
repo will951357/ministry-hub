@@ -9,21 +9,20 @@ import {
   Settings, 
   FileText, 
   DollarSign, 
-  Clock, 
   UsersRound, 
   ChevronRight, 
   ChevronLeft,
   PanelLeft,
   CopyCheck,
-  BookOpen,
+  BadgeDollarSign,
+  Receipt,
+  PiggyBank,
   UserCheck,
   UserPlus,
   Map,
   CalendarClock,
   Cake,
-  BadgeDollarSign,
-  Receipt,
-  PiggyBank
+  Smartphone
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -50,10 +49,11 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
     if (path === '/') return 'dashboard';
     if (path.startsWith('/people')) return 'people';
     if (path.startsWith('/finance')) return 'finance';
+    if (path.startsWith('/app-member')) return 'app-member';
     return path.substring(1); // Remove the leading slash
   });
   
-  const [openSubmenus, setOpenSubmenus] = useState<string[]>(['people', 'finance']);
+  const [openSubmenus, setOpenSubmenus] = useState<string[]>(['people', 'finance', 'app-member']);
   
   const toggleSubmenu = (id: string) => {
     setOpenSubmenus(prev => 
@@ -89,11 +89,18 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
         { id: 'funds', label: 'Funds', icon: <PiggyBank size={18} />, href: '/finance/funds' },
       ]
     },
+    { 
+      id: 'app-member', 
+      label: 'App Member', 
+      icon: <Smartphone size={20} />, 
+      href: '/app-member',
+      subItems: [
+        { id: 'blog', label: 'Blog', icon: <FileText size={18} />, href: '/app-member/blog' },
+      ]
+    },
     { id: 'ministries', label: 'Ministries', icon: <CopyCheck size={20} />, href: '/ministries' },
     { id: 'groups', label: 'Groups', icon: <UsersRound size={20} />, href: '/groups' },
     { id: 'events', label: 'Events', icon: <Calendar size={20} />, href: '/events' },
-    { id: 'sermons', label: 'Sermons', icon: <FileText size={20} />, href: '/sermons' },
-    { id: 'check-in', label: 'Check In', icon: <Clock size={20} />, href: '/check-in' },
     { id: 'settings', label: 'Settings', icon: <Settings size={20} />, href: '/settings' },
   ];
 

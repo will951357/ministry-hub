@@ -20,6 +20,9 @@ import Finance from "./pages/Finance";
 import Donations from "./pages/finance/Donations";
 import Tithes from "./pages/finance/Tithes";
 import Funds from "./pages/finance/Funds";
+import AppMember from "./pages/AppMember";
+import Blog from "./pages/app-member/Blog";
+import NewPost from "./pages/app-member/NewPost";
 
 const queryClient = new QueryClient();
 
@@ -52,12 +55,17 @@ const App = () => (
             <Route path="funds" element={<Funds />} />
           </Route>
           
+          {/* App Member section */}
+          <Route path="/app-member" element={<AppMember />}>
+            <Route index element={<Blog />} />
+            <Route path="blog" element={<Blog />} />
+            <Route path="blog/new" element={<NewPost />} />
+          </Route>
+          
           {/* Using real components */}
           <Route path="/ministries" element={<Ministries />} />
           <Route path="/groups" element={<Groups />} />
           <Route path="/events" element={<Events />} />
-          <Route path="/sermons" element={<Index />} />
-          <Route path="/check-in" element={<Index />} />
           <Route path="/settings" element={<Index />} />
           
           {/* Catch-all route */}
