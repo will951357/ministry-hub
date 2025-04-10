@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Card, 
   CardContent, 
@@ -14,17 +15,29 @@ import {
   ThumbsUp, 
   Filter, 
   Plus,
-  CalendarDays
+  CalendarDays,
+  Clock,
+  CalendarX
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 
 export default function Blog() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("all");
+  const [showScheduled, setShowScheduled] = useState(false);
 
   // Sample blog posts data
-  const blogPosts = [
+  const [blogPosts, setBlogPosts] = useState([
     {
       id: 1,
       title: "Easter Service Special Announcement",
@@ -34,7 +47,8 @@ export default function Blog() {
       commentsEnabled: true,
       reactionsEnabled: true,
       comments: 12,
-      likes: 24
+      likes: 24,
+      status: "published"
     },
     {
       id: 2,
@@ -45,7 +59,8 @@ export default function Blog() {
       commentsEnabled: true,
       reactionsEnabled: false,
       comments: 5,
-      likes: 0
+      likes: 0,
+      status: "published"
     },
     {
       id: 3,
@@ -56,9 +71,75 @@ export default function Blog() {
       commentsEnabled: false,
       reactionsEnabled: true,
       comments: 0,
-      likes: 18
+      likes: 18,
+      status: "published"
+    },
+    {
+      id: 4,
+      title: "Church Retreat Planning",
+      content: "We're planning our annual church retreat for the fall. This year we'll be focusing on community building and spiritual growth through interactive workshops.",
+      author: "Pastor John",
+      date: "2025-04-20",
+      commentsEnabled: true,
+      reactionsEnabled: true,
+      comments: 0,
+      likes: 0,
+      status: "scheduled",
+      publishDate: "2025-05-15T09:00:00"
+    },
+    {
+      id: 5,
+      title: "Summer Bible Study Series",
+      content: "Join us this summer for a special Bible study series on the book of Romans. We'll dive deep into Paul's theology and its implications for our lives today.",
+      author: "Bible Study Coordinator Tim",
+      date: "2025-04-08",
+      commentsEnabled: true,
+      reactionsEnabled: true,
+      comments: 0,
+      likes: 0,
+      status: "scheduled",
+      publishDate: "2025-05-01T14:30:00"
     }
-  ];
+  ]);
+
+  // Function to handle canceling a scheduled post
+  const handleCancelScheduled = (postId) => {
+    setBlogPosts(posts => 
+      posts.map(post => 
+        post.id === postId 
+          ? { ...post, status: "draft", publishDate: null } 
+          : post
+      )
+    );
+    
+    toast({
+      title: "Schedule canceled",
+      description: "Post has been moved to drafts",
+    });
+  };
+
+  // Filter posts based on current filters
+  const getFilteredPosts = () => {
+    let filtered = [...blogPosts];
+    
+    if (activeTab !== "all") {
+      filtered = filtered.filter(post => {
+        if (activeTab === "published") return post.status === "published";
+        if (activeTab === "drafts") return post.status === "draft";
+        if (activeTab === "archived") return post.status === "archived";
+        return true;
+      });
+    }
+    
+    // Filter for scheduled posts if the toggle is on
+    if (showScheduled && activeTab === "all") {
+      filtered = filtered.filter(post => post.status === "scheduled");
+    }
+    
+    return filtered;
+  };
+
+  const filteredPosts = getFilteredPosts();
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -70,10 +151,21 @@ export default function Blog() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Filter by</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setShowScheduled(!showScheduled)}>
+                {showScheduled ? "✓ " : ""} Show Scheduled Posts
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button onClick={() => navigate("/app-member/blog/new")}>
             <Plus className="h-4 w-4 mr-2" />
             New Post
@@ -119,15 +211,38 @@ export default function Blog() {
           <TabsTrigger value="archived">Archived</TabsTrigger>
         </TabsList>
         <TabsContent value="all" className="mt-6 space-y-4">
-          {blogPosts.length > 0 ? (
-            blogPosts.map(post => (
+          {filteredPosts.length > 0 ? (
+            filteredPosts.map(post => (
               <Card key={post.id} className="cursor-pointer hover:bg-muted/50 transition-colors">
                 <CardHeader>
                   <div className="flex justify-between items-start">
-                    <CardTitle>{post.title}</CardTitle>
-                    <div className="flex items-center text-muted-foreground text-sm">
-                      <CalendarDays className="h-4 w-4 mr-1" />
-                      {new Date(post.date).toLocaleDateString()}
+                    <div className="flex flex-col">
+                      <CardTitle>{post.title}</CardTitle>
+                      {post.status === "scheduled" && (
+                        <div className="flex items-center mt-1 text-amber-600 text-sm">
+                          <Clock className="h-4 w-4 mr-1" />
+                          <span>Scheduled for {new Date(post.publishDate).toLocaleString()}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {post.status === "scheduled" && (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCancelScheduled(post.id);
+                          }}
+                        >
+                          <CalendarX className="h-4 w-4 mr-1 text-destructive" />
+                          <span className="text-destructive">Cancel</span>
+                        </Button>
+                      )}
+                      <div className="flex items-center text-muted-foreground text-sm">
+                        <CalendarDays className="h-4 w-4 mr-1" />
+                        {new Date(post.date).toLocaleDateString()}
+                      </div>
                     </div>
                   </div>
                   <CardDescription>By {post.author}</CardDescription>
