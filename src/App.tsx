@@ -16,6 +16,10 @@ import Birthdays from "./pages/people/Birthdays";
 import Ministries from "./pages/Ministries";
 import Groups from "./pages/Groups";
 import Events from "./pages/Events";
+import Finance from "./pages/Finance";
+import Donations from "./pages/finance/Donations";
+import Tithes from "./pages/finance/Tithes";
+import Funds from "./pages/finance/Funds";
 
 const queryClient = new QueryClient();
 
@@ -40,11 +44,18 @@ const App = () => (
             <Route path="birthdays" element={<Birthdays />} />
           </Route>
           
+          {/* Finance section */}
+          <Route path="/finance" element={<Finance />}>
+            <Route index element={<Donations />} />
+            <Route path="donations" element={<Donations />} />
+            <Route path="tithes" element={<Tithes />} />
+            <Route path="funds" element={<Funds />} />
+          </Route>
+          
           {/* Using real components */}
           <Route path="/ministries" element={<Ministries />} />
           <Route path="/groups" element={<Groups />} />
           <Route path="/events" element={<Events />} />
-          <Route path="/finance" element={<Index />} />
           <Route path="/sermons" element={<Index />} />
           <Route path="/check-in" element={<Index />} />
           <Route path="/settings" element={<Index />} />
