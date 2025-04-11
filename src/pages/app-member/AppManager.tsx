@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
@@ -28,7 +27,7 @@ import {
   MenuSquare,
   Calendar,
   Map,
-  Form,
+  FileSpreadsheet,
   Save
 } from "lucide-react";
 
@@ -52,7 +51,6 @@ export default function AppManager() {
   const [activeWidget, setActiveWidget] = useState<AppLayoutItem | null>(null);
   const [textContent, setTextContent] = useState("");
   
-  // Available widgets for the sidebar
   const availableWidgets: WidgetType[] = [
     { id: 'widget-text', type: 'text', title: 'Text', icon: <Text className="h-5 w-5" /> },
     { id: 'widget-image', type: 'image', title: 'Image', icon: <Image className="h-5 w-5" /> },
@@ -62,19 +60,16 @@ export default function AppManager() {
     { id: 'widget-menu', type: 'menu', title: 'Menu', icon: <MenuSquare className="h-5 w-5" /> },
     { id: 'widget-calendar', type: 'calendar', title: 'Calendar', icon: <Calendar className="h-5 w-5" /> },
     { id: 'widget-map', type: 'map', title: 'Map', icon: <Map className="h-5 w-5" /> },
-    { id: 'widget-form', type: 'form', title: 'Form', icon: <Form className="h-5 w-5" /> },
+    { id: 'widget-form', type: 'form', title: 'Form', icon: <FileSpreadsheet className="h-5 w-5" /> },
   ];
 
-  // Handle drag end event
   const onDragEnd = (result: any) => {
     const { source, destination } = result;
 
-    // Dropped outside the list
     if (!destination) {
       return;
     }
 
-    // Dropped in the same place
     if (
       source.droppableId === destination.droppableId &&
       source.index === destination.index
@@ -82,7 +77,6 @@ export default function AppManager() {
       return;
     }
 
-    // If dragging from the widget panel to the layout
     if (source.droppableId === 'WIDGETS' && destination.droppableId === 'LAYOUT') {
       const widgetType = availableWidgets.find(widget => `widget-${widget.id}` === result.draggableId)?.type;
       
@@ -104,7 +98,6 @@ export default function AppManager() {
         });
       }
     } else if (source.droppableId === 'LAYOUT' && destination.droppableId === 'LAYOUT') {
-      // Reordering within the layout
       const items = Array.from(layoutItems);
       const [reorderedItem] = items.splice(source.index, 1);
       items.splice(destination.index, 0, reorderedItem);
@@ -112,7 +105,6 @@ export default function AppManager() {
     }
   };
 
-  // Save text content to a widget
   const saveTextContent = () => {
     if (activeWidget) {
       setLayoutItems(items => 
@@ -133,9 +125,7 @@ export default function AppManager() {
     }
   };
 
-  // Handler to save the final app layout
   const saveAppLayout = () => {
-    // Here you would typically send this data to a backend
     console.log("Saving app layout:", layoutItems);
     
     toast({
@@ -144,7 +134,6 @@ export default function AppManager() {
     });
   };
 
-  // Render the widget editor based on the active widget type
   const renderWidgetEditor = () => {
     if (!activeWidget) return null;
 
@@ -211,7 +200,6 @@ export default function AppManager() {
       
       <DragDropContext onDragEnd={onDragEnd}>
         <ResizablePanelGroup direction="horizontal" className="h-[calc(100vh-200px)] min-h-[500px] rounded-lg border">
-          {/* Widgets Panel */}
           <ResizablePanel defaultSize={20} minSize={15}>
             <div className="h-full p-4 bg-muted/20">
               <h2 className="text-xl font-semibold mb-4">Widgets</h2>
@@ -252,7 +240,6 @@ export default function AppManager() {
           
           <ResizableHandle withHandle />
           
-          {/* Layout Builder */}
           <ResizablePanel defaultSize={50}>
             <div className="h-full p-4 flex flex-col">
               <h2 className="text-xl font-semibold mb-4">Layout Builder</h2>
@@ -309,7 +296,6 @@ export default function AppManager() {
                   </Droppable>
                 </div>
                 
-                {/* Widget Editor */}
                 {activeWidget && (
                   <div className="w-64 ml-4 p-4 border rounded-md">
                     {renderWidgetEditor()}
@@ -321,7 +307,6 @@ export default function AppManager() {
           
           <ResizableHandle withHandle />
           
-          {/* Preview Panel */}
           <ResizablePanel defaultSize={30}>
             <div className="h-full p-4 bg-muted/20 flex flex-col">
               <h2 className="text-xl font-semibold mb-4">Preview</h2>
