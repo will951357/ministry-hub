@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
-import { EventList } from "@/components/dashboard/EventList";
+import { EventListItem } from "@/components/events/EventListItem";
 import { AddEventModal } from "@/components/events/AddEventModal";
 import { EventDetailsModal } from "@/components/events/EventDetailsModal";
 import { CheckinQRModal } from "@/components/events/CheckinQRModal";
@@ -36,12 +36,20 @@ import {
 type EventStatus = 'confirmed' | 'canceled' | 'sold-out';
 type EventVisibility = 'public' | 'private';
 
+type EventUser = {
+  id: number;
+  name: string;
+  email: string;
+  checkedIn: boolean;
+};
+
 type Event = {
   id: number;
   title: string;
   date: Date;
   startTime: string;
   endTime: string;
+  time: string;
   location: string;
   description: string;
   attendees: number;
@@ -51,21 +59,18 @@ type Event = {
   status: EventStatus;
   createdBy: string;
   hasCheckin?: boolean;
-  registeredUsers?: {
-    id: number;
-    name: string;
-    email: string;
-    checkedIn: boolean;
-  }[];
+  registeredUsers?: EventUser[];
+  responsibleMembers: string[];
 };
 
 const sampleEvents: Event[] = [
   {
     id: 1,
     title: 'Sunday Worship Service',
-    date: new Date(2025, 3, 21), // April 21, 2025
+    date: new Date(2025, 3, 21),
     startTime: '10:00 AM',
     endTime: '12:00 PM',
+    time: '10:00 AM - 12:00 PM',
     location: 'Main Sanctuary',
     description: 'Weekly worship service with praise and sermon',
     attendees: 120,
@@ -73,14 +78,18 @@ const sampleEvents: Event[] = [
     price: 0,
     visibility: 'public',
     status: 'confirmed',
-    createdBy: 'Pastor John'
+    createdBy: 'Pastor John',
+    responsibleMembers: ['Pastor John', 'Worship Leader'],
+    hasCheckin: true,
+    registeredUsers: []
   },
   {
     id: 2,
     title: 'Youth Group Meeting',
-    date: new Date(2025, 3, 22), // April 22, 2025
+    date: new Date(2025, 3, 22),
     startTime: '6:00 PM',
     endTime: '8:00 PM',
+    time: '6:00 PM - 8:00 PM',
     location: 'Youth Center',
     description: 'Weekly youth group meeting with games and Bible study',
     attendees: 35,
@@ -88,14 +97,18 @@ const sampleEvents: Event[] = [
     price: 0,
     visibility: 'public',
     status: 'confirmed',
-    createdBy: 'Youth Pastor'
+    createdBy: 'Youth Pastor',
+    responsibleMembers: ['Youth Pastor'],
+    hasCheckin: false,
+    registeredUsers: []
   },
   {
     id: 3,
     title: 'Leadership Retreat',
-    date: new Date(2025, 3, 25), // April 25, 2025
+    date: new Date(2025, 3, 25),
     startTime: '9:00 AM',
     endTime: '5:00 PM',
+    time: '9:00 AM - 5:00 PM',
     location: 'Mountain Retreat Center',
     description: 'Annual leadership retreat for church leaders',
     attendees: 15,
@@ -103,14 +116,18 @@ const sampleEvents: Event[] = [
     price: 75,
     visibility: 'private',
     status: 'confirmed',
-    createdBy: 'Admin'
+    createdBy: 'Admin',
+    responsibleMembers: ['Senior Pastor', 'Church Administrator'],
+    hasCheckin: true,
+    registeredUsers: []
   },
   {
     id: 4,
     title: 'Easter Concert',
-    date: new Date(2025, 3, 18), // April 18, 2025
+    date: new Date(2025, 3, 18),
     startTime: '7:00 PM',
     endTime: '9:00 PM',
+    time: '7:00 PM - 9:00 PM',
     location: 'Main Sanctuary',
     description: 'Special Easter concert featuring the church choir',
     attendees: 200,
@@ -118,14 +135,18 @@ const sampleEvents: Event[] = [
     price: 15,
     visibility: 'public',
     status: 'sold-out',
-    createdBy: 'Music Director'
+    createdBy: 'Music Director',
+    responsibleMembers: ['Music Director', 'Choir Leader'],
+    hasCheckin: true,
+    registeredUsers: []
   },
   {
     id: 5,
     title: 'Men\'s Prayer Breakfast',
-    date: new Date(2025, 3, 20), // April 20, 2025
+    date: new Date(2025, 3, 20),
     startTime: '8:00 AM',
     endTime: '10:00 AM',
+    time: '8:00 AM - 10:00 AM',
     location: 'Fellowship Hall',
     description: 'Monthly men\'s prayer breakfast and fellowship',
     attendees: 28,
@@ -133,14 +154,18 @@ const sampleEvents: Event[] = [
     price: 10,
     visibility: 'public',
     status: 'confirmed',
-    createdBy: 'Men\'s Ministry Leader'
+    createdBy: 'Men\'s Ministry Leader',
+    responsibleMembers: ['Men\'s Ministry Leader'],
+    hasCheckin: false,
+    registeredUsers: []
   },
   {
     id: 6,
     title: 'Children\'s Easter Egg Hunt',
-    date: new Date(2025, 3, 20), // April 20, 2025
+    date: new Date(2025, 3, 20),
     startTime: '3:00 PM',
     endTime: '5:00 PM',
+    time: '3:00 PM - 5:00 PM',
     location: 'Church Grounds',
     description: 'Annual Easter egg hunt for children',
     attendees: 45,
@@ -148,14 +173,18 @@ const sampleEvents: Event[] = [
     price: 0,
     visibility: 'public',
     status: 'confirmed',
-    createdBy: 'Children\'s Ministry'
+    createdBy: 'Children\'s Ministry',
+    responsibleMembers: ['Children\'s Ministry Director', 'Volunteers'],
+    hasCheckin: true,
+    registeredUsers: []
   },
   {
     id: 7,
     title: 'Sound Team Training',
-    date: new Date(2025, 3, 27), // April 27, 2025
+    date: new Date(2025, 3, 27),
     startTime: '1:00 PM',
     endTime: '3:00 PM',
+    time: '1:00 PM - 3:00 PM',
     location: 'Tech Booth',
     description: 'Training session for sound team volunteers',
     attendees: 5,
@@ -163,14 +192,18 @@ const sampleEvents: Event[] = [
     price: 0,
     visibility: 'private',
     status: 'confirmed',
-    createdBy: 'Technical Director'
+    createdBy: 'Technical Director',
+    responsibleMembers: ['Technical Director'],
+    hasCheckin: false,
+    registeredUsers: []
   },
   {
     id: 8,
     title: 'Missions Trip Fundraiser',
-    date: new Date(2025, 3, 23), // April 23, 2025
+    date: new Date(2025, 3, 23),
     startTime: '6:30 PM',
     endTime: '8:30 PM',
+    time: '6:30 PM - 8:30 PM',
     location: 'Fellowship Hall',
     description: 'Fundraiser dinner for upcoming missions trip',
     attendees: 0,
@@ -178,7 +211,10 @@ const sampleEvents: Event[] = [
     price: 25,
     visibility: 'public',
     status: 'canceled',
-    createdBy: 'Missions Director'
+    createdBy: 'Missions Director',
+    responsibleMembers: ['Missions Director', 'Missions Team'],
+    hasCheckin: false,
+    registeredUsers: []
   }
 ];
 
@@ -251,9 +287,6 @@ const Events = () => {
   };
 
   const handleViewDetails = (event: Event) => {
-    if (!event.registeredUsers) {
-      event.registeredUsers = [];
-    }
     setSelectedEvent(event);
     setShowEventDetails(true);
   };
