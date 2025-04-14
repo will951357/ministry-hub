@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Calendar as CalendarIcon, MapPin, Users, DollarSign, Eye, EyeOff, CircleCheck, CircleX, CircleSlash, Download, Bell, Search, Plus, TrendingUp, CalendarDays, UserCheck, CreditCard, Filter } from "lucide-react";
 import { QrCode, Edit } from "lucide-react";
@@ -380,54 +381,56 @@ const Events = () => {
               </CardContent>
             </Card>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="flex flex-col gap-3">
               <Card>
-                <CardHeader className="pb-1">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">Total Events</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center">
-                    <CalendarDays className="h-5 w-5 text-church-accent mr-2" />
-                    <div className="text-2xl font-bold">{totalUpcomingEvents}</div>
+                <CardContent className="pt-6">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Total Events</p>
+                      <h3 className="mt-2 text-2xl font-semibold">{totalUpcomingEvents}</h3>
+                      <p className="text-xs text-muted-foreground mt-1 flex items-center">
+                        <TrendingUp className="h-3 w-3 inline mr-1" />
+                        Upcoming events
+                      </p>
+                    </div>
+                    <div className="rounded-md bg-primary/10 p-2 text-primary">
+                      <CalendarDays className="h-5 w-5 text-church-accent" />
+                    </div>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    <TrendingUp className="h-3 w-3 inline mr-1" />
-                    Upcoming events
-                  </p>
                 </CardContent>
               </Card>
               
               <Card>
-                <CardHeader className="pb-1">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">Current Month</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center">
-                    <CalendarIcon className="h-5 w-5 text-church-accent mr-2" />
-                    <div className="text-2xl font-bold">{currentMonthEvents}</div>
+                <CardContent className="pt-6">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Current Month</p>
+                      <h3 className="mt-2 text-2xl font-semibold">{currentMonthEvents}</h3>
+                      <p className="text-xs text-muted-foreground mt-1 flex items-center">
+                        <TrendingUp className="h-3 w-3 inline mr-1" />
+                        Events in {format(new Date(), 'MMMM')}
+                      </p>
+                    </div>
+                    <div className="rounded-md bg-primary/10 p-2 text-primary">
+                      <CalendarIcon className="h-5 w-5 text-church-accent" />
+                    </div>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    <TrendingUp className="h-3 w-3 inline mr-1" />
-                    Events in {format(new Date(), 'MMMM')}
-                  </p>
                 </CardContent>
               </Card>
               
               <Card>
-                <CardHeader className="pb-1">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">Registrations</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center">
-                    <div className="flex flex-col">
-                      <div className="flex items-center">
-                        <UserCheck className="h-5 w-5 text-church-accent mr-2" />
-                        <div className="text-2xl font-bold">{totalRegistrations}</div>
-                      </div>
+                <CardContent className="pt-6">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Registrations</p>
+                      <h3 className="mt-2 text-2xl font-semibold">{totalRegistrations}</h3>
                       <div className="flex items-center mt-2">
-                        <CreditCard className="h-5 w-5 text-green-600 mr-2" />
-                        <div className="text-lg font-bold">${totalRevenue.toFixed(2)}</div>
+                        <CreditCard className="h-4 w-4 text-green-600 mr-1" />
+                        <span className="text-sm font-medium">${totalRevenue.toFixed(2)}</span>
                       </div>
+                    </div>
+                    <div className="rounded-md bg-primary/10 p-2 text-primary">
+                      <UserCheck className="h-5 w-5 text-church-accent" />
                     </div>
                   </div>
                 </CardContent>
