@@ -1,254 +1,184 @@
 
 import { useState } from "react";
-import { PlusCircle, Search, Filter, Baby } from "lucide-react";
+import { PlusCircle, Search, Filter, Baby, Eye, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-
-const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  birthDate: z.string().min(1, "Birth date is required"),
-  contactOption: z.string().optional(),
-  alimentaryRestriction: z.string().optional(),
-  specialNecessities: z.string().optional(),
-  identificationPassword: z.string().min(4, "Password must be at least 4 characters").max(10, "Password must be at most 10 characters"),
-  parentConsent: z.boolean().refine(val => val === true, {
-    message: "You must agree to the terms and conditions",
-  }),
-});
-
-type FormValues = z.infer<typeof formSchema>;
 
 interface Kid {
   id: string;
   name: string;
+  parent: string;
   birthDate: string;
   contactOption: string;
   alimentaryRestriction: string;
   specialNecessities: string;
   identificationPassword: string;
+  addedDate: string;
 }
 
 export default function Kids() {
-  const [kids, setKids] = useState<Kid[]>([]);
-  const [showForm, setShowForm] = useState(false);
+  // Mock data for kids
+  const [kids, setKids] = useState<Kid[]>([
+    {
+      id: "1",
+      name: "John Smith Jr.",
+      parent: "John Smith",
+      birthDate: "2018-05-15",
+      contactOption: "555-1234",
+      alimentaryRestriction: "Peanut allergy",
+      specialNecessities: "None",
+      identificationPassword: "JOHN2018",
+      addedDate: "2023-01-10",
+    },
+    {
+      id: "2",
+      name: "Sarah Johnson",
+      parent: "Michael Johnson",
+      birthDate: "2019-08-22",
+      contactOption: "555-5678",
+      alimentaryRestriction: "Lactose intolerant",
+      specialNecessities: "Asthma, needs inhaler",
+      identificationPassword: "SARAH2019",
+      addedDate: "2023-02-15",
+    },
+    {
+      id: "3",
+      name: "Emma Williams",
+      parent: "David Williams",
+      birthDate: "2020-03-10",
+      contactOption: "555-9012",
+      alimentaryRestriction: "None",
+      specialNecessities: "None",
+      identificationPassword: "EMMA2020",
+      addedDate: "2024-03-20",
+    },
+  ]);
+
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedKid, setSelectedKid] = useState<Kid | null>(null);
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const { toast } = useToast();
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      birthDate: "",
-      contactOption: "",
-      alimentaryRestriction: "",
-      specialNecessities: "",
-      identificationPassword: "",
-      parentConsent: false,
-    },
-  });
+  // Calculate metrics
+  const totalKids = kids.length;
+  
+  // Get last month's date range
+  const today = new Date();
+  const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+  const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+  
+  // Calculate total kids registered last month
+  const kidsLastMonth = kids.filter(kid => {
+    const addedDate = new Date(kid.addedDate);
+    return addedDate >= lastMonth && addedDate <= lastMonthEnd;
+  }).length;
 
-  const onSubmit = (data: FormValues) => {
-    const newKid: Kid = {
-      id: Math.random().toString(36).substring(2, 9),
-      name: data.name,
-      birthDate: data.birthDate,
-      contactOption: data.contactOption || "",
-      alimentaryRestriction: data.alimentaryRestriction || "",
-      specialNecessities: data.specialNecessities || "",
-      identificationPassword: data.identificationPassword,
-    };
+  const filteredKids = kids.filter(kid => 
+    kid.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    kid.parent.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-    setKids([...kids, newKid]);
-    setShowForm(false);
-    form.reset();
-    
+  const handleViewKid = (kid: Kid) => {
+    setSelectedKid(kid);
+    setIsViewOpen(true);
+  };
+
+  const handleDeletePrompt = (kid: Kid) => {
+    setSelectedKid(kid);
+    setIsDeleteOpen(true);
+  };
+
+  const handleDeleteKid = () => {
+    if (selectedKid) {
+      setKids(kids.filter(k => k.id !== selectedKid.id));
+      setIsDeleteOpen(false);
+      
+      toast({
+        title: "Success!",
+        description: `${selectedKid.name} has been removed from the registry.`,
+      });
+    }
+  };
+
+  const handleSendNotification = () => {
     toast({
-      title: "Success!",
-      description: "Kid has been added to the registry.",
+      title: "Notification Sent",
+      description: `Push notification sent to parent of ${selectedKid?.name}.`,
     });
   };
 
-  const filteredKids = kids.filter(kid => 
-    kid.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
 
   return (
     <div className="container mx-auto py-6">
       <div className="flex flex-col space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Kids Registry</h1>
-            <p className="text-muted-foreground">
-              Manage all children registered in the church
-            </p>
-          </div>
-          <Button onClick={() => setShowForm(true)}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Add Child
-          </Button>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Kids Registry</h1>
+          <p className="text-muted-foreground">
+            View and manage children registered through the app
+          </p>
         </div>
 
-        {showForm && (
+        {/* Stats cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Register New Child</CardTitle>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Total Kids</CardTitle>
             </CardHeader>
             <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Full Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter child's full name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="birthDate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Birth Date</FormLabel>
-                        <FormControl>
-                          <Input type="date" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="contactOption"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Optional Contact</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Additional contact information" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="alimentaryRestriction"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Alimentary Restrictions</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="List any food allergies or dietary restrictions" 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="specialNecessities"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Special Necessities</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="List any special needs or medical conditions" 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="identificationPassword"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Identification Password</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Create a unique ID password for the child" 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="parentConsent"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>
-                            I confirm that I am the parent/guardian and consent to store this information
-                          </FormLabel>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <div className="flex justify-end space-x-2">
-                    <Button 
-                      variant="outline" 
-                      type="button"
-                      onClick={() => setShowForm(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button type="submit">Save Child</Button>
-                  </div>
-                </form>
-              </Form>
+              <div className="text-2xl font-bold">{totalKids}</div>
             </CardContent>
           </Card>
-        )}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Registered Last Month</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{kidsLastMonth}</div>
+            </CardContent>
+          </Card>
+        </div>
 
+        {/* Search bar */}
         <div className="flex items-center gap-2">
           <div className="flex-1">
             <Input
-              placeholder="Search kids..."
+              placeholder="Search by name or parent..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="max-w-sm"
-              prefix={<Search className="h-4 w-4 text-muted-foreground" />}
             />
           </div>
           <Button variant="outline" size="icon">
@@ -257,6 +187,7 @@ export default function Kids() {
           </Button>
         </div>
 
+        {/* Kids list */}
         {kids.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center animate-in fade-in-50">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
@@ -264,49 +195,130 @@ export default function Kids() {
             </div>
             <h2 className="mt-6 text-xl font-semibold">No children registered yet</h2>
             <p className="mb-8 mt-2 text-center text-sm text-muted-foreground max-w-sm">
-              Start by adding children to the registry. You'll be able to manage their information and generate identification QR codes.
+              Children will be added when parents register them through the app.
             </p>
-            <Button onClick={() => setShowForm(true)}>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add First Child
-            </Button>
           </div>
         ) : (
-          <div className="rounded-md border">
-            <div className="relative w-full overflow-auto">
-              <table className="w-full caption-bottom text-sm">
-                <thead className="border-b bg-muted/50">
-                  <tr className="text-left">
-                    <th className="h-12 px-4 font-medium">Name</th>
-                    <th className="h-12 px-4 font-medium">Birth Date</th>
-                    <th className="h-12 px-4 font-medium">ID Password</th>
-                    <th className="h-12 px-4 font-medium">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredKids.map((kid) => (
-                    <tr key={kid.id} className="border-b">
-                      <td className="p-4">{kid.name}</td>
-                      <td className="p-4">{kid.birthDate}</td>
-                      <td className="p-4">{kid.identificationPassword}</td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm">
-                            View
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            QR Code
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Parent</TableHead>
+                <TableHead>Birthday</TableHead>
+                <TableHead>ID Password</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredKids.map((kid) => (
+                <TableRow key={kid.id}>
+                  <TableCell className="font-medium">{kid.name}</TableCell>
+                  <TableCell>{kid.parent}</TableCell>
+                  <TableCell>{formatDate(kid.birthDate)}</TableCell>
+                  <TableCell>{kid.identificationPassword}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => handleViewKid(kid)}
+                      >
+                        <Eye className="h-4 w-4" />
+                        <span className="sr-only">View</span>
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => handleDeletePrompt(kid)}
+                        className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
+                      >
+                        <Trash className="h-4 w-4" />
+                        <span className="sr-only">Delete</span>
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         )}
       </div>
+
+      {/* View Kid Dialog */}
+      <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Child Information</DialogTitle>
+          </DialogHeader>
+          {selectedKid && (
+            <div className="space-y-4 py-2">
+              <div className="grid grid-cols-1 gap-1">
+                <div className="font-medium">Full Name</div>
+                <div>{selectedKid.name}</div>
+              </div>
+              <div className="grid grid-cols-1 gap-1">
+                <div className="font-medium">Parent</div>
+                <div>{selectedKid.parent}</div>
+              </div>
+              <div className="grid grid-cols-1 gap-1">
+                <div className="font-medium">Birth Date</div>
+                <div>{formatDate(selectedKid.birthDate)}</div>
+              </div>
+              <div className="grid grid-cols-1 gap-1">
+                <div className="font-medium">Contact Information</div>
+                <div>{selectedKid.contactOption || "Not provided"}</div>
+              </div>
+              <div className="grid grid-cols-1 gap-1">
+                <div className="font-medium">Alimentary Restrictions</div>
+                <div>{selectedKid.alimentaryRestriction || "None"}</div>
+              </div>
+              <div className="grid grid-cols-1 gap-1">
+                <div className="font-medium">Special Necessities</div>
+                <div>{selectedKid.specialNecessities || "None"}</div>
+              </div>
+              <div className="grid grid-cols-1 gap-1">
+                <div className="font-medium">Identification Password</div>
+                <div>{selectedKid.identificationPassword}</div>
+              </div>
+              <div className="grid grid-cols-1 gap-1">
+                <div className="font-medium">Added Date</div>
+                <div>{formatDate(selectedKid.addedDate)}</div>
+              </div>
+            </div>
+          )}
+          <DialogFooter className="sm:justify-between">
+            <Button
+              type="button"
+              onClick={handleSendNotification}
+              variant="outline"
+            >
+              Send Notification
+            </Button>
+            <DialogClose asChild>
+              <Button type="button" variant="secondary">Close</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Alert Dialog */}
+      <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove {selectedKid?.name} from the kids registry.
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteKid} className="bg-destructive hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
