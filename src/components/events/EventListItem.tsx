@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { Calendar, MapPin, Clock, Users, DollarSign, EyeOff, Check, Eye, QrCode, Edit, Trash } from 'lucide-react';
+import { Calendar, MapPin, Clock, Users, DollarSign, EyeOff, Check, Eye, Edit, Trash } from 'lucide-react';
+import { QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';

@@ -6,6 +6,7 @@ import { EventListItem } from '../events/EventListItem';
 import { EventDetailsModal } from '../events/EventDetailsModal';
 import { CheckinQRModal } from '../events/CheckinQRModal';
 import { CancelEventDialog } from '../events/CancelEventDialog';
+import { QrCode, Edit } from 'lucide-react';
 
 // Example events data with more realistic information
 const events = [

@@ -1,6 +1,6 @@
-
 import React, { useState, useMemo } from 'react';
 import { Calendar as CalendarIcon, MapPin, Users, DollarSign, Eye, EyeOff, CircleCheck, CircleX, CircleSlash, Download, Bell, Search, Plus, TrendingUp, CalendarDays, UserCheck, CreditCard, Filter } from "lucide-react";
+import { QrCode, Edit } from "lucide-react";
 import { format, isSameDay, startOfMonth, endOfMonth } from "date-fns";
 
 import { cn } from "@/lib/utils";
@@ -301,7 +301,6 @@ const Events = () => {
     });
   };
 
-  // Calculate metrics
   const totalUpcomingEvents = sampleEvents.length;
   const currentMonthEvents = useMemo(() => {
     const now = new Date();
@@ -324,7 +323,6 @@ const Events = () => {
     <MainLayout>
       <div className="container mx-auto py-6">
         <div className="flex flex-col space-y-4">
-          {/* Header with title and add button */}
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold">Events</h1>
@@ -338,9 +336,7 @@ const Events = () => {
             </Button>
           </div>
           
-          {/* Calendar and metrics section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Calendar */}
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">Event Calendar</CardTitle>
@@ -384,7 +380,6 @@ const Events = () => {
               </CardContent>
             </Card>
 
-            {/* Metrics Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Card>
                 <CardHeader className="pb-1">
@@ -440,7 +435,6 @@ const Events = () => {
             </div>
           </div>
           
-          {/* Search and Action Buttons */}
           <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
             <div className="relative flex-grow">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -519,7 +513,6 @@ const Events = () => {
             </div>
           </div>
           
-          {/* Active filters */}
           <div className="flex flex-wrap gap-2">
             {visibilityFilter !== 'all' || statusFilter !== 'all' || priceFilter !== 'all' ? (
               <>
@@ -559,7 +552,6 @@ const Events = () => {
             ) : null}
           </div>
 
-          {/* Events table */}
           <Card>
             <CardHeader className="py-4">
               <CardTitle>
@@ -690,7 +682,6 @@ const Events = () => {
         </div>
       </div>
       
-      {/* Modals */}
       <AddEventModal 
         open={showAddEventModal} 
         onOpenChange={setShowAddEventModal}
