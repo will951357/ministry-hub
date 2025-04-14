@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -21,8 +22,7 @@ import {
   Map,
   CalendarClock,
   Cake,
-  Smartphone,
-  LayoutPanelLeft
+  Smartphone
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -44,12 +44,13 @@ interface SideNavProps {
 export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
   const location = useLocation();
   const [activeItem, setActiveItem] = useState(() => {
+    // Determine the active item based on the current path
     const path = location.pathname;
     if (path === '/') return 'dashboard';
     if (path.startsWith('/people')) return 'people';
     if (path.startsWith('/finance')) return 'finance';
     if (path.startsWith('/app-member')) return 'app-member';
-    return path.substring(1);
+    return path.substring(1); // Remove the leading slash
   });
   
   const [openSubmenus, setOpenSubmenus] = useState<string[]>(['people', 'finance', 'app-member']);
@@ -95,7 +96,6 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
       href: '/app-member',
       subItems: [
         { id: 'blog', label: 'Blog', icon: <FileText size={18} />, href: '/app-member/blog' },
-        { id: 'app-manager', label: 'App Manager', icon: <LayoutPanelLeft size={18} />, href: '/app-member/app-manager' },
       ]
     },
     { id: 'ministries', label: 'Ministries', icon: <CopyCheck size={20} />, href: '/ministries' },
