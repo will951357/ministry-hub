@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Calendar as CalendarIcon, MapPin, Users, DollarSign, Eye, EyeOff, CircleCheck, CircleX, CircleSlash, Download, Bell, Search, Plus, Clock } from "lucide-react";
+import { Calendar as CalendarIcon, MapPin, Users, DollarSign, Eye, EyeOff, CircleCheck, CircleX, CircleSlash, Download, Bell, Search, Plus, Clock, Edit, Trash2, QrCode } from "lucide-react";
 import { format, isSameDay } from "date-fns";
 
 import { cn } from "@/lib/utils";
@@ -14,12 +14,24 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { EventList } from "@/components/dashboard/EventList";
 import { AddEventModal } from "@/components/events/AddEventModal";
+import { EventDetailsModal } from "@/components/events/EventDetailsModal";
+import { CheckinQRModal } from "@/components/events/CheckinQRModal";
+import { CancelEventDialog } from "@/components/events/CancelEventDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type EventStatus = 'confirmed' | 'canceled' | 'sold-out';
 type EventVisibility = 'public' | 'private';
@@ -38,6 +50,13 @@ type Event = {
   visibility: EventVisibility;
   status: EventStatus;
   createdBy: string;
+  hasCheckin?: boolean;
+  registeredUsers?: {
+    id: number;
+    name: string;
+    email: string;
+    checkedIn: boolean;
+  }[];
 };
 
 const sampleEvents: Event[] = [
@@ -172,6 +191,9 @@ const Events = () => {
   const [priceFilter, setPriceFilter] = useState<'free' | 'paid' | 'all'>('all');
   const [sendToAll, setSendToAll] = useState(true);
   const [showAddEventModal, setShowAddEventModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [showEventDetails, setShowEventDetails] = useState(false);
+  const [showCheckinQR, setShowCheckinQR] = useState(false);
 
   const filteredEvents = useMemo(() => {
     return sampleEvents.filter(event => {
@@ -226,6 +248,33 @@ const Events = () => {
       case 'sold-out':
         return <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200"><CircleSlash className="h-3 w-3 mr-1" /> Sold Out</Badge>;
     }
+  };
+
+  const handleViewDetails = (event: Event) => {
+    if (!event.registeredUsers) {
+      event.registeredUsers = [];
+    }
+    setSelectedEvent(event);
+    setShowEventDetails(true);
+  };
+
+  const handleGenerateQRCode = (event: Event) => {
+    setSelectedEvent(event);
+    setShowCheckinQR(true);
+  };
+
+  const handleEditEvent = (eventId: number) => {
+    toast({
+      title: "Edit Event",
+      description: `Editing event with ID: ${eventId}`,
+    });
+  };
+
+  const handleCancelEvent = (eventId: number) => {
+    toast({
+      title: "Event Canceled",
+      description: "The event has been successfully canceled.",
+    });
   };
 
   return (
@@ -431,13 +480,14 @@ const Events = () => {
                     <TableHead>Attendees</TableHead>
                     <TableHead>Price</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {eventsByDate.map((event) => (
                     <TableRow key={event.id}>
                       <TableCell>
-                        <div className="font-medium hover:text-church-accent cursor-pointer">
+                        <div className="font-medium hover:text-church-accent cursor-pointer" onClick={() => handleViewDetails(event)}>
                           {event.title}
                           {event.visibility === 'private' && (
                             <EyeOff className="h-3 w-3 inline ml-1 text-muted-foreground" />
@@ -483,6 +533,56 @@ const Events = () => {
                       <TableCell>
                         {getStatusBadge(event.status)}
                       </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end space-x-1">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => handleViewDetails(event)}
+                            className="h-7 w-7"
+                          >
+                            <Eye className="h-3.5 w-3.5" />
+                          </Button>
+                          
+                          {event.hasCheckin && (
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              onClick={() => handleGenerateQRCode(event)}
+                              className="h-7 w-7"
+                            >
+                              <QrCode className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
+                          
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => handleEditEvent(event.id)}
+                            className="h-7 w-7"
+                          >
+                            <Edit className="h-3.5 w-3.5" />
+                          </Button>
+                          
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <CancelEventDialog 
+                                eventTitle={event.title} 
+                                onConfirm={() => handleCancelEvent(event.id)} 
+                              />
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -517,6 +617,18 @@ const Events = () => {
             description: `${event.title} has been successfully added.`,
           });
         }}
+      />
+
+      <EventDetailsModal 
+        open={showEventDetails} 
+        onOpenChange={setShowEventDetails} 
+        event={selectedEvent}
+      />
+
+      <CheckinQRModal
+        open={showCheckinQR}
+        onOpenChange={setShowCheckinQR}
+        event={selectedEvent}
       />
     </MainLayout>
   );
