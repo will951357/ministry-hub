@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
@@ -28,7 +27,7 @@ import {
   MenuSquare,
   Calendar,
   Map,
-  Form,
+  FileText,
   Save
 } from "lucide-react";
 
@@ -62,7 +61,7 @@ export default function AppManager() {
     { id: 'widget-menu', type: 'menu', title: 'Menu', icon: <MenuSquare className="h-5 w-5" /> },
     { id: 'widget-calendar', type: 'calendar', title: 'Calendar', icon: <Calendar className="h-5 w-5" /> },
     { id: 'widget-map', type: 'map', title: 'Map', icon: <Map className="h-5 w-5" /> },
-    { id: 'widget-form', type: 'form', title: 'Form', icon: <Form className="h-5 w-5" /> },
+    { id: 'widget-form', type: 'form', title: 'Form', icon: <FileText className="h-5 w-5" /> },
   ];
 
   // Handle drag end event
