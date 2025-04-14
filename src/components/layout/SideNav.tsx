@@ -22,7 +22,9 @@ import {
   CalendarClock,
   Cake,
   Smartphone,
-  Baby
+  Baby,
+  Book,
+  GraduationCap
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -49,6 +51,7 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
     if (path.startsWith('/people')) return 'people';
     if (path.startsWith('/finance')) return 'finance';
     if (path.startsWith('/app-member')) return 'app-member';
+    if (path.startsWith('/groups')) return 'groups';
     return path.substring(1);
   });
   
@@ -56,7 +59,7 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
   
   useEffect(() => {
     if (isOpen) {
-      if (activeItem === 'people' || activeItem === 'finance' || activeItem === 'app-member') {
+      if (activeItem === 'people' || activeItem === 'finance' || activeItem === 'app-member' || activeItem === 'groups') {
         setOpenSubmenu(activeItem);
       }
     }
@@ -103,7 +106,16 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
       ]
     },
     { id: 'ministries', label: 'Ministries', icon: <CopyCheck size={20} />, href: '/ministries' },
-    { id: 'groups', label: 'Groups', icon: <UsersRound size={20} />, href: '/groups' },
+    { 
+      id: 'groups', 
+      label: 'Groups', 
+      icon: <UsersRound size={20} />, 
+      href: '/groups',
+      subItems: [
+        { id: 'groups-main', label: 'Church Groups', icon: <UsersRound size={18} />, href: '/groups' },
+        { id: 'learning', label: 'Learning', icon: <GraduationCap size={18} />, href: '/groups/learning' },
+      ]
+    },
     { id: 'events', label: 'Events', icon: <Calendar size={20} />, href: '/events' },
     { id: 'settings', label: 'Settings', icon: <Settings size={20} />, href: '/settings' },
   ];
@@ -175,7 +187,7 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
                         to={subItem.href}
                         className={cn(
                           "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-all",
-                          location.pathname === subItem.href || location.pathname === item.href && subItem.id === "members"
+                          location.pathname === subItem.href || (location.pathname === item.href && subItem.id === "members") || (location.pathname === item.href && subItem.id === "groups-main")
                             ? "bg-sidebar-accent/30 text-white" 
                             : "text-sidebar-foreground/90 hover:bg-sidebar-accent/10 hover:text-sidebar-foreground"
                         )}

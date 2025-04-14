@@ -16,6 +16,7 @@ import Birthdays from "./pages/people/Birthdays";
 import Kids from "./pages/people/Kids";
 import Ministries from "./pages/Ministries";
 import Groups from "./pages/Groups";
+import Learning from "./pages/groups/Learning";
 import Events from "./pages/Events";
 import Finance from "./pages/Finance";
 import Donations from "./pages/finance/Donations";
@@ -67,6 +68,7 @@ const App = () => (
           {/* Using real components */}
           <Route path="/ministries" element={<Ministries />} />
           <Route path="/groups" element={<Groups />} />
+          <Route path="/groups/learning" element={<Learning />} />
           <Route path="/events" element={<Events />} />
           <Route path="/settings" element={<Index />} />
           
