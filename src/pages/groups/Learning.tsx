@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,7 +18,13 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-// Define the Course type
+interface Class {
+  id: number;
+  subject: string;
+  date: string;
+  sideMaterial?: string;
+}
+
 interface Course {
   id: number;
   name: string;
@@ -34,9 +39,9 @@ interface Course {
   certificateType: string;
   targetAudience: "Kids" | "Young" | "Adult";
   sideMaterials: string[];
+  classes: Class[];
 }
 
-// Sample courses data
 const coursesData: Course[] = [
   {
     id: 1,
@@ -51,7 +56,11 @@ const coursesData: Course[] = [
     minAverageGrade: 70,
     certificateType: "Standard",
     targetAudience: "Adult",
-    sideMaterials: ["Study Guide", "Workbook"]
+    sideMaterials: ["Study Guide", "Workbook"],
+    classes: [
+      { id: 1, subject: "Introduction to Bible Study", date: "2025-05-10", sideMaterial: "Introduction Handout" },
+      { id: 2, subject: "Old Testament Overview", date: "2025-05-17", sideMaterial: "OT Timeline" }
+    ]
   },
   {
     id: 2,
@@ -66,7 +75,10 @@ const coursesData: Course[] = [
     minAverageGrade: 75,
     certificateType: "Advanced",
     targetAudience: "Adult",
-    sideMaterials: ["Leadership Manual", "Case Studies"]
+    sideMaterials: ["Leadership Manual", "Case Studies"],
+    classes: [
+      { id: 1, subject: "Servant Leadership", date: "2025-06-15", sideMaterial: "Leadership Principles Guide" }
+    ]
   },
   {
     id: 3,
@@ -81,7 +93,8 @@ const coursesData: Course[] = [
     minAverageGrade: 60,
     certificateType: "Kids",
     targetAudience: "Kids",
-    sideMaterials: ["Activity Book", "Coloring Pages"]
+    sideMaterials: ["Activity Book", "Coloring Pages"],
+    classes: []
   },
   {
     id: 4,
@@ -96,7 +109,8 @@ const coursesData: Course[] = [
     minAverageGrade: 65,
     certificateType: "Standard",
     targetAudience: "Young",
-    sideMaterials: ["Discussion Guide", "Media Resources"]
+    sideMaterials: ["Discussion Guide", "Media Resources"],
+    classes: []
   },
   {
     id: 5,
@@ -111,7 +125,8 @@ const coursesData: Course[] = [
     minAverageGrade: 70,
     certificateType: "Advanced",
     targetAudience: "Adult",
-    sideMaterials: ["Workbook", "Video Series"]
+    sideMaterials: ["Workbook", "Video Series"],
+    classes: []
   },
   {
     id: 6,
@@ -126,11 +141,11 @@ const coursesData: Course[] = [
     minAverageGrade: 60,
     certificateType: "Standard",
     targetAudience: "Adult",
-    sideMaterials: ["Prayer Guide"]
+    sideMaterials: ["Prayer Guide"],
+    classes: []
   }
 ];
 
-// Create form type
 interface CourseFormValues {
   name: string;
   description: string;
@@ -144,13 +159,19 @@ interface CourseFormValues {
   registrationEndDate: Date | undefined;
 }
 
+interface ClassFormValues {
+  subject: string;
+  date: Date | undefined;
+  sideMaterial: string;
+}
+
 export default function Learning() {
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isAddClassDialogOpen, setIsAddClassDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   
-  // Initialize react-hook-form
   const form = useForm<CourseFormValues>({
     defaultValues: {
       name: "",
@@ -163,6 +184,14 @@ export default function Learning() {
       endDate: undefined,
       registrationStartDate: undefined,
       registrationEndDate: undefined
+    }
+  });
+  
+  const classForm = useForm<ClassFormValues>({
+    defaultValues: {
+      subject: "",
+      date: undefined,
+      sideMaterial: ""
     }
   });
   
@@ -204,6 +233,33 @@ export default function Learning() {
     toast.success("Course created successfully!");
     setIsCreateDialogOpen(false);
     console.log("Form submitted with data:", data);
+  };
+
+  const openAddClassDialog = () => {
+    setIsAddClassDialogOpen(true);
+  };
+
+  const onAddClass = (data: ClassFormValues) => {
+    if (!selectedCourse || !data.date) return;
+    
+    const formattedDate = format(data.date, "yyyy-MM-dd");
+    
+    const newClass: Class = {
+      id: selectedCourse.classes.length + 1,
+      subject: data.subject,
+      date: formattedDate,
+      sideMaterial: data.sideMaterial
+    };
+    
+    selectedCourse.classes.push(newClass);
+    
+    toast.success(`Class "${data.subject}" added to "${selectedCourse.name}"`);
+    
+    setIsAddClassDialogOpen(false);
+    
+    classForm.reset();
+    
+    console.log("Class added:", newClass);
   };
 
   return (
@@ -319,7 +375,6 @@ export default function Learning() {
         </div>
       </div>
 
-      {/* Course details dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -389,6 +444,40 @@ export default function Learning() {
                 </div>
               </div>
               
+              <div className="border-t pt-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-medium">Classes ({selectedCourse.classes.length})</h4>
+                  <Button variant="outline" size="sm" onClick={openAddClassDialog}>
+                    <Plus size={14} className="mr-1" />
+                    Add Class
+                  </Button>
+                </div>
+                
+                {selectedCourse.classes.length > 0 ? (
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {selectedCourse.classes.map((classItem) => (
+                      <div key={classItem.id} className="border rounded-md p-2 text-sm">
+                        <div className="font-medium">{classItem.subject}</div>
+                        <div className="flex items-center justify-between mt-1 text-church-secondary">
+                          <div className="flex items-center gap-1">
+                            <CalendarIcon size={12} />
+                            <span>{formatDate(classItem.date)}</span>
+                          </div>
+                          {classItem.sideMaterial && (
+                            <div className="flex items-center gap-1">
+                              <FileText size={12} />
+                              <span>{classItem.sideMaterial}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-church-secondary">No classes have been added yet.</p>
+                )}
+              </div>
+              
               <div className="pt-4 flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Close</Button>
                 <Button>
@@ -401,7 +490,6 @@ export default function Learning() {
         </DialogContent>
       </Dialog>
 
-      {/* Create course dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -492,7 +580,6 @@ export default function Learning() {
                   />
                 </div>
                 
-                {/* Course Date Range */}
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -573,7 +660,6 @@ export default function Learning() {
                   />
                 </div>
                 
-                {/* Registration Date Range */}
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -717,6 +803,98 @@ export default function Learning() {
                   <Button type="submit">
                     <Plus size={16} className="mr-1" />
                     Create Course
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isAddClassDialogOpen} onOpenChange={setIsAddClassDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Class</DialogTitle>
+            <DialogDescription>
+              Add a class to {selectedCourse?.name}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <Form {...classForm}>
+              <form onSubmit={classForm.handleSubmit(onAddClass)} className="space-y-4">
+                <FormField
+                  control={classForm.control}
+                  name="subject"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Subject</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter class subject" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={classForm.control}
+                  name="date"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Class Date</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto")}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={classForm.control}
+                  name="sideMaterial"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Side Material (Optional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter side material name" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button variant="outline" type="button" onClick={() => setIsAddClassDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit">
+                    <Plus size={16} className="mr-1" />
+                    Add Class
                   </Button>
                 </div>
               </form>
