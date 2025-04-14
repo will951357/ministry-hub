@@ -1,6 +1,5 @@
-
 import React, { useState, useMemo } from 'react';
-import { Calendar as CalendarIcon, MapPin, Users, DollarSign, Eye, EyeOff, CircleCheck, CircleX, CircleSlash, Download, Bell, Search, Filter } from "lucide-react";
+import { Calendar as CalendarIcon, MapPin, Users, DollarSign, Eye, EyeOff, CircleCheck, CircleX, CircleSlash, Download, Bell, Search, Plus, Clock } from "lucide-react";
 import { format, isSameDay } from "date-fns";
 
 import { cn } from "@/lib/utils";
@@ -14,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { EventList } from "@/components/dashboard/EventList";
+import { AddEventModal } from "@/components/events/AddEventModal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,7 +40,6 @@ type Event = {
   createdBy: string;
 };
 
-// Sample data
 const sampleEvents: Event[] = [
   {
     id: 1,
@@ -172,22 +171,19 @@ const Events = () => {
   const [statusFilter, setStatusFilter] = useState<EventStatus | 'all'>('all');
   const [priceFilter, setPriceFilter] = useState<'free' | 'paid' | 'all'>('all');
   const [sendToAll, setSendToAll] = useState(true);
+  const [showAddEventModal, setShowAddEventModal] = useState(false);
 
   const filteredEvents = useMemo(() => {
     return sampleEvents.filter(event => {
-      // Search term filter
       const matchesSearch = searchTerm === '' || 
         event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.description.toLowerCase().includes(searchTerm.toLowerCase());
         
-      // Visibility filter
       const matchesVisibility = visibilityFilter === 'all' || event.visibility === visibilityFilter;
       
-      // Status filter
       const matchesStatus = statusFilter === 'all' || event.status === statusFilter;
       
-      // Price filter
       const matchesPrice = 
         priceFilter === 'all' || 
         (priceFilter === 'free' && event.price === 0) ||
@@ -236,17 +232,23 @@ const Events = () => {
     <MainLayout>
       <div className="container mx-auto py-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          {/* Left side - Event Summary */}
           <div className="md:col-span-2">
             <div className="flex flex-col space-y-4">
-              <div>
-                <h1 className="text-3xl font-bold">Events</h1>
-                <p className="text-muted-foreground">
-                  {filteredEvents.length} Upcoming Events
-                </p>
+              <div className="flex justify-between items-center">
+                <div>
+                  <h1 className="text-3xl font-bold">Events</h1>
+                  <p className="text-muted-foreground">
+                    {filteredEvents.length} Upcoming Events
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => setShowAddEventModal(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4" /> Add Event
+                </Button>
               </div>
               
-              {/* Search and actions bar */}
               <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
                 <div className="relative flex-grow">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -292,7 +294,6 @@ const Events = () => {
                 </div>
               </div>
               
-              {/* Filter badges */}
               <div className="flex flex-wrap gap-2">
                 <Badge 
                   className={cn(
@@ -363,7 +364,6 @@ const Events = () => {
             </div>
           </div>
 
-          {/* Right side - Calendar */}
           <div className="md:col-span-1">
             <Card>
               <CardHeader>
@@ -410,7 +410,6 @@ const Events = () => {
           </div>
         </div>
 
-        {/* Event List */}
         <Card>
           <CardHeader>
             <CardTitle>
@@ -508,6 +507,17 @@ const Events = () => {
           </CardContent>
         </Card>
       </div>
+      
+      <AddEventModal 
+        open={showAddEventModal} 
+        onOpenChange={setShowAddEventModal}
+        onEventAdded={(event) => {
+          toast({
+            title: "Event Added",
+            description: `${event.title} has been successfully added.`,
+          });
+        }}
+      />
     </MainLayout>
   );
 };

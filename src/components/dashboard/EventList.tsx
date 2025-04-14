@@ -1,5 +1,5 @@
 
-import { Calendar, MapPin, Clock, Users, DollarSign, EyeOff } from 'lucide-react';
+import { Calendar, MapPin, Clock, Users, DollarSign, EyeOff, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +18,7 @@ const events = [
     price: 0,
     visibility: 'public',
     status: 'confirmed',
+    hasCheckin: true,
   },
   {
     id: 2,
@@ -30,6 +31,7 @@ const events = [
     price: 0,
     visibility: 'public',
     status: 'confirmed',
+    hasCheckin: false,
   },
   {
     id: 3,
@@ -42,6 +44,7 @@ const events = [
     price: 0,
     visibility: 'public',
     status: 'confirmed',
+    hasCheckin: true,
   },
   {
     id: 4,
@@ -54,6 +57,7 @@ const events = [
     price: 75,
     visibility: 'private',
     status: 'confirmed',
+    hasCheckin: true,
   },
 ];
 
@@ -82,6 +86,9 @@ export function EventList() {
                     {event.title}
                     {event.visibility === 'private' && (
                       <EyeOff className="h-3 w-3 inline ml-1 text-muted-foreground" />
+                    )}
+                    {event.hasCheckin && (
+                      <Check className="h-3 w-3 inline ml-1 text-green-600" />
                     )}
                   </p>
                   <div>
