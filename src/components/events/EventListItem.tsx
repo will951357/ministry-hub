@@ -12,7 +12,7 @@ type EventUser = {
   checkedIn: boolean;
 };
 
-type EventItemProps = {
+export type EventItemProps = {
   event: {
     id: number;
     title: string;
@@ -29,7 +29,7 @@ type EventItemProps = {
     registeredUsers: EventUser[];
     responsibleMembers: string[];
   };
-  onViewDetails: (event: EventItemProps['event']) => void;
+  onViewDetails: (event: any) => void;
 };
 
 export function EventListItem({
