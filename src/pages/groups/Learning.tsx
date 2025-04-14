@@ -11,101 +11,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
 
-// Sample courses data
-const coursesData = [
-  {
-    id: 1,
-    name: "Bible Study Foundations",
-    description: "An introductory course on Bible study methods and interpretation.",
-    status: "active" as const,
-    startDate: "2025-05-10",
-    endDate: "2025-08-10",
-    dayOfWeek: "Sunday",
-    maxApplicants: 30,
-    currentApplicants: 12,
-    minAverageGrade: 70,
-    certificateType: "Standard",
-    targetAudience: "Adult",
-    sideMaterials: ["Study Guide", "Workbook"]
-  },
-  {
-    id: 2,
-    name: "Leadership Training",
-    description: "Developing biblical leadership skills for ministry.",
-    status: "active" as const,
-    startDate: "2025-06-15",
-    endDate: "2025-09-15",
-    dayOfWeek: "Wednesday",
-    maxApplicants: 20,
-    currentApplicants: 15,
-    minAverageGrade: 75,
-    certificateType: "Advanced",
-    targetAudience: "Adult",
-    sideMaterials: ["Leadership Manual", "Case Studies"]
-  },
-  {
-    id: 3,
-    name: "Children's Bible Stories",
-    description: "Fun and engaging Bible storytelling for children.",
-    status: "upcoming" as const,
-    startDate: "2025-07-01",
-    endDate: "2025-09-30",
-    dayOfWeek: "Saturday",
-    maxApplicants: 25,
-    currentApplicants: 0,
-    minAverageGrade: 60,
-    certificateType: "Kids",
-    targetAudience: "Kids",
-    sideMaterials: ["Activity Book", "Coloring Pages"]
-  },
-  {
-    id: 4,
-    name: "Youth Discipleship",
-    description: "Discipleship program designed specifically for teenagers.",
-    status: "active" as const,
-    startDate: "2025-05-05",
-    endDate: "2025-08-05",
-    dayOfWeek: "Friday",
-    maxApplicants: 35,
-    currentApplicants: 28,
-    minAverageGrade: 65,
-    certificateType: "Standard",
-    targetAudience: "Young",
-    sideMaterials: ["Discussion Guide", "Media Resources"]
-  },
-  {
-    id: 5,
-    name: "Marriage Enrichment",
-    description: "Strengthening marriages through biblical principles.",
-    status: "completed" as const,
-    startDate: "2025-01-10",
-    endDate: "2025-04-10",
-    dayOfWeek: "Saturday",
-    maxApplicants: 20,
-    currentApplicants: 18,
-    minAverageGrade: 70,
-    certificateType: "Advanced",
-    targetAudience: "Adult",
-    sideMaterials: ["Workbook", "Video Series"]
-  },
-  {
-    id: 6,
-    name: "Prayer Workshop",
-    description: "Developing a deeper prayer life and understanding.",
-    status: "upcoming" as const,
-    startDate: "2025-08-01",
-    endDate: "2025-10-31",
-    dayOfWeek: "Tuesday",
-    maxApplicants: 30,
-    currentApplicants: 5,
-    minAverageGrade: 60,
-    certificateType: "Standard",
-    targetAudience: "Adult",
-    sideMaterials: ["Prayer Guide"]
-  }
-];
-
+// Define the Course type
 interface Course {
   id: number;
   name: string;
@@ -122,11 +30,129 @@ interface Course {
   sideMaterials: string[];
 }
 
+// Sample courses data
+const coursesData: Course[] = [
+  {
+    id: 1,
+    name: "Bible Study Foundations",
+    description: "An introductory course on Bible study methods and interpretation.",
+    status: "active",
+    startDate: "2025-05-10",
+    endDate: "2025-08-10",
+    dayOfWeek: "Sunday",
+    maxApplicants: 30,
+    currentApplicants: 12,
+    minAverageGrade: 70,
+    certificateType: "Standard",
+    targetAudience: "Adult",
+    sideMaterials: ["Study Guide", "Workbook"]
+  },
+  {
+    id: 2,
+    name: "Leadership Training",
+    description: "Developing biblical leadership skills for ministry.",
+    status: "active",
+    startDate: "2025-06-15",
+    endDate: "2025-09-15",
+    dayOfWeek: "Wednesday",
+    maxApplicants: 20,
+    currentApplicants: 15,
+    minAverageGrade: 75,
+    certificateType: "Advanced",
+    targetAudience: "Adult",
+    sideMaterials: ["Leadership Manual", "Case Studies"]
+  },
+  {
+    id: 3,
+    name: "Children's Bible Stories",
+    description: "Fun and engaging Bible storytelling for children.",
+    status: "upcoming",
+    startDate: "2025-07-01",
+    endDate: "2025-09-30",
+    dayOfWeek: "Saturday",
+    maxApplicants: 25,
+    currentApplicants: 0,
+    minAverageGrade: 60,
+    certificateType: "Kids",
+    targetAudience: "Kids",
+    sideMaterials: ["Activity Book", "Coloring Pages"]
+  },
+  {
+    id: 4,
+    name: "Youth Discipleship",
+    description: "Discipleship program designed specifically for teenagers.",
+    status: "active",
+    startDate: "2025-05-05",
+    endDate: "2025-08-05",
+    dayOfWeek: "Friday",
+    maxApplicants: 35,
+    currentApplicants: 28,
+    minAverageGrade: 65,
+    certificateType: "Standard",
+    targetAudience: "Young",
+    sideMaterials: ["Discussion Guide", "Media Resources"]
+  },
+  {
+    id: 5,
+    name: "Marriage Enrichment",
+    description: "Strengthening marriages through biblical principles.",
+    status: "completed",
+    startDate: "2025-01-10",
+    endDate: "2025-04-10",
+    dayOfWeek: "Saturday",
+    maxApplicants: 20,
+    currentApplicants: 18,
+    minAverageGrade: 70,
+    certificateType: "Advanced",
+    targetAudience: "Adult",
+    sideMaterials: ["Workbook", "Video Series"]
+  },
+  {
+    id: 6,
+    name: "Prayer Workshop",
+    description: "Developing a deeper prayer life and understanding.",
+    status: "upcoming",
+    startDate: "2025-08-01",
+    endDate: "2025-10-31",
+    dayOfWeek: "Tuesday",
+    maxApplicants: 30,
+    currentApplicants: 5,
+    minAverageGrade: 60,
+    certificateType: "Standard",
+    targetAudience: "Adult",
+    sideMaterials: ["Prayer Guide"]
+  }
+];
+
+// Create form type
+interface CourseFormValues {
+  name: string;
+  description: string;
+  targetAudience: "Kids" | "Young" | "Adult";
+  certificateType: string;
+  maxApplicants: number;
+  minGrade: number;
+  sideMaterials: string;
+}
+
 export default function Learning() {
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Initialize react-hook-form
+  const form = useForm<CourseFormValues>({
+    defaultValues: {
+      name: "",
+      description: "",
+      targetAudience: "Adult",
+      certificateType: "Standard",
+      maxApplicants: 30,
+      minGrade: 70,
+      sideMaterials: ""
+    }
+  });
   
   const activeCourses = coursesData.filter(course => course.status === "active");
   const upcomingCourses = coursesData.filter(course => course.status === "upcoming");
@@ -160,6 +186,12 @@ export default function Learning() {
       default:
         return 'default';
     }
+  };
+  
+  const onSubmit = (data: CourseFormValues) => {
+    toast.success("Course created successfully!");
+    setIsCreateDialogOpen(false);
+    console.log("Form submitted with data:", data);
   };
 
   return (
@@ -368,27 +400,29 @@ export default function Learning() {
           </DialogHeader>
           
           <div className="space-y-4 py-4">
-            <Form>
-              <div className="space-y-4">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
+                  control={form.control}
                   name="name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Course Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter course name" />
+                        <Input placeholder="Enter course name" {...field} />
                       </FormControl>
                     </FormItem>
                   )}
                 />
                 
                 <FormField
+                  control={form.control}
                   name="description"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Enter course description" />
+                        <Textarea placeholder="Enter course description" {...field} />
                       </FormControl>
                     </FormItem>
                   )}
@@ -396,24 +430,26 @@ export default function Learning() {
                 
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
+                    control={form.control}
                     name="targetAudience"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Target Audience</FormLabel>
                         <FormControl>
-                          <Input placeholder="Kids, Young, Adult" />
+                          <Input placeholder="Kids, Young, Adult" {...field} />
                         </FormControl>
                       </FormItem>
                     )}
                   />
                   
                   <FormField
+                    control={form.control}
                     name="certificateType"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Certificate Type</FormLabel>
                         <FormControl>
-                          <Input placeholder="Standard, Advanced, Kids" />
+                          <Input placeholder="Standard, Advanced, Kids" {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -422,24 +458,26 @@ export default function Learning() {
                 
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
+                    control={form.control}
                     name="maxApplicants"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Max Applicants</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="30" />
+                          <Input type="number" placeholder="30" {...field} />
                         </FormControl>
                       </FormItem>
                     )}
                   />
                   
                   <FormField
+                    control={form.control}
                     name="minGrade"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Min Average Grade (%)</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="70" />
+                          <Input type="number" placeholder="70" {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -447,35 +485,29 @@ export default function Learning() {
                 </div>
                 
                 <FormField
+                  control={form.control}
                   name="sideMaterials"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Side Materials</FormLabel>
                       <FormControl>
-                        <Input placeholder="Comma separated list of materials" />
+                        <Input placeholder="Comma separated list of materials" {...field} />
                       </FormControl>
                     </FormItem>
                   )}
                 />
-              </div>
+                
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button variant="outline" type="button" onClick={() => setIsCreateDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit">
+                    <Plus size={16} className="mr-1" />
+                    Create Course
+                  </Button>
+                </div>
+              </form>
             </Form>
-            
-            <p className="text-sm text-muted-foreground">
-              This feature will be fully functional in the next release.
-            </p>
-            
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={() => {
-                toast.success("Course created successfully!");
-                setIsCreateDialogOpen(false);
-              }}>
-                <Plus size={16} className="mr-1" />
-                Create Course
-              </Button>
-            </div>
           </div>
         </DialogContent>
       </Dialog>
