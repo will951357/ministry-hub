@@ -3,7 +3,8 @@ import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, Calendar, Book, FileText, Award, UserCheck } from "lucide-react";
+import { Plus, Users, Book, FileText, Award, UserCheck } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -14,7 +15,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/
 import { useForm } from "react-hook-form";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -239,7 +239,7 @@ export default function Learning() {
               </div>
               <div className="flex items-center gap-2">
                 <div className="bg-primary/10 p-2 rounded-full">
-                  <Calendar className="h-6 w-6 text-primary" />
+                  <CalendarIcon className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <p className="text-sm text-church-secondary">Active Courses</p>
