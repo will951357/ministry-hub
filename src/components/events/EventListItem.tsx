@@ -1,9 +1,15 @@
 
 import React from 'react';
-import { Calendar, MapPin, Clock, Users, DollarSign, EyeOff, Check, Eye } from 'lucide-react';
+import { Calendar, MapPin, Clock, Users, DollarSign, EyeOff, Check, Eye, QrCode, Edit, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 
 type EventUser = {
   id: number;
@@ -30,11 +36,19 @@ export type EventItemProps = {
     responsibleMembers: string[];
   };
   onViewDetails: (event: any) => void;
+  onGenerateQRCode?: (event: any) => void;
+  onEditEvent?: (eventId: number) => void;
+  onCancelEvent?: (eventId: number) => void;
+  AlertDialogContent?: React.ReactNode;
 };
 
 export function EventListItem({
   event,
   onViewDetails,
+  onGenerateQRCode,
+  onEditEvent,
+  onCancelEvent,
+  AlertDialogContent
 }: EventItemProps) {
   return (
     <div className="flex items-start space-x-4 rounded-md border p-3 transition-all hover:bg-muted/50">
@@ -85,14 +99,36 @@ export function EventListItem({
           <span>{event.attendees}/{event.maxAttendees} attendees</span>
         </div>
 
-        <div className="flex mt-2 pt-2 border-t justify-end">
+        <div className="flex mt-2 pt-2 border-t justify-end gap-2">
+          {onGenerateQRCode && event.hasCheckin && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="h-8" 
+              onClick={() => onGenerateQRCode(event)}
+            >
+              <QrCode className="h-3.5 w-3.5 mr-1" /> QR Code
+            </Button>
+          )}
+          
+          {onEditEvent && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="h-8" 
+              onClick={() => onEditEvent(event.id)}
+            >
+              <Edit className="h-3.5 w-3.5 mr-1" /> Edit
+            </Button>
+          )}
+          
           <Button 
             variant="outline" 
             size="sm" 
             className="h-8" 
             onClick={() => onViewDetails(event)}
           >
-            <Eye className="h-3.5 w-3.5 mr-1" /> Event Details
+            <Eye className="h-3.5 w-3.5 mr-1" /> Details
           </Button>
         </div>
       </div>

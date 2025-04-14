@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
-import { Calendar as CalendarIcon, MapPin, Users, DollarSign, Eye, EyeOff, CircleCheck, CircleX, CircleSlash, Download, Bell, Search, Plus, TrendingUp, CalendarDays, UserCheck, CreditCard } from "lucide-react";
+import { Calendar as CalendarIcon, MapPin, Users, DollarSign, Eye, EyeOff, CircleCheck, CircleX, CircleSlash, Download, Bell, Search, Plus, TrendingUp, CalendarDays, UserCheck, CreditCard, Filter } from "lucide-react";
 import { format, isSameDay, startOfMonth, endOfMonth } from "date-fns";
 
 import { cn } from "@/lib/utils";
@@ -328,6 +328,7 @@ const Events = () => {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold">Events</h1>
+              <p className="text-muted-foreground mt-1">Manage your church events - view, add, and update events information.</p>
             </div>
             <Button 
               onClick={() => setShowAddEventModal(true)}
@@ -338,229 +339,228 @@ const Events = () => {
           </div>
           
           {/* Calendar and metrics section */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Calendar */}
-            <div className="md:col-span-1">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Event Calendar</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <TooltipProvider>
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    className={cn("rounded-md border", "p-3 pointer-events-auto")}
+                    modifiers={{
+                      hasEvent: (date) => hasEvents(date),
+                    }}
+                    modifiersStyles={{
+                      hasEvent: { 
+                        fontWeight: 'bold',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderRadius: '0%',
+                        color: 'rgb(109, 40, 217)'
+                      }
+                    }}
+                  />
+                </TooltipProvider>
+                <div className="mt-2 flex justify-between">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setDate(new Date())} 
+                  >
+                    Today
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setDate(undefined)} 
+                  >
+                    Show All
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Metrics Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">Event Calendar</CardTitle>
+                <CardHeader className="pb-1">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Total Events</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <TooltipProvider>
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={setDate}
-                      className={cn("rounded-md border", "p-3 pointer-events-auto")}
-                      modifiers={{
-                        hasEvent: (date) => hasEvents(date),
-                      }}
-                      modifiersStyles={{
-                        hasEvent: { 
-                          fontWeight: 'bold',
-                          backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                          borderRadius: '0%',
-                          color: 'rgb(109, 40, 217)'
-                        }
-                      }}
-                    />
-                  </TooltipProvider>
-                  <div className="mt-2 flex justify-between">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => setDate(new Date())} 
-                    >
-                      Today
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => setDate(undefined)} 
-                    >
-                      Show All
-                    </Button>
+                  <div className="flex items-center">
+                    <CalendarDays className="h-5 w-5 text-church-accent mr-2" />
+                    <div className="text-2xl font-bold">{totalUpcomingEvents}</div>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    <TrendingUp className="h-3 w-3 inline mr-1" />
+                    Upcoming events
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-1">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Current Month</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center">
+                    <CalendarIcon className="h-5 w-5 text-church-accent mr-2" />
+                    <div className="text-2xl font-bold">{currentMonthEvents}</div>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    <TrendingUp className="h-3 w-3 inline mr-1" />
+                    Events in {format(new Date(), 'MMMM')}
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-1">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Registrations</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center">
+                    <div className="flex flex-col">
+                      <div className="flex items-center">
+                        <UserCheck className="h-5 w-5 text-church-accent mr-2" />
+                        <div className="text-2xl font-bold">{totalRegistrations}</div>
+                      </div>
+                      <div className="flex items-center mt-2">
+                        <CreditCard className="h-5 w-5 text-green-600 mr-2" />
+                        <div className="text-lg font-bold">${totalRevenue.toFixed(2)}</div>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
+          </div>
+          
+          {/* Search and Action Buttons */}
+          <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
+            <div className="relative flex-grow">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search events..."
+                className="pl-8"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
             
-            {/* Metrics Cards */}
-            <div className="md:col-span-3">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 h-full">
-                <Card className="h-full">
-                  <CardHeader className="pb-1">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Total Events</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center">
-                      <CalendarDays className="h-5 w-5 text-church-accent mr-2" />
-                      <div className="text-2xl font-bold">{totalUpcomingEvents}</div>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      <TrendingUp className="h-3 w-3 inline mr-1" />
-                      Upcoming events
-                    </p>
-                  </CardContent>
-                </Card>
-                
-                <Card className="h-full">
-                  <CardHeader className="pb-1">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Current Month</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center">
-                      <CalendarIcon className="h-5 w-5 text-church-accent mr-2" />
-                      <div className="text-2xl font-bold">{currentMonthEvents}</div>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      <TrendingUp className="h-3 w-3 inline mr-1" />
-                      Events in {format(new Date(), 'MMMM')}
-                    </p>
-                  </CardContent>
-                </Card>
-                
-                <Card className="h-full">
-                  <CardHeader className="pb-1">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Registrations</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center">
-                      <div className="flex flex-col">
-                        <div className="flex items-center">
-                          <UserCheck className="h-5 w-5 text-church-accent mr-2" />
-                          <div className="text-2xl font-bold">{totalRegistrations}</div>
-                        </div>
-                        <div className="flex items-center mt-2">
-                          <CreditCard className="h-5 w-5 text-green-600 mr-2" />
-                          <div className="text-lg font-bold">${totalRevenue.toFixed(2)}</div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+            <div className="flex gap-2 flex-shrink-0">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="gap-1">
+                    <Filter className="h-4 w-4" />
+                    Filter
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => {
+                    setVisibilityFilter('all');
+                    setStatusFilter('all');
+                    setPriceFilter('all');
+                  }}>
+                    All Events
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setVisibilityFilter(visibilityFilter === 'public' ? 'all' : 'public')}>
+                    Public Events
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setVisibilityFilter(visibilityFilter === 'private' ? 'all' : 'private')}>
+                    Private Events
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setStatusFilter(statusFilter === 'confirmed' ? 'all' : 'confirmed')}>
+                    Confirmed Events
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setPriceFilter(priceFilter === 'free' ? 'all' : 'free')}>
+                    Free Events
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setPriceFilter(priceFilter === 'paid' ? 'all' : 'paid')}>
+                    Paid Events
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="gap-1">
+                    <Download className="h-4 w-4" />
+                    Export
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleExport('csv')}>CSV</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport('pdf')}>PDF</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport('ical')}>iCal</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="gap-1">
+                    <Bell className="h-4 w-4" />
+                    Notify
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => { setSendToAll(true); handleSendNotification(); }}>
+                    All Attendees
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => { setSendToAll(false); handleSendNotification(); }}>
+                    Organizers Only
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
           
-          {/* Search and filters section */}
-          <div className="flex flex-col space-y-4">
-            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-              <div className="relative flex-grow">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search events..."
-                  className="pl-8"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              
-              <div className="flex gap-2 flex-shrink-0">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="gap-1">
-                      <Download className="h-4 w-4" />
-                      Export
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => handleExport('csv')}>CSV</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleExport('pdf')}>PDF</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleExport('ical')}>iCal</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+          {/* Active filters */}
+          <div className="flex flex-wrap gap-2">
+            {visibilityFilter !== 'all' || statusFilter !== 'all' || priceFilter !== 'all' ? (
+              <>
+                <Badge 
+                  className="cursor-pointer bg-secondary hover:bg-secondary/80"
+                  onClick={() => {
+                    setVisibilityFilter('all');
+                    setStatusFilter('all');
+                    setPriceFilter('all');
+                  }}
+                >
+                  Clear All Filters
+                </Badge>
                 
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button className="gap-1">
-                      <Bell className="h-4 w-4" />
-                      Notify
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => { setSendToAll(true); handleSendNotification(); }}>
-                      All Attendees
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => { setSendToAll(false); handleSendNotification(); }}>
-                      Organizers Only
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
-            
-            <div className="flex flex-wrap gap-2">
-              <Badge 
-                className={cn(
-                  "cursor-pointer",
-                  visibilityFilter === 'all' && statusFilter === 'all' && priceFilter === 'all' 
-                    ? "bg-primary" 
-                    : "bg-secondary hover:bg-secondary/80"
+                {visibilityFilter !== 'all' && (
+                  <Badge className="cursor-pointer bg-primary">
+                    {visibilityFilter === 'public' ? (
+                      <><Eye className="h-3 w-3 mr-1" /> Public</>
+                    ) : (
+                      <><EyeOff className="h-3 w-3 mr-1" /> Private</>
+                    )}
+                  </Badge>
                 )}
-                onClick={() => {
-                  setVisibilityFilter('all');
-                  setStatusFilter('all');
-                  setPriceFilter('all');
-                }}
-              >
-                All Events
-              </Badge>
-              
-              <Badge 
-                className={cn(
-                  "cursor-pointer",
-                  visibilityFilter === 'public' ? "bg-primary" : "bg-secondary hover:bg-secondary/80"
+                
+                {statusFilter !== 'all' && (
+                  <Badge className="cursor-pointer bg-primary">
+                    <CircleCheck className="h-3 w-3 mr-1" /> {statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
+                  </Badge>
                 )}
-                onClick={() => setVisibilityFilter(visibilityFilter === 'public' ? 'all' : 'public')}
-              >
-                <Eye className="h-3 w-3 mr-1" /> Public
-              </Badge>
-              
-              <Badge 
-                className={cn(
-                  "cursor-pointer",
-                  visibilityFilter === 'private' ? "bg-primary" : "bg-secondary hover:bg-secondary/80"
+                
+                {priceFilter !== 'all' && (
+                  <Badge className="cursor-pointer bg-primary">
+                    {priceFilter === 'free' ? 'Free' : <><DollarSign className="h-3 w-3 mr-1" /> Paid</>}
+                  </Badge>
                 )}
-                onClick={() => setVisibilityFilter(visibilityFilter === 'private' ? 'all' : 'private')}
-              >
-                <EyeOff className="h-3 w-3 mr-1" /> Private
-              </Badge>
-              
-              <Badge 
-                className={cn(
-                  "cursor-pointer",
-                  statusFilter === 'confirmed' ? "bg-primary" : "bg-secondary hover:bg-secondary/80"
-                )}
-                onClick={() => setStatusFilter(statusFilter === 'confirmed' ? 'all' : 'confirmed')}
-              >
-                <CircleCheck className="h-3 w-3 mr-1" /> Confirmed
-              </Badge>
-              
-              <Badge 
-                className={cn(
-                  "cursor-pointer",
-                  priceFilter === 'free' ? "bg-primary" : "bg-secondary hover:bg-secondary/80"
-                )}
-                onClick={() => setPriceFilter(priceFilter === 'free' ? 'all' : 'free')}
-              >
-                Free
-              </Badge>
-              
-              <Badge 
-                className={cn(
-                  "cursor-pointer",
-                  priceFilter === 'paid' ? "bg-primary" : "bg-secondary hover:bg-secondary/80"
-                )}
-                onClick={() => setPriceFilter(priceFilter === 'paid' ? 'all' : 'paid')}
-              >
-                <DollarSign className="h-3 w-3 mr-1" /> Paid
-              </Badge>
-            </div>
+              </>
+            ) : null}
           </div>
 
           {/* Events table */}
-          <Card className="mt-2">
+          <Card>
             <CardHeader className="py-4">
               <CardTitle>
                 {date ? (
@@ -635,14 +635,34 @@ const Events = () => {
                           {getStatusBadge(event.status)}
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => handleViewDetails(event)}
-                            className="h-8"
-                          >
-                            <Eye className="h-3.5 w-3.5 mr-1" /> Event Details
-                          </Button>
+                          <div className="flex justify-end gap-2">
+                            {event.hasCheckin && (
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => handleGenerateQRCode(event)}
+                                className="h-8"
+                              >
+                                <QrCode className="h-3.5 w-3.5" />
+                              </Button>
+                            )}
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => handleEditEvent(event.id)}
+                              className="h-8"
+                            >
+                              <Edit className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => handleViewDetails(event)}
+                              className="h-8"
+                            >
+                              <Eye className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -670,6 +690,7 @@ const Events = () => {
         </div>
       </div>
       
+      {/* Modals */}
       <AddEventModal 
         open={showAddEventModal} 
         onOpenChange={setShowAddEventModal}

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -141,12 +140,6 @@ export function EventList() {
                 onGenerateQRCode={handleGenerateQRCode}
                 onEditEvent={handleEditEvent}
                 onCancelEvent={handleCancelEvent}
-                AlertDialogContent={
-                  <CancelEventDialog 
-                    eventTitle={event.title} 
-                    onConfirm={() => handleCancelEvent(event.id)} 
-                  />
-                }
               />
             ))}
           </div>
@@ -158,6 +151,17 @@ export function EventList() {
         open={showEventDetails} 
         onOpenChange={setShowEventDetails} 
         event={selectedEvent}
+        onEditEvent={handleEditEvent}
+        onCancelEvent={handleCancelEvent}
+        onGenerateQRCode={handleGenerateQRCode}
+        AlertDialogContent={
+          selectedEvent ? (
+            <CancelEventDialog 
+              eventTitle={selectedEvent.title} 
+              onConfirm={() => handleCancelEvent(selectedEvent.id)} 
+            />
+          ) : null
+        }
       />
 
       {/* Check-in QR Code Modal */}
