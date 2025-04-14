@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Calendar as CalendarIcon, MapPin, Users, DollarSign, Eye, EyeOff, CircleCheck, CircleX, CircleSlash, Download, Bell, Search, Plus, Clock, Edit, Trash2, QrCode } from "lucide-react";
+import { Calendar as CalendarIcon, MapPin, Users, DollarSign, Eye, EyeOff, CircleCheck, CircleX, CircleSlash, Download, Bell, Search, Plus } from "lucide-react";
 import { format, isSameDay } from "date-fns";
 
 import { cn } from "@/lib/utils";
@@ -23,15 +23,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
 type EventStatus = 'confirmed' | 'canceled' | 'sold-out';
 type EventVisibility = 'public' | 'private';
@@ -53,7 +44,7 @@ type Event = {
   location: string;
   description: string;
   attendees: number;
-  maxAttendees?: number;
+  maxAttendees: number;
   price: number;
   visibility: EventVisibility;
   status: EventStatus;
@@ -249,7 +240,7 @@ const Events = () => {
         
       return matchesSearch && matchesVisibility && matchesStatus && matchesPrice;
     });
-  }, [searchTerm, visibilityFilter, statusFilter, priceFilter, sampleEvents]);
+  }, [searchTerm, visibilityFilter, statusFilter, priceFilter]);
 
   const eventsByDate = useMemo(() => {
     return filteredEvents.filter(event => 
@@ -567,54 +558,14 @@ const Events = () => {
                         {getStatusBadge(event.status)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end space-x-1">
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => handleViewDetails(event)}
-                            className="h-7 w-7"
-                          >
-                            <Eye className="h-3.5 w-3.5" />
-                          </Button>
-                          
-                          {event.hasCheckin && (
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              onClick={() => handleGenerateQRCode(event)}
-                              className="h-7 w-7"
-                            >
-                              <QrCode className="h-3.5 w-3.5" />
-                            </Button>
-                          )}
-                          
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => handleEditEvent(event.id)}
-                            className="h-7 w-7"
-                          >
-                            <Edit className="h-3.5 w-3.5" />
-                          </Button>
-                          
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button 
-                                variant="ghost" 
-                                size="icon"
-                                className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <CancelEventDialog 
-                                eventTitle={event.title} 
-                                onConfirm={() => handleCancelEvent(event.id)} 
-                              />
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleViewDetails(event)}
+                          className="h-8"
+                        >
+                          <Eye className="h-3.5 w-3.5 mr-1" /> Event Details
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -656,6 +607,17 @@ const Events = () => {
         open={showEventDetails} 
         onOpenChange={setShowEventDetails} 
         event={selectedEvent}
+        onEditEvent={handleEditEvent}
+        onCancelEvent={handleCancelEvent}
+        onGenerateQRCode={handleGenerateQRCode}
+        AlertDialogContent={
+          selectedEvent ? (
+            <CancelEventDialog 
+              eventTitle={selectedEvent.title} 
+              onConfirm={() => handleCancelEvent(selectedEvent.id)} 
+            />
+          ) : null
+        }
       />
 
       <CheckinQRModal

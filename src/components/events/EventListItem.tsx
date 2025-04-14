@@ -1,11 +1,9 @@
 
 import React from 'react';
-import { Calendar, MapPin, Clock, Users, DollarSign, EyeOff, Check, Eye, Edit, Trash2, QrCode } from 'lucide-react';
+import { Calendar, MapPin, Clock, Users, DollarSign, EyeOff, Check, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
-import { AlertDialog, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { useToast } from '@/hooks/use-toast';
 
 type EventUser = {
   id: number;
@@ -32,19 +30,11 @@ type EventItemProps = {
     responsibleMembers: string[];
   };
   onViewDetails: (event: EventItemProps['event']) => void;
-  onGenerateQRCode: (event: EventItemProps['event']) => void;
-  onEditEvent: (id: number) => void;
-  onCancelEvent: (id: number) => void;
-  AlertDialogContent: React.ReactNode;
 };
 
 export function EventListItem({
   event,
   onViewDetails,
-  onGenerateQRCode,
-  onEditEvent,
-  onCancelEvent,
-  AlertDialogContent,
 }: EventItemProps) {
   return (
     <div className="flex items-start space-x-4 rounded-md border p-3 transition-all hover:bg-muted/50">
@@ -95,48 +85,15 @@ export function EventListItem({
           <span>{event.attendees}/{event.maxAttendees} attendees</span>
         </div>
 
-        <div className="flex mt-2 pt-2 border-t justify-end space-x-2">
+        <div className="flex mt-2 pt-2 border-t justify-end">
           <Button 
             variant="outline" 
             size="sm" 
             className="h-8" 
             onClick={() => onViewDetails(event)}
           >
-            <Eye className="h-3.5 w-3.5 mr-1" /> Details
+            <Eye className="h-3.5 w-3.5 mr-1" /> Event Details
           </Button>
-          
-          {event.hasCheckin && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="h-8" 
-              onClick={() => onGenerateQRCode(event)}
-            >
-              <QrCode className="h-3.5 w-3.5 mr-1" /> Check-in
-            </Button>
-          )}
-          
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="h-8" 
-            onClick={() => onEditEvent(event.id)}
-          >
-            <Edit className="h-3.5 w-3.5 mr-1" /> Edit
-          </Button>
-          
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="h-8 text-red-500 hover:text-red-700"
-              >
-                <Trash2 className="h-3.5 w-3.5 mr-1" /> Cancel
-              </Button>
-            </AlertDialogTrigger>
-            {AlertDialogContent}
-          </AlertDialog>
         </div>
       </div>
     </div>
