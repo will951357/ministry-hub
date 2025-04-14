@@ -13,6 +13,7 @@ import Journeys from "./pages/people/Journeys";
 import Appointments from "./pages/people/Appointments";
 import CreateAppointment from "./pages/people/CreateAppointment";
 import Birthdays from "./pages/people/Birthdays";
+import Kids from "./pages/people/Kids";
 import Ministries from "./pages/Ministries";
 import Groups from "./pages/Groups";
 import Events from "./pages/Events";
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="appointments" element={<Appointments />} />
             <Route path="appointments/create" element={<CreateAppointment />} />
             <Route path="birthdays" element={<Birthdays />} />
+            <Route path="kids" element={<Kids />} />
           </Route>
           
           {/* Finance section */}

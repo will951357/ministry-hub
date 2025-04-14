@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -22,7 +21,8 @@ import {
   Map,
   CalendarClock,
   Cake,
-  Smartphone
+  Smartphone,
+  Baby
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -44,19 +44,16 @@ interface SideNavProps {
 export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
   const location = useLocation();
   const [activeItem, setActiveItem] = useState(() => {
-    // Determine the active item based on the current path
     const path = location.pathname;
     if (path === '/') return 'dashboard';
     if (path.startsWith('/people')) return 'people';
     if (path.startsWith('/finance')) return 'finance';
     if (path.startsWith('/app-member')) return 'app-member';
-    return path.substring(1); // Remove the leading slash
+    return path.substring(1);
   });
   
-  // Track only the currently open submenu
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   
-  // Initially set the active submenu as open if sidebar is expanded
   useEffect(() => {
     if (isOpen) {
       if (activeItem === 'people' || activeItem === 'finance' || activeItem === 'app-member') {
@@ -82,6 +79,7 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
         { id: 'journeys', label: 'Journeys', icon: <Map size={18} />, href: '/people/journeys' },
         { id: 'appointments', label: 'Appointments', icon: <CalendarClock size={18} />, href: '/people/appointments' },
         { id: 'birthdays', label: 'Birthdays', icon: <Cake size={18} />, href: '/people/birthdays' },
+        { id: 'kids', label: 'Kids', icon: <Baby size={18} />, href: '/people/kids' },
       ]
     },
     { 
@@ -211,7 +209,6 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
         </nav>
       </div>
       
-      {/* Fixed height profile section with proper distance from menu */}
       {isOpen && (
         <div className="absolute bottom-16 left-0 right-0 px-4">
           <div className="flex items-center space-x-3 py-3 border-t border-sidebar-border">
