@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -95,6 +96,152 @@ const membersData: Member[] = [
     email: "amanda.m@example.com",
     role: "Worship Leader",
     avatar: "/placeholder.svg"
+  }
+];
+
+// Sample courses data with classes
+const coursesData: Course[] = [
+  {
+    id: 1,
+    name: "Bible Study Foundations",
+    description: "An introductory course on Bible study methods and interpretation.",
+    status: "active",
+    startDate: "2025-05-10",
+    endDate: "2025-08-10",
+    dayOfWeek: "Sunday",
+    maxApplicants: 30,
+    currentApplicants: 12,
+    minAverageGrade: 70,
+    certificateType: "Standard",
+    targetAudience: "Adult",
+    sideMaterials: ["Study Guide", "Workbook"],
+    classes: [
+      {
+        id: 1,
+        subject: "Introduction to Bible Study",
+        date: "2025-05-10",
+        sideMaterial: "Introduction Handout"
+      },
+      {
+        id: 2,
+        subject: "Hermeneutics",
+        date: "2025-05-17",
+        sideMaterial: "Interpretation Guide"
+      }
+    ],
+    responsibleMembers: [membersData[0], membersData[3]]
+  },
+  {
+    id: 2,
+    name: "Leadership Training",
+    description: "Developing biblical leadership skills for ministry.",
+    status: "active",
+    startDate: "2025-06-15",
+    endDate: "2025-09-15",
+    dayOfWeek: "Wednesday",
+    maxApplicants: 20,
+    currentApplicants: 15,
+    minAverageGrade: 75,
+    certificateType: "Advanced",
+    targetAudience: "Adult",
+    sideMaterials: ["Leadership Manual", "Case Studies"],
+    classes: [
+      {
+        id: 1,
+        subject: "Servant Leadership",
+        date: "2025-06-15",
+        sideMaterial: "Leadership Principles"
+      }
+    ],
+    responsibleMembers: [membersData[0], membersData[2]]
+  },
+  {
+    id: 3,
+    name: "Children's Bible Stories",
+    description: "Fun and engaging Bible storytelling for children.",
+    status: "upcoming",
+    startDate: "2025-07-01",
+    endDate: "2025-09-30",
+    dayOfWeek: "Saturday",
+    maxApplicants: 25,
+    currentApplicants: 0,
+    minAverageGrade: 60,
+    certificateType: "Kids",
+    targetAudience: "Kids",
+    sideMaterials: ["Activity Book", "Coloring Pages"],
+    classes: [],
+    responsibleMembers: [membersData[3], membersData[5]]
+  },
+  {
+    id: 4,
+    name: "Youth Discipleship",
+    description: "Discipleship program designed specifically for teenagers.",
+    status: "active",
+    startDate: "2025-05-05",
+    endDate: "2025-08-05",
+    dayOfWeek: "Friday",
+    maxApplicants: 35,
+    currentApplicants: 28,
+    minAverageGrade: 65,
+    certificateType: "Standard",
+    targetAudience: "Young",
+    sideMaterials: ["Discussion Guide", "Media Resources"],
+    classes: [
+      {
+        id: 1,
+        subject: "Identity in Christ",
+        date: "2025-05-05",
+        sideMaterial: "Workbook"
+      }
+    ],
+    responsibleMembers: [membersData[1], membersData[4]]
+  },
+  {
+    id: 5,
+    name: "Marriage Enrichment",
+    description: "Strengthening marriages through biblical principles.",
+    status: "completed",
+    startDate: "2025-01-10",
+    endDate: "2025-04-10",
+    dayOfWeek: "Saturday",
+    maxApplicants: 20,
+    currentApplicants: 18,
+    minAverageGrade: 70,
+    certificateType: "Advanced",
+    targetAudience: "Adult",
+    sideMaterials: ["Workbook", "Video Series"],
+    classes: [
+      {
+        id: 1,
+        subject: "Communication",
+        date: "2025-01-10",
+        sideMaterial: "Communication Guide"
+      },
+      {
+        id: 2,
+        subject: "Conflict Resolution",
+        date: "2025-01-17",
+        sideMaterial: "Conflict Resolution Workbook"
+      }
+    ],
+    responsibleMembers: [membersData[0], membersData[1]]
+  },
+  {
+    id: 6,
+    name: "Prayer Workshop",
+    description: "Developing a deeper prayer life and understanding.",
+    status: "upcoming",
+    startDate: "2025-08-01",
+    endDate: "2025-10-31",
+    dayOfWeek: "Tuesday",
+    maxApplicants: 30,
+    currentApplicants: 5,
+    minAverageGrade: 60,
+    certificateType: "Standard",
+    targetAudience: "Adult",
+    sideMaterials: ["Prayer Guide"],
+    classes: [],
+    responsibleMembers: [membersData[2], membersData[5]]
   }
 ];
 
@@ -884,7 +1031,7 @@ export default function Learning() {
                             className={cn("p-3 pointer-events-auto")}
                           />
                         </PopoverContent>
-                      </FormItem>
+                      </Popover>
                     </FormItem>
                   )}
                 />
