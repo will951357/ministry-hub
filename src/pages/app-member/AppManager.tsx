@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
@@ -35,7 +34,8 @@ import {
   Images,
   Share2,
   Podcast,
-  Send
+  Send,
+  Home
 } from "lucide-react";
 
 import {
