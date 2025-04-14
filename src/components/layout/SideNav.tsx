@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { 
@@ -53,14 +53,20 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
     return path.substring(1); // Remove the leading slash
   });
   
-  const [openSubmenus, setOpenSubmenus] = useState<string[]>(['people', 'finance', 'app-member']);
+  // Track only the currently open submenu
+  const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
+  
+  // Initially set the active submenu as open if sidebar is expanded
+  useEffect(() => {
+    if (isOpen) {
+      if (activeItem === 'people' || activeItem === 'finance' || activeItem === 'app-member') {
+        setOpenSubmenu(activeItem);
+      }
+    }
+  }, []);
   
   const toggleSubmenu = (id: string) => {
-    setOpenSubmenus(prev => 
-      prev.includes(id) 
-        ? prev.filter(item => item !== id) 
-        : [...prev, id]
-    );
+    setOpenSubmenu(prev => prev === id ? null : id);
   };
   
   const navItems = [
@@ -128,7 +134,7 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
             item.subItems ? (
               <Collapsible 
                 key={item.id}
-                open={openSubmenus.includes(item.id) && isOpen}
+                open={openSubmenu === item.id && isOpen}
                 className="w-full"
               >
                 <CollapsibleTrigger asChild>
@@ -145,9 +151,7 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
                         toggleSubmenu(item.id);
                       } else {
                         setIsOpen(true);
-                        if (!openSubmenus.includes(item.id)) {
-                          toggleSubmenu(item.id);
-                        }
+                        toggleSubmenu(item.id);
                       }
                       setActiveItem(item.id);
                     }}
@@ -158,7 +162,7 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
                         <span className="flex-1 text-left">{item.label}</span>
                         <ChevronRight 
                           className={cn("h-4 w-4 transition-transform", 
-                            openSubmenus.includes(item.id) && "transform rotate-90"
+                            openSubmenu === item.id && "transform rotate-90"
                           )} 
                         />
                       </>
@@ -207,15 +211,16 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
         </nav>
       </div>
       
+      {/* Fixed height profile section with proper distance from menu */}
       {isOpen && (
-        <div className="absolute bottom-24 left-0 right-0 px-4">
-          <div className="flex items-center space-x-3 py-4 border-t border-sidebar-border">
+        <div className="absolute bottom-16 left-0 right-0 px-4">
+          <div className="flex items-center space-x-3 py-3 border-t border-sidebar-border">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center space-x-3">
                   <Avatar className="h-10 w-10 border border-church-border">
                     <AvatarImage src="https://github.com/shadcn.png" alt="User" />
-                    <AvatarFallback className="bg-church-accent text-white">GC</AvatarFallback>
+                    <AvatarFallback className="bg-church-accent text-white">PJ</AvatarFallback>
                   </Avatar>
                   <div className="text-left">
                     <p className="text-sm font-medium text-sidebar-foreground">Pastor John</p>
