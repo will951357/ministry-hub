@@ -3,7 +3,7 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Users, Book, FileText, Award, UserCheck } from "lucide-react";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -17,6 +17,16 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface Member {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  avatar: string;
+}
 
 interface Class {
   id: number;
@@ -40,109 +50,51 @@ interface Course {
   targetAudience: "Kids" | "Young" | "Adult";
   sideMaterials: string[];
   classes: Class[];
+  responsibleMembers: Member[];
 }
 
-const coursesData: Course[] = [
+const membersData: Member[] = [
   {
     id: 1,
-    name: "Bible Study Foundations",
-    description: "An introductory course on Bible study methods and interpretation.",
-    status: "active",
-    startDate: "2025-05-10",
-    endDate: "2025-08-10",
-    dayOfWeek: "Sunday",
-    maxApplicants: 30,
-    currentApplicants: 12,
-    minAverageGrade: 70,
-    certificateType: "Standard",
-    targetAudience: "Adult",
-    sideMaterials: ["Study Guide", "Workbook"],
-    classes: [
-      { id: 1, subject: "Introduction to Bible Study", date: "2025-05-10", sideMaterial: "Introduction Handout" },
-      { id: 2, subject: "Old Testament Overview", date: "2025-05-17", sideMaterial: "OT Timeline" }
-    ]
+    name: "John Smith",
+    email: "john.smith@example.com",
+    role: "Pastor",
+    avatar: "/placeholder.svg"
   },
   {
     id: 2,
-    name: "Leadership Training",
-    description: "Developing biblical leadership skills for ministry.",
-    status: "active",
-    startDate: "2025-06-15",
-    endDate: "2025-09-15",
-    dayOfWeek: "Wednesday",
-    maxApplicants: 20,
-    currentApplicants: 15,
-    minAverageGrade: 75,
-    certificateType: "Advanced",
-    targetAudience: "Adult",
-    sideMaterials: ["Leadership Manual", "Case Studies"],
-    classes: [
-      { id: 1, subject: "Servant Leadership", date: "2025-06-15", sideMaterial: "Leadership Principles Guide" }
-    ]
+    name: "Sarah Johnson",
+    email: "sarah.j@example.com",
+    role: "Youth Leader",
+    avatar: "/placeholder.svg"
   },
   {
     id: 3,
-    name: "Children's Bible Stories",
-    description: "Fun and engaging Bible storytelling for children.",
-    status: "upcoming",
-    startDate: "2025-07-01",
-    endDate: "2025-09-30",
-    dayOfWeek: "Saturday",
-    maxApplicants: 25,
-    currentApplicants: 0,
-    minAverageGrade: 60,
-    certificateType: "Kids",
-    targetAudience: "Kids",
-    sideMaterials: ["Activity Book", "Coloring Pages"],
-    classes: []
+    name: "Michael Brown",
+    email: "michael.b@example.com",
+    role: "Elder",
+    avatar: "/placeholder.svg"
   },
   {
     id: 4,
-    name: "Youth Discipleship",
-    description: "Discipleship program designed specifically for teenagers.",
-    status: "active",
-    startDate: "2025-05-05",
-    endDate: "2025-08-05",
-    dayOfWeek: "Friday",
-    maxApplicants: 35,
-    currentApplicants: 28,
-    minAverageGrade: 65,
-    certificateType: "Standard",
-    targetAudience: "Young",
-    sideMaterials: ["Discussion Guide", "Media Resources"],
-    classes: []
+    name: "Rebecca Davis",
+    email: "rebecca.d@example.com",
+    role: "Sunday School Teacher",
+    avatar: "/placeholder.svg"
   },
   {
     id: 5,
-    name: "Marriage Enrichment",
-    description: "Strengthening marriages through biblical principles.",
-    status: "completed",
-    startDate: "2025-01-10",
-    endDate: "2025-04-10",
-    dayOfWeek: "Saturday",
-    maxApplicants: 20,
-    currentApplicants: 18,
-    minAverageGrade: 70,
-    certificateType: "Advanced",
-    targetAudience: "Adult",
-    sideMaterials: ["Workbook", "Video Series"],
-    classes: []
+    name: "David Wilson",
+    email: "david.w@example.com",
+    role: "Deacon",
+    avatar: "/placeholder.svg"
   },
   {
     id: 6,
-    name: "Prayer Workshop",
-    description: "Developing a deeper prayer life and understanding.",
-    status: "upcoming",
-    startDate: "2025-08-01",
-    endDate: "2025-10-31",
-    dayOfWeek: "Tuesday",
-    maxApplicants: 30,
-    currentApplicants: 5,
-    minAverageGrade: 60,
-    certificateType: "Standard",
-    targetAudience: "Adult",
-    sideMaterials: ["Prayer Guide"],
-    classes: []
+    name: "Amanda Miller",
+    email: "amanda.m@example.com",
+    role: "Worship Leader",
+    avatar: "/placeholder.svg"
   }
 ];
 
@@ -157,6 +109,7 @@ interface CourseFormValues {
   endDate: Date | undefined;
   registrationStartDate: Date | undefined;
   registrationEndDate: Date | undefined;
+  responsibleMembers: number[];
 }
 
 interface ClassFormValues {
@@ -171,6 +124,7 @@ export default function Learning() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isAddClassDialogOpen, setIsAddClassDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
   
   const form = useForm<CourseFormValues>({
     defaultValues: {
@@ -183,7 +137,8 @@ export default function Learning() {
       startDate: undefined,
       endDate: undefined,
       registrationStartDate: undefined,
-      registrationEndDate: undefined
+      registrationEndDate: undefined,
+      responsibleMembers: []
     }
   });
   
@@ -258,8 +213,15 @@ export default function Learning() {
     setIsAddClassDialogOpen(false);
     
     classForm.reset();
+  };
+
+  const toggleMemberSelection = (memberId: number) => {
+    const updatedSelection = selectedMembers.includes(memberId)
+      ? selectedMembers.filter(id => id !== memberId)
+      : [...selectedMembers, memberId];
     
-    console.log("Class added:", newClass);
+    setSelectedMembers(updatedSelection);
+    form.setValue("responsibleMembers", updatedSelection);
   };
 
   return (
@@ -796,6 +758,58 @@ export default function Learning() {
                   />
                 </div>
                 
+                <FormField
+                  control={form.control}
+                  name="responsibleMembers"
+                  render={() => (
+                    <FormItem>
+                      <FormLabel>Responsible Members</FormLabel>
+                      <FormControl>
+                        <div className="border rounded-md">
+                          <div className="p-2 border-b bg-muted/30">
+                            <Input 
+                              placeholder="Search members..." 
+                              className="h-8" 
+                            />
+                          </div>
+                          <ScrollArea className="h-[200px]">
+                            <div className="p-2">
+                              {membersData.map((member) => (
+                                <div 
+                                  key={member.id} 
+                                  className="flex items-center space-x-2 p-2 hover:bg-muted/50 rounded cursor-pointer"
+                                  onClick={() => toggleMemberSelection(member.id)}
+                                >
+                                  <Checkbox 
+                                    id={`member-${member.id}`} 
+                                    checked={selectedMembers.includes(member.id)}
+                                    onCheckedChange={() => toggleMemberSelection(member.id)}
+                                  />
+                                  <div className="flex items-center space-x-2 flex-1">
+                                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary overflow-hidden">
+                                      {member.avatar ? 
+                                        <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" /> : 
+                                        <UserCheck size={16} />
+                                      }
+                                    </div>
+                                    <div>
+                                      <div className="font-medium">{member.name}</div>
+                                      <div className="text-xs text-muted-foreground">{member.role}</div>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </ScrollArea>
+                          <div className="p-2 border-t bg-muted/30 text-sm">
+                            {selectedMembers.length} members selected
+                          </div>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                
                 <div className="flex justify-end gap-2 pt-4">
                   <Button variant="outline" type="button" onClick={() => setIsCreateDialogOpen(false)}>
                     Cancel
@@ -870,7 +884,7 @@ export default function Learning() {
                             className={cn("p-3 pointer-events-auto")}
                           />
                         </PopoverContent>
-                      </Popover>
+                      </FormItem>
                     </FormItem>
                   )}
                 />
