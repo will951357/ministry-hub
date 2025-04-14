@@ -49,8 +49,8 @@ type Event = {
   visibility: EventVisibility;
   status: EventStatus;
   createdBy: string;
-  hasCheckin?: boolean;
-  registeredUsers?: EventUser[];
+  hasCheckin: boolean;
+  registeredUsers: EventUser[];
   responsibleMembers: string[];
 };
 
@@ -304,24 +304,24 @@ const Events = () => {
   return (
     <MainLayout>
       <div className="container mx-auto py-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="md:col-span-2">
-            <div className="flex flex-col space-y-4">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h1 className="text-3xl font-bold">Events</h1>
-                  <p className="text-muted-foreground">
-                    {filteredEvents.length} Upcoming Events
-                  </p>
-                </div>
-                <Button 
-                  onClick={() => setShowAddEventModal(true)}
-                  className="flex items-center gap-2"
-                >
-                  <Plus className="h-4 w-4" /> Add Event
-                </Button>
-              </div>
-              
+        <div className="flex flex-col space-y-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold">Events</h1>
+              <p className="text-muted-foreground">
+                {filteredEvents.length} Upcoming Events
+              </p>
+            </div>
+            <Button 
+              onClick={() => setShowAddEventModal(true)}
+              className="flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" /> Add Event
+            </Button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="md:col-span-3 space-y-4">
               <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
                 <div className="relative flex-grow">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -435,161 +435,161 @@ const Events = () => {
                 </Badge>
               </div>
             </div>
+            
+            <div className="md:col-span-1">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">Event Calendar</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <TooltipProvider>
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={setDate}
+                      className={cn("rounded-md border", "p-3 pointer-events-auto")}
+                      modifiers={{
+                        hasEvent: (date) => hasEvents(date),
+                      }}
+                      modifiersStyles={{
+                        hasEvent: { 
+                          fontWeight: 'bold',
+                          backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                          borderRadius: '0%',
+                          color: 'rgb(109, 40, 217)'
+                        }
+                      }}
+                    />
+                  </TooltipProvider>
+                  <div className="mt-2 flex justify-between">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setDate(new Date())} 
+                    >
+                      Today
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setDate(undefined)} 
+                    >
+                      Show All
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
 
-          <div className="md:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Event Calendar</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <TooltipProvider>
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    className={cn("rounded-md border", "p-3 pointer-events-auto")}
-                    modifiers={{
-                      hasEvent: (date) => hasEvents(date),
-                    }}
-                    modifiersStyles={{
-                      hasEvent: { 
-                        fontWeight: 'bold',
-                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                        borderRadius: '0%',
-                        color: 'rgb(109, 40, 217)'
-                      }
-                    }}
-                  />
-                </TooltipProvider>
-                <div className="mt-2 flex justify-between">
+          <Card className="mt-2">
+            <CardHeader className="py-4">
+              <CardTitle>
+                {date ? (
+                  <>Events on {format(date, "MMMM d, yyyy")}</>
+                ) : (
+                  <>All Events</>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {eventsByDate.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Event</TableHead>
+                      <TableHead>Date & Time</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Attendees</TableHead>
+                      <TableHead>Price</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {eventsByDate.map((event) => (
+                      <TableRow key={event.id}>
+                        <TableCell>
+                          <div className="font-medium hover:text-church-accent cursor-pointer" onClick={() => handleViewDetails(event)}>
+                            {event.title}
+                            {event.visibility === 'private' && (
+                              <EyeOff className="h-3 w-3 inline ml-1 text-muted-foreground" />
+                            )}
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">{event.description.slice(0, 50)}...</div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span>{format(event.date, "MMM d, yyyy")}</span>
+                            <span className="text-muted-foreground text-xs">
+                              {event.startTime} - {event.endTime}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <MapPin className="h-3 w-3 mr-1 text-muted-foreground" />
+                            <span>{event.location}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <Users className="h-3 w-3 mr-1 text-muted-foreground" />
+                            <span>{event.attendees}</span>
+                            {event.maxAttendees && (
+                              <span className="text-xs text-muted-foreground ml-1">
+                                /{event.maxAttendees}
+                              </span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {event.price === 0 ? (
+                            <span className="text-green-600">Free</span>
+                          ) : (
+                            <div className="flex items-center">
+                              <DollarSign className="h-3 w-3 mr-1" />
+                              <span>${event.price.toFixed(2)}</span>
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {getStatusBadge(event.status)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => handleViewDetails(event)}
+                            className="h-8"
+                          >
+                            <Eye className="h-3.5 w-3.5 mr-1" /> Event Details
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">No events found for the selected filters.</p>
                   <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => setDate(new Date())} 
+                    variant="link" 
+                    onClick={() => {
+                      setSearchTerm('');
+                      setVisibilityFilter('all');
+                      setStatusFilter('all');
+                      setPriceFilter('all');
+                      setDate(undefined);
+                    }}
                   >
-                    Today
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => setDate(undefined)} 
-                  >
-                    Show All
+                    Clear all filters
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              {date ? (
-                <>Events on {format(date, "MMMM d, yyyy")}</>
-              ) : (
-                <>All Events</>
               )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {eventsByDate.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Event</TableHead>
-                    <TableHead>Date & Time</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Attendees</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {eventsByDate.map((event) => (
-                    <TableRow key={event.id}>
-                      <TableCell>
-                        <div className="font-medium hover:text-church-accent cursor-pointer" onClick={() => handleViewDetails(event)}>
-                          {event.title}
-                          {event.visibility === 'private' && (
-                            <EyeOff className="h-3 w-3 inline ml-1 text-muted-foreground" />
-                          )}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1">{event.description.slice(0, 50)}...</div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span>{format(event.date, "MMM d, yyyy")}</span>
-                          <span className="text-muted-foreground text-xs">
-                            {event.startTime} - {event.endTime}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <MapPin className="h-3 w-3 mr-1 text-muted-foreground" />
-                          <span>{event.location}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <Users className="h-3 w-3 mr-1 text-muted-foreground" />
-                          <span>{event.attendees}</span>
-                          {event.maxAttendees && (
-                            <span className="text-xs text-muted-foreground ml-1">
-                              /{event.maxAttendees}
-                            </span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {event.price === 0 ? (
-                          <span className="text-green-600">Free</span>
-                        ) : (
-                          <div className="flex items-center">
-                            <DollarSign className="h-3 w-3 mr-1" />
-                            <span>${event.price.toFixed(2)}</span>
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(event.status)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => handleViewDetails(event)}
-                          className="h-8"
-                        >
-                          <Eye className="h-3.5 w-3.5 mr-1" /> Event Details
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">No events found for the selected filters.</p>
-                <Button 
-                  variant="link" 
-                  onClick={() => {
-                    setSearchTerm('');
-                    setVisibilityFilter('all');
-                    setStatusFilter('all');
-                    setPriceFilter('all');
-                    setDate(undefined);
-                  }}
-                >
-                  Clear all filters
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
       
       <AddEventModal 
