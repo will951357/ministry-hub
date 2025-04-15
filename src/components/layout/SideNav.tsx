@@ -23,7 +23,8 @@ import {
   Smartphone,
   Baby,
   Book,
-  GraduationCap
+  GraduationCap,
+  Calculator
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -93,6 +94,7 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
         { id: 'donations', label: 'Donations', icon: <BadgeDollarSign size={18} />, href: '/finance/donations' },
         { id: 'tithes', label: 'Tithes', icon: <Receipt size={18} />, href: '/finance/tithes' },
         { id: 'funds', label: 'Funds', icon: <PiggyBank size={18} />, href: '/finance/funds' },
+        { id: 'accounting', label: 'Accounting', icon: <Calculator size={18} />, href: '/finance/accounting' },
       ]
     },
     { 
