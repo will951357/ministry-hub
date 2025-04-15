@@ -53,7 +53,9 @@ export function FinancialOverviewChart() {
                   payload={payload}
                   formatter={(value, name) => [
                     `$${value.toLocaleString()}`,
-                    name.charAt(0).toUpperCase() + name.slice(1),
+                    typeof name === 'string' 
+                      ? name.charAt(0).toUpperCase() + name.slice(1)
+                      : String(name) // Convert number or other types to string safely
                   ]}
                 />
               );
