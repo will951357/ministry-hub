@@ -22,6 +22,7 @@ import Finance from "./pages/Finance";
 import Donations from "./pages/finance/Donations";
 import Tithes from "./pages/finance/Tithes";
 import Funds from "./pages/finance/Funds";
+import Accounting from "./pages/finance/Accounting";
 import AppMember from "./pages/AppMember";
 import Blog from "./pages/app-member/Blog";
 import NewPost from "./pages/app-member/NewPost";
@@ -56,6 +57,7 @@ const App = () => (
             <Route path="donations" element={<Donations />} />
             <Route path="tithes" element={<Tithes />} />
             <Route path="funds" element={<Funds />} />
+            <Route path="accounting" element={<Accounting />} />
           </Route>
           
           {/* App Member section */}
