@@ -5,7 +5,6 @@ import {
   Home, 
   Users, 
   Calendar, 
-  Settings, 
   FileText, 
   DollarSign, 
   UsersRound, 
@@ -117,7 +116,6 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
       ]
     },
     { id: 'events', label: 'Events', icon: <Calendar size={20} />, href: '/events' },
-    { id: 'settings', label: 'Settings', icon: <Settings size={20} />, href: '/settings' },
   ];
 
   return (
@@ -241,7 +239,6 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
                 <DropdownMenuLabel className="text-church-primary">My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-church-border" />
                 <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted">Profile</DropdownMenuItem>
-                <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted">Settings</DropdownMenuItem>
                 <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted">Switch Church</DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-church-border" />
                 <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted">Log out</DropdownMenuItem>

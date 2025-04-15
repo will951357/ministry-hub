@@ -70,7 +70,6 @@ const App = () => (
           <Route path="/groups" element={<Groups />} />
           <Route path="/groups/learning" element={<Learning />} />
           <Route path="/events" element={<Events />} />
-          <Route path="/settings" element={<Index />} />
           
           {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />
