@@ -26,6 +26,7 @@ import Accounting from "./pages/finance/Accounting";
 import AppMember from "./pages/AppMember";
 import Blog from "./pages/app-member/Blog";
 import NewPost from "./pages/app-member/NewPost";
+import AppManager from "./pages/app-member/AppManager";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +66,7 @@ const App = () => (
             <Route index element={<Blog />} />
             <Route path="blog" element={<Blog />} />
             <Route path="blog/new" element={<NewPost />} />
+            <Route path="app-manager" element={<AppManager />} />
           </Route>
           
           {/* Using real components */}

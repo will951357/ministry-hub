@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -24,7 +25,8 @@ import {
   Baby,
   Book,
   GraduationCap,
-  Calculator
+  Calculator,
+  LayoutGrid
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -104,6 +106,7 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
       href: '/app-member',
       subItems: [
         { id: 'blog', label: 'Blog', icon: <FileText size={18} />, href: '/app-member/blog' },
+        { id: 'app-manager', label: 'App Manager', icon: <LayoutGrid size={18} />, href: '/app-member/app-manager' },
       ]
     },
     { id: 'ministries', label: 'Ministries', icon: <CopyCheck size={20} />, href: '/ministries' },

@@ -1,371 +1,310 @@
+
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { 
-  ResizablePanelGroup,
-  ResizablePanel,
-  ResizableHandle
-} from "@/components/ui/resizable";
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle,
-  CardDescription 
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import { Smartphone, Grab, Save, SendHorizontal } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Smartphone,
-  Text,
-  Image,
-  List,
-  Video,
-  Link,
-  MenuSquare,
-  Calendar,
-  Map,
-  FileText,
-  Save
-} from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
-type WidgetType = {
-  id: string;
-  type: 'text' | 'image' | 'list' | 'video' | 'link' | 'menu' | 'calendar' | 'map' | 'form';
-  title: string;
-  icon: React.ReactNode;
-  content?: any;
-};
+// Define widget types
+type WidgetType = 
+  | "text" 
+  | "image" 
+  | "button" 
+  | "link" 
+  | "video" 
+  | "calendar" 
+  | "eventList" 
+  | "contactForm"
+  | "scripture" 
+  | "donationButton" 
+  | "carousel" 
+  | "socialMedia"
+  | "audio";
 
-type AppLayoutItem = {
+interface Widget {
   id: string;
-  widgetType: WidgetType['type'];
+  type: WidgetType;
   content: any;
-};
+}
+
+interface Row {
+  id: string;
+  widgets: Widget[];
+}
+
+// Widget definitions with their icons and labels
+const widgetTypes: { type: WidgetType; label: string; icon: React.ReactNode }[] = [
+  { type: "text", label: "Text Box", icon: <Textarea className="h-8 w-full pointer-events-none" disabled /> },
+  { type: "image", label: "Image", icon: <div className="bg-muted h-12 w-full flex items-center justify-center text-muted-foreground text-xs">Image</div> },
+  { type: "button", label: "Button", icon: <Button size="sm" className="w-full pointer-events-none">Button</Button> },
+  { type: "link", label: "Link", icon: <div className="text-blue-500 underline cursor-pointer">Link</div> },
+  { type: "video", label: "Video", icon: <div className="bg-muted h-12 w-full flex items-center justify-center text-muted-foreground text-xs">Video</div> },
+  { type: "calendar", label: "Calendar", icon: <div className="bg-muted h-12 w-full flex items-center justify-center text-muted-foreground text-xs">Calendar</div> },
+  { type: "eventList", label: "Event List", icon: <div className="space-y-1 w-full"><div className="h-2 bg-muted rounded w-full"></div><div className="h-2 bg-muted rounded w-3/4"></div></div> },
+  { type: "contactForm", label: "Contact Form", icon: <div className="space-y-1 w-full"><Input className="h-6 pointer-events-none" disabled /><Input className="h-6 pointer-events-none" disabled /></div> },
+  { type: "scripture", label: "Scripture", icon: <div className="italic text-xs">"For God so loved the world..."</div> },
+  { type: "donationButton", label: "Donation", icon: <Button size="sm" variant="outline" className="w-full pointer-events-none">Donate</Button> },
+  { type: "carousel", label: "Carousel", icon: <div className="bg-muted h-12 w-full flex items-center justify-center text-muted-foreground text-xs">Image Slider</div> },
+  { type: "socialMedia", label: "Social Media", icon: <div className="flex space-x-1"><div className="w-4 h-4 rounded-full bg-blue-500"></div><div className="w-4 h-4 rounded-full bg-pink-500"></div></div> },
+  { type: "audio", label: "Audio", icon: <div className="bg-muted h-6 w-full flex items-center justify-center text-muted-foreground text-xs">Audio Player</div> },
+];
 
 export default function AppManager() {
+  const [rows, setRows] = useState<Row[]>([
+    { id: "row-1", widgets: [] },
+    { id: "row-2", widgets: [] },
+    { id: "row-3", widgets: [] },
+  ]);
   const { toast } = useToast();
-  const [layoutItems, setLayoutItems] = useState<AppLayoutItem[]>([]);
-  const [activeWidget, setActiveWidget] = useState<AppLayoutItem | null>(null);
-  const [textContent, setTextContent] = useState("");
-  
-  // Available widgets for the sidebar
-  const availableWidgets: WidgetType[] = [
-    { id: 'widget-text', type: 'text', title: 'Text', icon: <Text className="h-5 w-5" /> },
-    { id: 'widget-image', type: 'image', title: 'Image', icon: <Image className="h-5 w-5" /> },
-    { id: 'widget-list', type: 'list', title: 'List', icon: <List className="h-5 w-5" /> },
-    { id: 'widget-video', type: 'video', title: 'Video', icon: <Video className="h-5 w-5" /> },
-    { id: 'widget-link', type: 'link', title: 'Link', icon: <Link className="h-5 w-5" /> },
-    { id: 'widget-menu', type: 'menu', title: 'Menu', icon: <MenuSquare className="h-5 w-5" /> },
-    { id: 'widget-calendar', type: 'calendar', title: 'Calendar', icon: <Calendar className="h-5 w-5" /> },
-    { id: 'widget-map', type: 'map', title: 'Map', icon: <Map className="h-5 w-5" /> },
-    { id: 'widget-form', type: 'form', title: 'Form', icon: <FileText className="h-5 w-5" /> },
-  ];
+  const [draggingWidget, setDraggingWidget] = useState<WidgetType | null>(null);
+  const [activeRow, setActiveRow] = useState<string | null>(null);
 
-  // Handle drag end event
-  const onDragEnd = (result: any) => {
-    const { source, destination } = result;
+  // Handle widget drag start
+  const handleDragStart = (type: WidgetType) => {
+    setDraggingWidget(type);
+  };
 
-    // Dropped outside the list
-    if (!destination) {
-      return;
-    }
-
-    // Dropped in the same place
-    if (
-      source.droppableId === destination.droppableId &&
-      source.index === destination.index
-    ) {
-      return;
-    }
-
-    // If dragging from the widget panel to the layout
-    if (source.droppableId === 'WIDGETS' && destination.droppableId === 'LAYOUT') {
-      const widgetType = availableWidgets.find(widget => `widget-${widget.id}` === result.draggableId)?.type;
-      
-      if (widgetType) {
-        const newItem: AppLayoutItem = {
-          id: `layout-item-${Date.now()}`,
-          widgetType: widgetType,
-          content: null
-        };
-        
-        const newItems = [...layoutItems];
-        newItems.splice(destination.index, 0, newItem);
-        setLayoutItems(newItems);
-        setActiveWidget(newItem);
-        
-        toast({
-          title: "Widget Added",
-          description: `${widgetType.charAt(0).toUpperCase() + widgetType.slice(1)} widget added to layout.`,
-        });
-      }
-    } else if (source.droppableId === 'LAYOUT' && destination.droppableId === 'LAYOUT') {
-      // Reordering within the layout
-      const items = Array.from(layoutItems);
-      const [reorderedItem] = items.splice(source.index, 1);
-      items.splice(destination.index, 0, reorderedItem);
-      setLayoutItems(items);
+  // Handle allowing a row to receive dropped widgets
+  const handleDragOver = (e: React.DragEvent, rowId: string) => {
+    e.preventDefault();
+    if (activeRow !== rowId) {
+      setActiveRow(rowId);
     }
   };
 
-  // Save text content to a widget
-  const saveTextContent = () => {
-    if (activeWidget) {
-      setLayoutItems(items => 
-        items.map(item => 
-          item.id === activeWidget.id 
-            ? { ...item, content: textContent } 
-            : item
-        )
-      );
-      
-      setActiveWidget(null);
-      setTextContent("");
-      
-      toast({
-        title: "Content Saved",
-        description: "Your widget content has been updated.",
-      });
-    }
-  };
-
-  // Handler to save the final app layout
-  const saveAppLayout = () => {
-    // Here you would typically send this data to a backend
-    console.log("Saving app layout:", layoutItems);
+  // Handle widget drop into a row
+  const handleDrop = (e: React.DragEvent, rowId: string) => {
+    e.preventDefault();
+    setActiveRow(null);
     
+    if (draggingWidget) {
+      // Add the new widget to the row
+      const updatedRows = rows.map(row => {
+        if (row.id === rowId) {
+          return {
+            ...row,
+            widgets: [...row.widgets, {
+              id: `widget-${row.widgets.length + 1}-${Date.now()}`,
+              type: draggingWidget,
+              content: getDefaultContent(draggingWidget)
+            }]
+          };
+        }
+        return row;
+      });
+      
+      setRows(updatedRows);
+      setDraggingWidget(null);
+    }
+  };
+
+  // Generate default content based on widget type
+  const getDefaultContent = (type: WidgetType) => {
+    switch (type) {
+      case "text":
+        return "Add your text here";
+      case "button":
+        return { label: "Click Me", action: "none" };
+      case "link":
+        return { text: "Learn More", url: "#" };
+      case "image":
+        return { src: "/placeholder.svg", alt: "Placeholder image" };
+      case "scripture":
+        return "John 3:16 - For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.";
+      default:
+        return {};
+    }
+  };
+
+  // Render widget in the layout based on its type
+  const renderWidget = (widget: Widget) => {
+    switch (widget.type) {
+      case "text":
+        return <div className="p-2 bg-white rounded border">{widget.content}</div>;
+      case "button":
+        return <Button className="w-full">{widget.content.label}</Button>;
+      case "link":
+        return <a href={widget.content.url} className="text-blue-500 underline">{widget.content.text}</a>;
+      case "image":
+        return <img src={widget.content.src} alt={widget.content.alt} className="w-full h-32 object-cover" />;
+      case "video":
+        return <div className="bg-muted h-32 w-full flex items-center justify-center">Video Player</div>;
+      case "scripture":
+        return <div className="p-2 bg-white rounded border italic">{widget.content}</div>;
+      default:
+        return <div className="p-2 bg-gray-100 rounded">Widget: {widget.type}</div>;
+    }
+  };
+
+  // Handle saving the layout
+  const handleSaveLayout = () => {
+    console.log("Saving layout:", rows);
     toast({
       title: "Layout Saved",
-      description: "Your app layout has been saved successfully.",
+      description: "Your app layout has been saved as a draft.",
     });
   };
 
-  // Render the widget editor based on the active widget type
-  const renderWidgetEditor = () => {
-    if (!activeWidget) return null;
-
-    switch (activeWidget.widgetType) {
-      case 'text':
-        return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Text Widget</h3>
-            <div className="space-y-2">
-              <Label htmlFor="text-content">Content</Label>
-              <Textarea 
-                id="text-content"
-                value={textContent}
-                onChange={(e) => setTextContent(e.target.value)}
-                placeholder="Enter your text here..."
-                className="min-h-[150px]"
-              />
-            </div>
-            <Button onClick={saveTextContent}>Save Text</Button>
-          </div>
-        );
-      case 'image':
-        return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Image Widget</h3>
-            <div className="space-y-2">
-              <Label htmlFor="image-url">Image URL</Label>
-              <Input 
-                id="image-url"
-                placeholder="Enter image URL or upload"
-              />
-              <div className="mt-2">
-                <Button variant="outline" className="w-full">
-                  Upload Image
-                </Button>
-              </div>
-            </div>
-            <Button onClick={() => setActiveWidget(null)}>Add Image</Button>
-          </div>
-        );
-      default:
-        return (
-          <div className="p-4 text-center text-muted-foreground">
-            Widget configuration for {activeWidget.widgetType} is coming soon.
-          </div>
-        );
-    }
+  // Handle publishing the layout
+  const handlePublishLayout = () => {
+    console.log("Publishing layout:", rows);
+    toast({
+      title: "Layout Published",
+      description: "Your app layout is now live for all members!",
+    });
   };
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">App Manager</h1>
-          <p className="text-muted-foreground">
-            Design and customize your church app layout
-          </p>
-        </div>
-        <Button onClick={saveAppLayout}>
-          <Save className="h-4 w-4 mr-2" />
-          Save Layout
-        </Button>
+    <div className="h-[calc(100vh-8rem)]">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">Member App Manager</h1>
+        <p className="text-muted-foreground">Customize your church's mobile app layout using drag and drop</p>
       </div>
       
-      <DragDropContext onDragEnd={onDragEnd}>
-        <ResizablePanelGroup direction="horizontal" className="h-[calc(100vh-200px)] min-h-[500px] rounded-lg border">
-          {/* Widgets Panel */}
-          <ResizablePanel defaultSize={20} minSize={15}>
-            <div className="h-full p-4 bg-muted/20">
-              <h2 className="text-xl font-semibold mb-4">Widgets</h2>
-              <Droppable droppableId="WIDGETS" isDropDisabled={true}>
-                {(provided) => (
-                  <div
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                    className="space-y-2"
-                  >
-                    {availableWidgets.map((widget, index) => (
-                      <Draggable 
-                        key={widget.id} 
-                        draggableId={`widget-${widget.id}`} 
-                        index={index}
-                      >
-                        {(provided) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className="p-3 bg-card shadow rounded-md flex items-center gap-3 cursor-grab hover:bg-accent/10"
-                          >
-                            <div className="flex items-center justify-center p-2 bg-primary/10 rounded text-primary">
-                              {widget.icon}
-                            </div>
-                            <span>{widget.title}</span>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
+      <ResizablePanelGroup direction="horizontal" className="h-[calc(100vh-12rem)]">
+        {/* Left Panel - Widget Library */}
+        <ResizablePanel defaultSize={25} minSize={20}>
+          <div className="h-full p-4 border rounded-l bg-card">
+            <h2 className="font-semibold mb-3">Widget Library</h2>
+            <p className="text-xs text-muted-foreground mb-4">Drag widgets to the app layout</p>
+            
+            <div className="space-y-3 overflow-y-auto h-[calc(100%-3rem)]">
+              {widgetTypes.map((widget) => (
+                <Card 
+                  key={widget.type}
+                  draggable
+                  onDragStart={() => handleDragStart(widget.type)}
+                  className="cursor-grab hover:border-primary transition-colors"
+                >
+                  <CardContent className="p-3 flex items-center gap-2">
+                    <Grab className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex-1">
+                      {widget.icon}
+                    </div>
+                    <span className="text-xs">{widget.label}</span>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
-          </ResizablePanel>
-          
-          <ResizableHandle withHandle />
-          
-          {/* Layout Builder */}
-          <ResizablePanel defaultSize={50}>
-            <div className="h-full p-4 flex flex-col">
-              <h2 className="text-xl font-semibold mb-4">Layout Builder</h2>
+          </div>
+        </ResizablePanel>
+        
+        <ResizableHandle withHandle />
+        
+        {/* Center Panel - App Layout Editor */}
+        <ResizablePanel defaultSize={50}>
+          <div className="h-full p-4 border-y bg-muted/30">
+            <h2 className="font-semibold mb-3">App Layout</h2>
+            <p className="text-xs text-muted-foreground mb-4">Drag widgets from the library into rows below</p>
+            
+            <div className="bg-white rounded-lg border p-4 space-y-4 h-[calc(100%-4rem)] overflow-y-auto">
+              {/* Fixed Header */}
+              <div className="bg-church-accent text-white p-3 rounded-t-lg text-center font-bold">
+                Church Name
+              </div>
               
-              <div className="flex-1 flex">
-                <div className="flex-1 overflow-y-auto border rounded-md p-4">
-                  <Droppable droppableId="LAYOUT">
-                    {(provided, snapshot) => (
-                      <div
-                        {...provided.droppableProps}
-                        ref={provided.innerRef}
-                        className={`min-h-full space-y-2 ${
-                          snapshot.isDraggingOver ? "bg-accent/10" : ""
-                        }`}
-                      >
-                        {layoutItems.length === 0 && !snapshot.isDraggingOver && (
-                          <div className="h-full flex items-center justify-center text-muted-foreground">
-                            <p>Drag widgets here to build your app layout</p>
-                          </div>
-                        )}
-                        
-                        {layoutItems.map((item, index) => (
-                          <Draggable key={item.id} draggableId={item.id} index={index}>
-                            {(provided) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className={`p-4 border rounded-md bg-background cursor-grab hover:bg-accent/5 ${
-                                  activeWidget?.id === item.id ? "ring-2 ring-primary" : ""
-                                }`}
-                                onClick={() => setActiveWidget(item)}
-                              >
-                                <div className="flex items-center gap-2">
-                                  {availableWidgets.find(widget => widget.type === item.widgetType)?.icon}
-                                  <span className="font-medium capitalize">{item.widgetType}</span>
-                                </div>
-                                {item.content && (
-                                  <div className="mt-2 text-sm text-muted-foreground">
-                                    {typeof item.content === 'string' 
-                                      ? (item.content.length > 100 
-                                          ? `${item.content.substring(0, 100)}...` 
-                                          : item.content)
-                                      : 'Custom content'}
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
+              {/* Editable Rows */}
+              {rows.map((row) => (
+                <div 
+                  key={row.id}
+                  className={`border-2 rounded p-4 min-h-[100px] transition-colors ${activeRow === row.id ? 'border-primary border-dashed' : 'border-transparent'}`}
+                  onDragOver={(e) => handleDragOver(e, row.id)}
+                  onDrop={(e) => handleDrop(e, row.id)}
+                >
+                  {row.widgets.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                      Drop widgets here
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {row.widgets.map((widget) => (
+                        <div key={widget.id} className="py-1">
+                          {renderWidget(widget)}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                
-                {/* Widget Editor */}
-                {activeWidget && (
-                  <div className="w-64 ml-4 p-4 border rounded-md">
-                    {renderWidgetEditor()}
-                  </div>
-                )}
+              ))}
+              
+              {/* Fixed Bottom Nav */}
+              <div className="bg-white border-t mt-auto p-2 rounded-b-lg flex justify-around">
+                <Button variant="ghost" size="sm">Home</Button>
+                <Button variant="ghost" size="sm">Events</Button>
+                <Button variant="ghost" size="sm">Giving</Button>
+                <Button variant="ghost" size="sm">Connect</Button>
               </div>
             </div>
-          </ResizablePanel>
-          
-          <ResizableHandle withHandle />
-          
-          {/* Preview Panel */}
-          <ResizablePanel defaultSize={30}>
-            <div className="h-full p-4 bg-muted/20 flex flex-col">
-              <h2 className="text-xl font-semibold mb-4">Preview</h2>
-              
-              <div className="flex-1 flex items-center justify-center">
-                <div className="w-[340px] h-[680px] bg-background border-8 border-gray-800 rounded-[40px] shadow-xl overflow-hidden relative">
-                  <div className="absolute top-0 left-0 right-0 h-6 bg-gray-800 flex justify-center items-end">
-                    <div className="w-20 h-4 bg-black rounded-b-xl"></div>
-                  </div>
-                  <div className="p-4 h-full overflow-y-auto">
-                    {layoutItems.length === 0 ? (
-                      <div className="h-full flex items-center justify-center text-muted-foreground">
-                        <p>Your app preview will appear here</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        {layoutItems.map((item) => (
-                          <Card key={item.id}>
-                            <CardHeader className="py-2">
-                              <CardTitle className="text-sm capitalize">{item.widgetType}</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                              {item.widgetType === 'text' && item.content ? (
-                                <p>{item.content}</p>
-                              ) : item.widgetType === 'image' ? (
-                                <div className="bg-muted h-40 flex items-center justify-center">
-                                  <Image className="h-8 w-8 text-muted-foreground" />
-                                </div>
-                              ) : (
-                                <div className="h-20 flex items-center justify-center text-muted-foreground">
-                                  <p className="text-xs">{item.widgetType} placeholder</p>
-                                </div>
-                              )}
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    )}
+          </div>
+        </ResizablePanel>
+        
+        <ResizableHandle withHandle />
+        
+        {/* Right Panel - Mobile Preview */}
+        <ResizablePanel defaultSize={25} minSize={20}>
+          <div className="h-full p-4 border rounded-r bg-card flex flex-col">
+            <h2 className="font-semibold mb-3">App Preview</h2>
+            <p className="text-xs text-muted-foreground mb-4">Live preview of your app</p>
+            
+            <div className="relative flex-1 flex flex-col items-center justify-center">
+              <div className="rounded-[2rem] border-8 border-black h-[70%] aspect-[9/16] overflow-hidden relative shadow-lg">
+                <div className="absolute inset-0 bg-white p-2 flex flex-col">
+                  {/* Phone Notch */}
+                  <div className="w-1/3 h-5 mx-auto bg-black rounded-b-lg mb-1"></div>
+                  
+                  {/* Content Preview */}
+                  <div className="flex-1 overflow-hidden flex flex-col">
+                    {/* Header */}
+                    <div className="bg-church-accent text-white p-2 text-center font-bold text-sm">
+                      Church Name
+                    </div>
+                    
+                    {/* Scrollable Content */}
+                    <div className="flex-1 overflow-y-auto p-2 space-y-2">
+                      {rows.flatMap(row => 
+                        row.widgets.map(widget => (
+                          <div key={widget.id} className="py-1 transform scale-90">
+                            {renderWidget(widget)}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    
+                    {/* Bottom Nav */}
+                    <div className="bg-white border-t p-1 flex justify-around text-[0.6rem]">
+                      <Button variant="ghost" size="sm" className="h-8 text-[0.6rem]">Home</Button>
+                      <Button variant="ghost" size="sm" className="h-8 text-[0.6rem]">Events</Button>
+                      <Button variant="ghost" size="sm" className="h-8 text-[0.6rem]">Giving</Button>
+                      <Button variant="ghost" size="sm" className="h-8 text-[0.6rem]">Connect</Button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </DragDropContext>
+            
+            <div className="space-y-2 mt-4">
+              <Button 
+                className="w-full" 
+                variant="outline" 
+                onClick={handleSaveLayout}
+              >
+                <Save className="mr-2 h-4 w-4" /> Save Layout
+              </Button>
+              <Button 
+                className="w-full" 
+                onClick={handlePublishLayout}
+              >
+                <SendHorizontal className="mr-2 h-4 w-4" /> Publish Layout
+              </Button>
+            </div>
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 }
