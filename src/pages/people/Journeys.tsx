@@ -15,7 +15,10 @@ import {
   ArrowLeft,
   FileDown,
   TrendingUp,
-  TrendingDown
+  TrendingDown,
+  Search,
+  Filter,
+  Download
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -242,6 +245,7 @@ export default function Journeys() {
   const [journeys, setJourneys] = useState<Journey[]>(sampleJourneys);
   const [isAddJourneyOpen, setIsAddJourneyOpen] = useState(false);
   const [selectedJourney, setSelectedJourney] = useState<Journey | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [newJourney, setNewJourney] = useState<{
     name: string;
     description: string;
@@ -445,6 +449,31 @@ export default function Journeys() {
     });
   };
 
+  const downloadAllJourneysData = () => {
+    const allContent = journeys.map(journey => generateJourneyExport(journey)).join("\n\n-------------------\n\n");
+    const blob = new Blob([allContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "all_journeys_data.txt";
+    document.body.appendChild(a);
+    a.click();
+    
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Success",
+      description: "All journeys data downloaded successfully",
+    });
+  };
+
+  const filteredJourneys = journeys.filter(journey => 
+    journey.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    journey.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -497,8 +526,33 @@ export default function Journeys() {
         />
       </div>
 
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h2 className="text-xl font-medium text-church-primary">All Journeys</h2>
+        
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+          <div className="relative flex-grow">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            <Input
+              placeholder="Search journeys..."
+              className="pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="icon">
+              <Filter size={18} />
+            </Button>
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-1"
+              onClick={downloadAllJourneysData}
+            >
+              <Download size={18} />
+              <span className="hidden sm:inline">Download All</span>
+            </Button>
+          </div>
+        </div>
       </div>
 
       <Card>
@@ -513,7 +567,7 @@ export default function Journeys() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {journeys.map((journey) => (
+              {filteredJourneys.map((journey) => (
                 <TableRow 
                   key={journey.id} 
                   className="cursor-pointer hover:bg-church-muted"
@@ -556,6 +610,13 @@ export default function Journeys() {
                   </TableCell>
                 </TableRow>
               ))}
+              {filteredJourneys.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                    No journeys found matching your search.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
