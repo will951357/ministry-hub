@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 
 // Sample groups data
 const groupsData = [
