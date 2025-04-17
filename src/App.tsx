@@ -29,7 +29,6 @@ import Blog from "./pages/app-member/Blog";
 import NewPost from "./pages/app-member/NewPost";
 import AppManager from "./pages/app-member/AppManager";
 import ExpenseForm from "./pages/finance/ExpenseForm";
-import Expenses from "./pages/finance/Expenses";
 
 const queryClient = new QueryClient();
 
@@ -62,7 +61,6 @@ const App = () => (
             <Route path="tithes" element={<Tithes />} />
             <Route path="funds" element={<Funds />} />
             <Route path="accounting" element={<Accounting />} />
-            <Route path="expenses" element={<Expenses />} />
             <Route path="expenses/new" element={<ExpenseForm />} />
           </Route>
           

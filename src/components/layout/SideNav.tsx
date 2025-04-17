@@ -25,8 +25,7 @@ import {
   Book,
   GraduationCap,
   Calculator,
-  LayoutGrid,
-  ReceiptText
+  LayoutGrid
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -97,7 +96,6 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
         { id: 'tithes', label: 'Tithes', icon: <Receipt size={18} />, href: '/finance/tithes' },
         { id: 'funds', label: 'Funds', icon: <PiggyBank size={18} />, href: '/finance/funds' },
         { id: 'accounting', label: 'Accounting', icon: <Calculator size={18} />, href: '/finance/accounting' },
-        { id: 'expenses', label: 'Expenses', icon: <ReceiptText size={18} />, href: '/finance/expenses' },
       ]
     },
     { 

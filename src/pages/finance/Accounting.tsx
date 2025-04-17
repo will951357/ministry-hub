@@ -14,7 +14,9 @@ import {
   ArrowUpRight, 
   ArrowDownRight,
   Calendar,
-  Clock
+  Clock,
+  Plus,
+  Receipt
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,10 +26,17 @@ import { ExpenseByCategoryChart } from "@/components/finance/ExpenseByCategoryCh
 import { TransactionTable } from "@/components/finance/TransactionTable";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
+import { BudgetVsActualChart } from "@/components/finance/BudgetVsActualChart";
+import { YearlyBudgetProgressChart } from "@/components/finance/YearlyBudgetProgressChart";
+import { BudgetUsageByCategory } from "@/components/finance/BudgetUsageByCategory";
+import { FundBalanceChart } from "@/components/finance/FundBalanceChart";
+import { BudgetTable } from "@/components/finance/BudgetTable";
 
 export default function Accounting() {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [timeRange, setTimeRange] = useState("this-month");
+  const [selectedMonth, setSelectedMonth] = useState("april-2025");
   
   const handleExport = (format: string) => {
     toast.success(`Financial report exported as ${format.toUpperCase()}`, {
@@ -65,6 +74,12 @@ export default function Accounting() {
           <Button variant="outline" size="sm" onClick={() => handleExport("excel")}>
             <Download className="h-4 w-4 mr-2" />
             Excel
+          </Button>
+          <Button asChild>
+            <Link to="/finance/expenses/new">
+              <Plus className="h-4 w-4 mr-2" />
+              New Expense
+            </Link>
           </Button>
         </div>
       </div>
@@ -119,20 +134,19 @@ export default function Accounting() {
         </Card>
       </div>
 
-      <Tabs defaultValue="overview" onValueChange={setActiveTab} className="w-full">
+      <Tabs defaultValue="dashboard" onValueChange={setActiveTab} className="w-full">
         <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="transactions">Transactions</TabsTrigger>
-          <TabsTrigger value="budget">Budget Comparison</TabsTrigger>
-          <TabsTrigger value="categories">Categories</TabsTrigger>
+          <TabsTrigger value="budget">Budget Planning</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="overview" className="space-y-4">
+        <TabsContent value="dashboard" className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4 mt-4">
             <Card className="col-span-2 md:col-span-1">
               <CardHeader>
-                <CardTitle>Cash Flow</CardTitle>
-                <CardDescription>Monthly income vs expenses</CardDescription>
+                <CardTitle>Income vs Expenses</CardTitle>
+                <CardDescription>Monthly comparison</CardDescription>
               </CardHeader>
               <CardContent className="h-80">
                 <FinancialOverviewChart />
@@ -147,6 +161,42 @@ export default function Accounting() {
                 <ExpenseByCategoryChart />
               </CardContent>
             </Card>
+            <Card className="col-span-2 md:col-span-1">
+              <CardHeader>
+                <CardTitle>Budget vs Actual</CardTitle>
+                <CardDescription>Monthly comparison by category</CardDescription>
+              </CardHeader>
+              <CardContent className="h-80">
+                <BudgetVsActualChart />
+              </CardContent>
+            </Card>
+            <Card className="col-span-2 md:col-span-1">
+              <CardHeader>
+                <CardTitle>Annual Budget Progress</CardTitle>
+                <CardDescription>Accumulated expenses vs annual budget</CardDescription>
+              </CardHeader>
+              <CardContent className="h-80">
+                <YearlyBudgetProgressChart />
+              </CardContent>
+            </Card>
+            <Card className="col-span-2 md:col-span-1">
+              <CardHeader>
+                <CardTitle>Budget Usage by Category</CardTitle>
+                <CardDescription>Percentage of allocated budget used</CardDescription>
+              </CardHeader>
+              <CardContent className="h-80">
+                <BudgetUsageByCategory />
+              </CardContent>
+            </Card>
+            <Card className="col-span-2 md:col-span-1">
+              <CardHeader>
+                <CardTitle>Fund Balances</CardTitle>
+                <CardDescription>Current balance by fund</CardDescription>
+              </CardHeader>
+              <CardContent className="h-80">
+                <FundBalanceChart />
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
         
@@ -157,10 +207,18 @@ export default function Accounting() {
                 <CardTitle>Transaction Log</CardTitle>
                 <CardDescription>Recent financial activity</CardDescription>
               </div>
-              <Button variant="outline" size="sm">
-                <Filter className="h-4 w-4 mr-2" />
-                Filter
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm">
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filter
+                </Button>
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/finance/expenses/new">
+                    <Receipt className="h-4 w-4 mr-2" />
+                    Add Expense
+                  </Link>
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <TransactionTable />
@@ -170,71 +228,34 @@ export default function Accounting() {
         
         <TabsContent value="budget" className="space-y-4 mt-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Budget vs Actual</CardTitle>
-              <CardDescription>Comparison of planned vs actual expenditure</CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Budget Planning</CardTitle>
+                <CardDescription>Define and track budget by category</CardDescription>
+              </div>
+              <div className="flex items-center gap-2">
+                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                  <SelectTrigger className="w-[180px]">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Select month" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="january-2025">January 2025</SelectItem>
+                    <SelectItem value="february-2025">February 2025</SelectItem>
+                    <SelectItem value="march-2025">March 2025</SelectItem>
+                    <SelectItem value="april-2025">April 2025</SelectItem>
+                    <SelectItem value="may-2025">May 2025</SelectItem>
+                    <SelectItem value="june-2025">June 2025</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Category
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-center text-muted-foreground py-8">
-                <p>Budget comparison feature coming soon.</p>
-                <p className="text-sm mt-2">This feature will allow you to track actual spending against budgeted amounts.</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="categories" className="space-y-4 mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Financial Categories</CardTitle>
-              <CardDescription>Balance breakdown by ministry area</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center p-3 border rounded-md">
-                  <div className="flex items-center gap-3">
-                    <Badge className="bg-blue-500">Worship</Badge>
-                    <span className="text-sm font-medium">Worship Ministry</span>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-medium">$8,430.00</div>
-                    <div className="text-xs text-muted-foreground">24% of total</div>
-                  </div>
-                </div>
-                
-                <div className="flex justify-between items-center p-3 border rounded-md">
-                  <div className="flex items-center gap-3">
-                    <Badge className="bg-green-500">Missions</Badge>
-                    <span className="text-sm font-medium">Missions and Outreach</span>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-medium">$12,650.00</div>
-                    <div className="text-xs text-muted-foreground">36% of total</div>
-                  </div>
-                </div>
-                
-                <div className="flex justify-between items-center p-3 border rounded-md">
-                  <div className="flex items-center gap-3">
-                    <Badge className="bg-orange-500">Building</Badge>
-                    <span className="text-sm font-medium">Facilities and Maintenance</span>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-medium">$9,830.00</div>
-                    <div className="text-xs text-muted-foreground">28% of total</div>
-                  </div>
-                </div>
-                
-                <div className="flex justify-between items-center p-3 border rounded-md">
-                  <div className="flex items-center gap-3">
-                    <Badge className="bg-purple-500">Admin</Badge>
-                    <span className="text-sm font-medium">Administration</span>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-medium">$4,300.00</div>
-                    <div className="text-xs text-muted-foreground">12% of total</div>
-                  </div>
-                </div>
-              </div>
+              <BudgetTable selectedMonth={selectedMonth} />
             </CardContent>
           </Card>
         </TabsContent>
