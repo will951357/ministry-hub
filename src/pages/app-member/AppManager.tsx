@@ -24,7 +24,8 @@ import {
   Trash2,
   X,
   Edit,
-  Check
+  Check,
+  Type
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Textarea } from "@/components/ui/textarea";
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose
+} from "@/components/ui/dialog";
 
 // Define widget types
 type WidgetType = 
@@ -76,30 +86,39 @@ const widgetTypes: { type: WidgetType; label: string; icon: React.ReactNode; fea
   { type: "upcomingEvents", label: "Upcoming Events", icon: <ListTodo size={18} /> },
   { type: "calendar", label: "Calendar", icon: <Calendar size={18} /> },
   { type: "article", label: "Article", icon: <FileText size={18} /> },
-  { type: "text", label: "Text", icon: <FileText size={18} /> },
+  { type: "text", label: "Text", icon: <Type size={18} /> },
 ];
 
 // Sample upcoming events data
 const upcomingEvents = [
   {
     id: 1,
-    title: "Event 1",
-    date: "Mon 15 Aug 2022",
-    startTime: "07:00 PM",
-    endTime: "10:30 PM",
+    title: "Sunday Worship Service",
+    date: "Sun 24 Apr 2025",
+    startTime: "09:30 AM",
+    endTime: "11:30 AM",
     status: "available",
-    spots: 45,
-    color: "#F2994A"
+    spots: 125,
+    color: "#9b87f5"
   },
   {
     id: 2,
-    title: "Event 2",
-    date: "Mon 15 Aug 2022",
-    endDate: "Wed 17 Aug 2022",
-    startTime: "10:00 AM",
-    endTime: "11:30 PM",
+    title: "Bible Study Group",
+    date: "Wed 27 Apr 2025",
+    startTime: "06:30 PM",
+    endTime: "08:00 PM",
+    status: "available",
+    spots: 35,
+    color: "#0EA5E9"
+  },
+  {
+    id: 3,
+    title: "Youth Gathering",
+    date: "Fri 29 Apr 2025",
+    startTime: "07:00 PM",
+    endTime: "09:30 PM",
     status: "booked",
-    color: "#56CCF2"
+    color: "#F97316"
   }
 ];
 
@@ -116,6 +135,8 @@ export default function AppManager() {
   const [activeRow, setActiveRow] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedWidget, setSelectedWidget] = useState<string | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [currentEditWidget, setCurrentEditWidget] = useState<{rowId: string, widget: Widget} | null>(null);
 
   // Filter widgets based on search query
   const filteredWidgets = searchQuery 
@@ -172,13 +193,13 @@ export default function AppManager() {
   const getDefaultContent = (type: WidgetType) => {
     switch (type) {
       case "text":
-        return { title: "New Text", text: "Add your text here" };
+        return { title: "Welcome", text: "Add your text here. This text can be edited to display important information to your members." };
       case "container":
         return { title: "New Container" };
       case "link":
         return { text: "Learn More", url: "#" };
       case "upcomingEvents":
-        return { events: upcomingEvents };
+        return { events: upcomingEvents, title: "Upcoming Events" };
       default:
         return { title: `New ${type}` };
     }
@@ -228,28 +249,68 @@ export default function AppManager() {
     setSelectedWidget(widgetId === selectedWidget ? null : widgetId);
   };
 
+  // Open edit dialog for a widget
+  const handleEditWidget = (rowId: string, widget: Widget) => {
+    setCurrentEditWidget({ rowId, widget });
+    setEditDialogOpen(true);
+  };
+
+  // Update widget content
+  const handleUpdateWidget = (updatedContent: any) => {
+    if (!currentEditWidget) return;
+
+    const { rowId, widget } = currentEditWidget;
+    
+    const updatedRows = rows.map(row => {
+      if (row.id === rowId) {
+        return {
+          ...row,
+          widgets: row.widgets.map(w => {
+            if (w.id === widget.id) {
+              return {
+                ...w,
+                content: updatedContent
+              };
+            }
+            return w;
+          })
+        };
+      }
+      return row;
+    });
+    
+    setRows(updatedRows);
+    setEditDialogOpen(false);
+    setCurrentEditWidget(null);
+    
+    toast({
+      title: "Widget Updated",
+      description: "Your widget content has been updated.",
+    });
+  };
+
   // Render event cards in the preview
   const renderEventCard = (event: any) => (
     <div key={event.id} className="mb-4 border-l-4 rounded-md bg-white shadow-sm" style={{ borderLeftColor: event.color }}>
       <div className="p-3">
-        <div className="flex justify-between">
+        <div className="flex justify-between items-start">
           <div>
             <h4 className="font-medium text-sm">{event.title}</h4>
-            <div className="text-xs text-gray-600">
-              {event.date} {event.endDate ? `- ${event.endDate}` : ''}
+            <div className="text-xs text-gray-600 mt-1">
+              {event.date}
             </div>
             <div className="text-xs text-gray-600">
-              {event.startTime} To {event.endTime}
+              {event.startTime} - {event.endTime}
             </div>
           </div>
           <div>
             {event.status === "available" ? (
-              <Button size="sm" className="text-xs bg-church-accent hover:bg-church-accent/90">
+              <Button size="sm" className="text-xs bg-church-accent hover:bg-church-accent/90 mt-1">
                 Register
-                <span className="text-xs ml-1 opacity-75">{event.spots} Available</span>
+                <span className="text-xs ml-1 opacity-75">{event.spots}</span>
               </Button>
             ) : (
-              <Button size="sm" variant="outline" className="text-xs" disabled>
+              <Button size="sm" variant="outline" className="text-xs mt-1" disabled>
                 Fully Booked
               </Button>
             )}
@@ -263,22 +324,18 @@ export default function AppManager() {
   const renderWidget = (widget: Widget, isPreview = false) => {
     switch (widget.type) {
       case "text":
-        if (typeof widget.content === "string") {
-          return <div className="p-4 bg-white rounded border text-center font-medium">{widget.content}</div>;
-        } else {
-          return (
-            <div className="p-4 bg-white rounded border">
-              {widget.content.title && <h3 className="text-lg font-medium text-center mb-2">{widget.content.title}</h3>}
-              {widget.content.text && <p>{widget.content.text}</p>}
-            </div>
-          );
-        }
+        return (
+          <div className="p-4 bg-white rounded border">
+            {widget.content.title && <h3 className="text-lg font-semibold text-church-primary mb-2">{widget.content.title}</h3>}
+            {widget.content.text && <p className="text-gray-700">{widget.content.text}</p>}
+          </div>
+        );
       case "upcomingEvents":
         return (
           <div className="p-4 bg-white rounded border">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="text-lg font-medium">Upcoming events in 30 days</h3>
-              <Button variant="link" size="sm" className="text-church-accent">View All</Button>
+              <h3 className="text-lg font-semibold text-church-primary">{widget.content.title || "Upcoming Events"}</h3>
+              <Button variant="link" size="sm" className="text-church-accent p-0">View All</Button>
             </div>
             <div className="space-y-1">
               {widget.content.events.map((event: any) => renderEventCard(event))}
@@ -290,15 +347,102 @@ export default function AppManager() {
     }
   };
 
-  // Find the row and widget given a widget ID
-  const findWidgetAndRow = (widgetId: string) => {
-    for (const row of rows) {
-      const widget = row.widgets.find(w => w.id === widgetId);
-      if (widget) {
-        return { row, widget };
-      }
+  // Render edit dialog content based on widget type
+  const renderEditDialogContent = () => {
+    if (!currentEditWidget) return null;
+
+    const { widget } = currentEditWidget;
+
+    switch (widget.type) {
+      case "text":
+        return (
+          <>
+            <div className="mb-4">
+              <label htmlFor="title" className="block text-sm font-medium mb-1">Title</label>
+              <Input 
+                id="title" 
+                defaultValue={widget.content.title} 
+                onChange={(e) => {
+                  if (currentEditWidget) {
+                    setCurrentEditWidget({
+                      ...currentEditWidget,
+                      widget: {
+                        ...currentEditWidget.widget,
+                        content: {
+                          ...currentEditWidget.widget.content,
+                          title: e.target.value
+                        }
+                      }
+                    });
+                  }
+                }}
+              />
+            </div>
+            <div className="mb-4">
+              <label htmlFor="text" className="block text-sm font-medium mb-1">Text Content</label>
+              <Textarea 
+                id="text" 
+                className="min-h-[150px]"
+                defaultValue={widget.content.text}
+                onChange={(e) => {
+                  if (currentEditWidget) {
+                    setCurrentEditWidget({
+                      ...currentEditWidget,
+                      widget: {
+                        ...currentEditWidget.widget,
+                        content: {
+                          ...currentEditWidget.widget.content,
+                          text: e.target.value
+                        }
+                      }
+                    });
+                  }
+                }}
+              />
+            </div>
+          </>
+        );
+      case "upcomingEvents":
+        return (
+          <>
+            <div className="mb-4">
+              <label htmlFor="title" className="block text-sm font-medium mb-1">Section Title</label>
+              <Input 
+                id="title" 
+                defaultValue={widget.content.title} 
+                onChange={(e) => {
+                  if (currentEditWidget) {
+                    setCurrentEditWidget({
+                      ...currentEditWidget,
+                      widget: {
+                        ...currentEditWidget.widget,
+                        content: {
+                          ...currentEditWidget.widget.content,
+                          title: e.target.value
+                        }
+                      }
+                    });
+                  }
+                }}
+              />
+            </div>
+            <div className="mb-4">
+              <p className="text-sm font-medium mb-2">Events</p>
+              <div className="border rounded-md p-2 space-y-2 max-h-[300px] overflow-y-auto">
+                {widget.content.events.map((event: any, index: number) => (
+                  <div key={event.id} className="border-b pb-2 last:border-b-0 last:pb-0">
+                    <p className="font-medium text-sm">{event.title}</p>
+                    <p className="text-xs text-gray-600">{event.date}, {event.startTime} - {event.endTime}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">Events are managed in the Events section of the admin panel.</p>
+            </div>
+          </>
+        );
+      default:
+        return <p>Edit options not available for this widget type.</p>;
     }
-    return null;
   };
 
   return (
@@ -361,7 +505,7 @@ export default function AppManager() {
         <ResizableHandle withHandle />
         
         {/* Center Panel - App Layout Editor */}
-        <ResizablePanel defaultSize={40}>
+        <ResizablePanel defaultSize={35}>
           <div className="h-full overflow-auto bg-gray-50 p-4">
             <h2 className="font-semibold mb-3">Edit</h2>
             <p className="text-xs text-muted-foreground mb-4">Move cards around by holding and dragging up or down. Click a card to edit or delete it.</p>
@@ -409,7 +553,7 @@ export default function AppManager() {
                                 className="h-7 w-7 p-0 bg-white"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  // Future edit functionality
+                                  handleEditWidget(row.id, widget);
                                 }}
                               >
                                 <Edit size={14} />
@@ -429,7 +573,7 @@ export default function AppManager() {
         <ResizableHandle withHandle />
         
         {/* Right Panel - Mobile Preview */}
-        <ResizablePanel defaultSize={35}>
+        <ResizablePanel defaultSize={40}>
           <div className="h-full p-4 bg-white flex flex-col">
             <h2 className="font-semibold mb-3">Preview</h2>
             <p className="text-xs text-muted-foreground mb-3">This is what your page will look like</p>
@@ -439,9 +583,9 @@ export default function AppManager() {
               <Button variant="default" size="sm" className="rounded-full bg-church-accent hover:bg-church-accent/90">Member</Button>
             </div>
             
-            {/* Larger Mobile Preview with adjusted sizing */}
+            {/* Large Mobile Preview - Takes up almost all the space */}
             <div className="flex-1 relative flex items-center justify-center bg-gray-50 rounded-lg p-2">
-              <div className="rounded-3xl border-8 border-gray-800 h-[calc(100%-1.5rem)] aspect-[9/19] overflow-hidden relative shadow-xl bg-white">
+              <div className="rounded-3xl border-8 border-gray-800 h-[95%] w-auto max-w-[95%] overflow-hidden relative shadow-2xl bg-white">
                 <div className="absolute inset-0 flex flex-col">
                   {/* Phone Status Bar */}
                   <div className="bg-church-primary text-white p-2 text-xs flex justify-between items-center">
@@ -481,6 +625,13 @@ export default function AppManager() {
                         </div>
                       ))
                     )}
+                    
+                    {/* Show placeholder if no widgets added */}
+                    {rows.every(row => row.widgets.length === 0) && (
+                      <div className="p-4 border border-dashed rounded-md bg-white text-center">
+                        <p className="text-muted-foreground">Add widgets in the editor to see them here</p>
+                      </div>
+                    )}
                   </div>
                   
                   {/* Bottom Nav */}
@@ -512,6 +663,33 @@ export default function AppManager() {
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>
+
+      {/* Edit Widget Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>
+              Edit {currentEditWidget?.widget.type.charAt(0).toUpperCase() + currentEditWidget?.widget.type.slice(1)} Widget
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="py-4">
+            {renderEditDialogContent()}
+          </div>
+          
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button 
+              onClick={() => currentEditWidget && handleUpdateWidget(currentEditWidget.widget.content)}
+              className="bg-church-accent hover:bg-church-accent/90"
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
