@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Link } from "react-router-dom";
 import { 
   Filter, 
   Users, 
@@ -243,11 +244,143 @@ export default function Visitors() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-church-primary mb-2">Visitors</h1>
-        <p className="text-church-secondary">
-          Manage and track visitors to your church.
-        </p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-church-primary mb-2">Visitors</h1>
+          <p className="text-church-secondary">
+            Manage and track visitors to your church.
+          </p>
+        </div>
+        
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="default">
+              <UserPlus size={16} className="mr-2" />
+              Add Visitor
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Add New Visitor</DialogTitle>
+              <DialogDescription>
+                Enter the details of the new visitor. All fields are required.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleAddVisitor)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="John Doe" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone Number</FormLabel>
+                      <FormControl>
+                        <Input placeholder="(555) 123-4567" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email Address</FormLabel>
+                      <FormControl>
+                        <Input placeholder="john.doe@example.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="cellGroup"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Cell Group</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a cell group" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {cellGroups.filter(group => group !== "All Groups").map((group) => (
+                            <SelectItem key={group} value={group}>
+                              {group}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="visitMethod"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Visit Method</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="How did they attend?" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="in-person">
+                            <div className="flex items-center">
+                              <Building size={16} className="mr-2" />
+                              In Person
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="app">
+                            <div className="flex items-center">
+                              <Smartphone size={16} className="mr-2" />
+                              Via App
+                            </div>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <DialogFooter className="mt-6">
+                  <DialogClose asChild>
+                    <Button type="button" variant="outline">Cancel</Button>
+                  </DialogClose>
+                  <Button type="submit">Add Visitor</Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Statistics Cards */}
@@ -266,7 +399,13 @@ export default function Visitors() {
           title="Follow-up Pending"
           value="12"
           icon={<UserCheck size={24} />}
-          className="bg-white p-6 rounded-lg border border-church-border shadow-sm"
+          className="bg-white p-6 rounded-lg border border-church-border shadow-sm cursor-pointer"
+          onClick={() => window.location.href = "/people/members"}
+          footer={
+            <div className="text-sm text-blue-600 mt-2 flex items-center">
+              <span>Click here to see requests</span>
+            </div>
+          }
         />
       </div>
 
@@ -335,136 +474,6 @@ export default function Visitors() {
             <Mail size={16} className="mr-2" />
             Email Selected
           </Button>
-          
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="default">
-                <UserPlus size={16} className="mr-2" />
-                Add Visitor
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
-              <DialogHeader>
-                <DialogTitle>Add New Visitor</DialogTitle>
-                <DialogDescription>
-                  Enter the details of the new visitor. All fields are required.
-                </DialogDescription>
-              </DialogHeader>
-              
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleAddVisitor)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Full Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="John Doe" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Phone Number</FormLabel>
-                        <FormControl>
-                          <Input placeholder="(555) 123-4567" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email Address</FormLabel>
-                        <FormControl>
-                          <Input placeholder="john.doe@example.com" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="cellGroup"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Cell Group</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a cell group" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {cellGroups.filter(group => group !== "All Groups").map((group) => (
-                              <SelectItem key={group} value={group}>
-                                {group}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="visitMethod"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Visit Method</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="How did they attend?" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="in-person">
-                              <div className="flex items-center">
-                                <Building size={16} className="mr-2" />
-                                In Person
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="app">
-                              <div className="flex items-center">
-                                <Smartphone size={16} className="mr-2" />
-                                Via App
-                              </div>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <DialogFooter className="mt-6">
-                    <DialogClose asChild>
-                      <Button type="button" variant="outline">Cancel</Button>
-                    </DialogClose>
-                    <Button type="submit">Add Visitor</Button>
-                  </DialogFooter>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
         </div>
       </div>
 
