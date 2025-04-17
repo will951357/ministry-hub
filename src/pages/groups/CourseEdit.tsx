@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
@@ -965,4 +966,464 @@ export default function CourseEdit() {
                       <p className="text-muted-foreground max-w-md mb-6">
                         Create evaluations to assess student understanding and track progress.
                       </p>
-                      <
+                      <Button onClick={() => setIsCreatingEvaluation(true)}>
+                        <Plus size={16} className="mr-2" />
+                        Create Your First Evaluation
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="students" className="mt-0">
+            <div className="grid grid-cols-1 gap-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <div>
+                    <CardTitle className="text-xl">Students</CardTitle>
+                    <CardDescription>Manage students and track their progress</CardDescription>
+                  </div>
+                  <Button>
+                    <Plus size={16} className="mr-2" />
+                    Add Student
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {studentsData.length > 0 ? (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Attendance</TableHead>
+                          <TableHead>Average Grade</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {studentsData.map((student) => (
+                          <TableRow key={student.id}>
+                            <TableCell className="font-medium">{student.name}</TableCell>
+                            <TableCell>{student.email}</TableCell>
+                            <TableCell>{calculateAttendanceRate(student.id)}</TableCell>
+                            <TableCell>{student.averageGrade}%</TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-2">
+                                <Button variant="outline" size="sm">View</Button>
+                                <Button variant="outline" size="sm">Edit</Button>
+                                <Button variant="destructive" size="sm">Remove</Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <div className="py-6 flex flex-col items-center justify-center text-center">
+                      <Users className="h-16 w-16 text-muted-foreground mb-4" />
+                      <h3 className="text-xl font-medium mb-2">No Students Yet</h3>
+                      <p className="text-muted-foreground max-w-md mb-6">
+                        Add students to this course to track their attendance and grades.
+                      </p>
+                      <Button>
+                        <Plus size={16} className="mr-2" />
+                        Add Your First Student
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {course.classes.length > 0 && studentsData.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-xl">Attendance Tracking</CardTitle>
+                    <CardDescription>Track student attendance for each class</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Student</TableHead>
+                          {course.classes.map((classItem) => (
+                            <TableHead key={classItem.id}>
+                              {classItem.subject}
+                              <div className="text-xs font-normal text-muted-foreground">
+                                {formatDate(classItem.date)}
+                              </div>
+                            </TableHead>
+                          ))}
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {studentsData.map((student) => (
+                          <TableRow key={student.id}>
+                            <TableCell className="font-medium">{student.name}</TableCell>
+                            {course.classes.map((classItem) => (
+                              <TableCell key={classItem.id}>
+                                <Checkbox 
+                                  checked={getAttendanceStatus(student.id, classItem.id)}
+                                  onCheckedChange={() => toggleAttendance(student.id, classItem.id)}
+                                />
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+      
+      {/* Class Content Dialog */}
+      <Dialog open={isAddingClassContent || isEditingClassContent} 
+        onOpenChange={(open) => {
+          if (!open) {
+            setIsAddingClassContent(false);
+            setIsEditingClassContent(false);
+          }
+        }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {isEditingClassContent ? "Edit Class Content" : "Add Class Content"}
+            </DialogTitle>
+            <DialogDescription>
+              {isEditingClassContent 
+                ? "Edit the content for this class." 
+                : "Add content for this class. This can include lesson notes, key points, or any text-based content."}
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...contentForm}>
+            <form onSubmit={contentForm.handleSubmit(handleAddClassContent)} className="space-y-4">
+              <FormField
+                control={contentForm.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Content</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Enter class content here..." 
+                        className="min-h-[200px]" 
+                        {...field} 
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" type="button" onClick={() => {
+                  setIsAddingClassContent(false);
+                  setIsEditingClassContent(false);
+                }}>
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  {isEditingClassContent ? "Save Changes" : "Add Content"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Class Material Dialog */}
+      <Dialog open={isAddingClassMaterial} 
+        onOpenChange={(open) => {
+          if (!open) setIsAddingClassMaterial(false);
+        }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Class Material</DialogTitle>
+            <DialogDescription>
+              Upload a file or document to be used as class material.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...materialForm}>
+            <form onSubmit={materialForm.handleSubmit(handleAddClassMaterial)} className="space-y-4">
+              <FormField
+                control={materialForm.control}
+                name="materialName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Material Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter material name" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={materialForm.control}
+                name="file"
+                render={({ field: { value, onChange, ...field } }) => (
+                  <FormItem>
+                    <FormLabel>File</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        type="file" 
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) onChange(file);
+                        }} 
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" type="button" onClick={() => setIsAddingClassMaterial(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  Upload Material
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Create Evaluation Dialog */}
+      <Dialog open={isCreatingEvaluation} 
+        onOpenChange={(open) => {
+          if (!open) setIsCreatingEvaluation(false);
+        }}>
+        <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Create Evaluation</DialogTitle>
+            <DialogDescription>
+              Create a new evaluation or quiz for this course.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...evaluationForm}>
+            <form onSubmit={evaluationForm.handleSubmit(handleCreateEvaluation)} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={evaluationForm.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter evaluation title" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={evaluationForm.control}
+                  name="date"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Date</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto")}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <FormField
+                control={evaluationForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Enter evaluation description" 
+                        {...field} 
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              
+              <div className="bg-muted/30 p-4 rounded-md">
+                <h3 className="text-lg font-medium mb-4">Questions</h3>
+                
+                {evaluationForm.getValues().questions.length > 0 && (
+                  <div className="space-y-4 mb-6">
+                    {evaluationForm.getValues().questions.map((question, index) => (
+                      <div key={index} className="bg-background p-4 rounded-md border">
+                        <div className="flex justify-between mb-2">
+                          <h4 className="font-medium">Question {index + 1}</h4>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-6 w-6" 
+                            onClick={() => handleRemoveQuestion(index)}
+                          >
+                            <Trash2 size={14} />
+                          </Button>
+                        </div>
+                        <p className="mb-2">{question.question}</p>
+                        <div className="pl-4">
+                          {question.options.map((option, optionIdx) => (
+                            <div key={optionIdx} className="flex items-center gap-2 mb-1">
+                              <div className={cn(
+                                "w-4 h-4 rounded-full flex items-center justify-center text-[10px]",
+                                optionIdx === question.correctOption ? "bg-primary text-primary-foreground" : "bg-muted"
+                              )}>
+                                {String.fromCharCode(65 + optionIdx)}
+                              </div>
+                              <span>{option}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                <div className="bg-background p-4 rounded-md border">
+                  <h4 className="font-medium mb-2">Add New Question</h4>
+                  <div className="space-y-4">
+                    <Input 
+                      placeholder="Enter question" 
+                      value={newQuestion.question}
+                      onChange={(e) => setNewQuestion({...newQuestion, question: e.target.value})}
+                    />
+                    
+                    <div className="space-y-2">
+                      {newQuestion.options.map((option, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <div className={cn(
+                            "w-6 h-6 rounded-full flex items-center justify-center text-xs",
+                            index === newQuestion.correctOption ? "bg-primary text-primary-foreground" : "bg-muted"
+                          )}
+                          onClick={() => setNewQuestion({...newQuestion, correctOption: index})}
+                          >
+                            {String.fromCharCode(65 + index)}
+                          </div>
+                          <Input 
+                            placeholder={`Option ${String.fromCharCode(65 + index)}`} 
+                            value={option}
+                            onChange={(e) => handleOptionChange(index, e.target.value)}
+                            className="flex-1"
+                          />
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8" 
+                            onClick={() => handleRemoveOption(index)}
+                            disabled={newQuestion.options.length <= 2}
+                          >
+                            <Trash2 size={14} />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="flex justify-between">
+                      <Button type="button" variant="outline" onClick={handleAddOption} disabled={newQuestion.options.length >= 6}>
+                        <Plus size={14} className="mr-1" />
+                        Add Option
+                      </Button>
+                      <Button 
+                        type="button" 
+                        onClick={handleAddQuestion} 
+                        disabled={!newQuestion.question || newQuestion.options.some(opt => !opt)}
+                      >
+                        Add Question
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" type="button" onClick={() => setIsCreatingEvaluation(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={!evaluationForm.getValues().title || !evaluationForm.getValues().date || evaluationForm.getValues().questions.length === 0}
+                >
+                  Create Evaluation
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+      
+      {/* View Evaluation Dialog */}
+      <Dialog open={isViewingEvaluation} 
+        onOpenChange={(open) => {
+          if (!open) setIsViewingEvaluation(false);
+        }}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{selectedEvaluation?.title}</DialogTitle>
+            <DialogDescription>
+              {selectedEvaluation?.description} • {selectedEvaluation && formatDate(selectedEvaluation.date)}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {selectedEvaluation?.questions.map((question, index) => (
+              <div key={question.id} className="bg-muted/10 p-4 rounded-md border">
+                <h3 className="font-medium mb-2">Question {index + 1}: {question.question}</h3>
+                <div className="pl-4 space-y-2">
+                  {question.options.map((option, optionIdx) => (
+                    <div key={optionIdx} className="flex items-center gap-2">
+                      <div className={cn(
+                        "w-6 h-6 rounded-full flex items-center justify-center text-xs",
+                        optionIdx === question.correctOption ? "bg-primary text-primary-foreground" : "bg-muted"
+                      )}>
+                        {String.fromCharCode(65 + optionIdx)}
+                      </div>
+                      <span className={optionIdx === question.correctOption ? "font-medium" : ""}>
+                        {option}
+                      </span>
+                      {optionIdx === question.correctOption && (
+                        <CheckCircle2 size={16} className="text-primary ml-auto" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </MainLayout>
+  );
+}
