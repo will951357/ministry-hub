@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Filter, Plus, Search, Pencil, Trash2, Bell, Download, Calendar as CalendarIcon, Phone, Mail, User, Camera, CheckSquare, Square } from "lucide-react";
+import { Filter, Plus, Search, Pencil, Trash2, Bell, Download, Calendar as CalendarIcon, Phone, Mail, User, Camera, CheckSquare, Square, TrendingUp, TrendingDown, UserPlus } from "lucide-react";
 import { 
   Popover,
   PopoverContent, 
@@ -28,6 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { NewMemberForm } from "@/components/members/NewMemberForm";
+import { StatsCard } from "@/components/dashboard/StatsCard";
 
 export default function Members() {
   const navigate = useNavigate();
@@ -48,7 +50,8 @@ export default function Members() {
   // Mock data - in a real app this would come from an API
   const memberStats = {
     total: 247,
-    capacity: 500
+    capacity: 500,
+    change: 5.2 // Percentage change from last month
   };
 
   // Mock members data
@@ -91,6 +94,34 @@ export default function Members() {
       email: "david.r@example.com",
       phone: "(555) 567-8901",
       avatar: "DR",
+      image: "",
+    },
+  ];
+
+  // Mock membership requests data
+  const membershipRequests = [
+    {
+      id: 101,
+      name: "Sarah Johnson",
+      email: "sarah.j@example.com",
+      requestDate: new Date(2025, 3, 10), // April 10, 2025
+      avatar: "SJ",
+      image: "",
+    },
+    {
+      id: 102,
+      name: "Michael Brown",
+      email: "michael.b@example.com",
+      requestDate: new Date(2025, 3, 12), // April 12, 2025
+      avatar: "MB",
+      image: "",
+    },
+    {
+      id: 103,
+      name: "Emily Davis",
+      email: "emily.d@example.com",
+      requestDate: new Date(2025, 3, 15), // April 15, 2025
+      avatar: "ED",
       image: "",
     },
   ];
@@ -158,6 +189,24 @@ export default function Members() {
     });
   };
 
+  const handleApproveRequest = (id: number) => {
+    // In a real app, this would call an API to approve the membership request
+    console.log(`Approving membership request with ID: ${id}`);
+    toast({
+      title: "Request Approved",
+      description: "The membership request has been approved.",
+    });
+  };
+
+  const handleRejectRequest = (id: number) => {
+    // In a real app, this would call an API to reject the membership request
+    console.log(`Rejecting membership request with ID: ${id}`);
+    toast({
+      title: "Request Rejected",
+      description: "The membership request has been rejected.",
+    });
+  };
+
   // Toggle selection of a single member
   const toggleMemberSelection = (id: number) => {
     if (selectedMembers.includes(id)) {
@@ -182,41 +231,110 @@ export default function Members() {
   const areAllSelected = filteredMembers.length > 0 && 
     selectedMembers.length === filteredMembers.length;
 
+  const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    }).format(date);
+  };
+
   return (
     <div className="space-y-6">
-      <div>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
         <h1 className="text-2xl font-semibold text-church-primary mb-2">Members</h1>
-        <p className="text-church-secondary">
-          Manage your church membership - view, add, and update member information.
-        </p>
+        <Button 
+          className="bg-church-primary hover:bg-church-accent text-white md:self-start"
+          onClick={() => setShowAddMemberDialog(true)}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Add a new member
+        </Button>
       </div>
+      <p className="text-church-secondary mb-6">
+        Manage your church membership - view, add, and update member information.
+      </p>
 
-      <Card className="p-6 bg-white border-church-border">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="text-lg font-medium text-church-primary">Membership Statistics</h2>
-            <div className="mt-2 flex items-center space-x-6">
-              <div>
-                <p className="text-sm text-church-secondary">Total Members</p>
-                <p className="text-2xl font-semibold text-church-primary">{memberStats.total}</p>
-              </div>
-              <div>
-                <p className="text-sm text-church-secondary">Maximum Capacity</p>
-                <p className="text-2xl font-semibold text-church-primary">{memberStats.capacity}</p>
-              </div>
+      {/* Membership Requests Section */}
+      {membershipRequests.length > 0 && (
+        <Card className="p-6 bg-white border-church-border mb-6">
+          <div className="flex flex-col">
+            <h2 className="text-lg font-medium text-church-primary mb-4">Membership Requests</h2>
+            <div className="overflow-hidden rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Member</TableHead>
+                    <TableHead>Request Date</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {membershipRequests.map((request) => (
+                    <TableRow key={request.id}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-3">
+                          <Avatar>
+                            <AvatarImage src={request.image} alt={request.name} />
+                            <AvatarFallback>{request.avatar}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div>{request.name}</div>
+                            <div className="text-sm text-muted-foreground">{request.email}</div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>{formatDate(request.requestDate)}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleApproveRequest(request.id)}
+                            className="text-green-600 border-green-600 hover:bg-green-50"
+                          >
+                            Approve
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleRejectRequest(request.id)}
+                            className="text-red-600 border-red-600 hover:bg-red-50"
+                          >
+                            Reject
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           </div>
-          <div className="mt-4 md:mt-0">
-            <Button 
-              className="bg-church-primary hover:bg-church-accent text-white"
-              onClick={() => setShowAddMemberDialog(true)}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Add a new member
-            </Button>
-          </div>
-        </div>
-      </Card>
+        </Card>
+      )}
+
+      {/* Membership Statistics */}
+      <div className="grid gap-4 md:grid-cols-2 mb-6">
+        <StatsCard 
+          title="Total Members"
+          value={memberStats.total.toString()}
+          description="Current membership count"
+          icon={<User className="h-4 w-4" />}
+          trend={{
+            value: memberStats.change,
+            isPositive: memberStats.change > 0
+          }}
+          className="bg-white p-6 rounded-lg border border-church-border"
+        />
+        <StatsCard 
+          title="Maximum Capacity"
+          value={memberStats.capacity.toString()}
+          description={`${Math.round((memberStats.total / memberStats.capacity) * 100)}% utilized`}
+          icon={<UserPlus className="h-4 w-4" />}
+          className="bg-white p-6 rounded-lg border border-church-border"
+        />
+      </div>
 
       <div className="flex flex-col sm:flex-row gap-4 flex-wrap items-center justify-between">
         <div className="relative flex-1 min-w-[250px]">
