@@ -3,28 +3,44 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-import { Smartphone, Grab, Save, SendHorizontal } from "lucide-react";
+import { 
+  Search,
+  Save, 
+  SendHorizontal, 
+  Smartphone, 
+  Box, 
+  Link as LinkIcon, 
+  Video, 
+  Music, 
+  Image, 
+  FileText, 
+  Calendar, 
+  ListTodo, 
+  Crown, 
+  BadgeDollarSign,
+  SlidersHorizontal,
+  MessagesSquare,
+  GripVertical 
+} from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Define widget types
 type WidgetType = 
-  | "text" 
-  | "image" 
-  | "button" 
-  | "link" 
-  | "video" 
-  | "calendar" 
-  | "eventList" 
-  | "contactForm"
-  | "scripture" 
-  | "donationButton" 
-  | "carousel" 
-  | "socialMedia"
-  | "audio";
+  | "container"
+  | "link"
+  | "video"
+  | "audio"
+  | "photo"
+  | "media"
+  | "form"
+  | "event"
+  | "upcomingEvents"
+  | "calendar"
+  | "article"
+  | "text";
 
 interface Widget {
   id: string;
@@ -38,31 +54,64 @@ interface Row {
 }
 
 // Widget definitions with their icons and labels
-const widgetTypes: { type: WidgetType; label: string; icon: React.ReactNode }[] = [
-  { type: "text", label: "Text Box", icon: <Textarea className="h-8 w-full pointer-events-none" disabled /> },
-  { type: "image", label: "Image", icon: <div className="bg-muted h-12 w-full flex items-center justify-center text-muted-foreground text-xs">Image</div> },
-  { type: "button", label: "Button", icon: <Button size="sm" className="w-full pointer-events-none">Button</Button> },
-  { type: "link", label: "Link", icon: <div className="text-blue-500 underline cursor-pointer">Link</div> },
-  { type: "video", label: "Video", icon: <div className="bg-muted h-12 w-full flex items-center justify-center text-muted-foreground text-xs">Video</div> },
-  { type: "calendar", label: "Calendar", icon: <div className="bg-muted h-12 w-full flex items-center justify-center text-muted-foreground text-xs">Calendar</div> },
-  { type: "eventList", label: "Event List", icon: <div className="space-y-1 w-full"><div className="h-2 bg-muted rounded w-full"></div><div className="h-2 bg-muted rounded w-3/4"></div></div> },
-  { type: "contactForm", label: "Contact Form", icon: <div className="space-y-1 w-full"><Input className="h-6 pointer-events-none" disabled /><Input className="h-6 pointer-events-none" disabled /></div> },
-  { type: "scripture", label: "Scripture", icon: <div className="italic text-xs">"For God so loved the world..."</div> },
-  { type: "donationButton", label: "Donation", icon: <Button size="sm" variant="outline" className="w-full pointer-events-none">Donate</Button> },
-  { type: "carousel", label: "Carousel", icon: <div className="bg-muted h-12 w-full flex items-center justify-center text-muted-foreground text-xs">Image Slider</div> },
-  { type: "socialMedia", label: "Social Media", icon: <div className="flex space-x-1"><div className="w-4 h-4 rounded-full bg-blue-500"></div><div className="w-4 h-4 rounded-full bg-pink-500"></div></div> },
-  { type: "audio", label: "Audio", icon: <div className="bg-muted h-6 w-full flex items-center justify-center text-muted-foreground text-xs">Audio Player</div> },
+const widgetTypes: { type: WidgetType; label: string; icon: React.ReactNode; featured?: boolean }[] = [
+  { type: "container", label: "Container", icon: <Box size={18} /> },
+  { type: "link", label: "Link", icon: <LinkIcon size={18} /> },
+  { type: "video", label: "Video", icon: <Video size={18} /> },
+  { type: "audio", label: "Audio", icon: <Music size={18} /> },
+  { type: "photo", label: "Photos", icon: <Image size={18} /> },
+  { type: "media", label: "Media", icon: <FileText size={18} />, featured: true },
+  { type: "form", label: "Form", icon: <MessagesSquare size={18} /> },
+  { type: "event", label: "Event", icon: <Calendar size={18} /> },
+  { type: "upcomingEvents", label: "Upcoming Events", icon: <ListTodo size={18} /> },
+  { type: "calendar", label: "Calendar", icon: <Calendar size={18} /> },
+  { type: "article", label: "Article", icon: <FileText size={18} /> },
+  { type: "text", label: "Text", icon: <FileText size={18} /> },
+];
+
+// Sample upcoming events data
+const upcomingEvents = [
+  {
+    id: 1,
+    title: "Event 1",
+    date: "Mon 15 Aug 2022",
+    startTime: "07:00 PM",
+    endTime: "10:30 PM",
+    status: "available",
+    spots: 45,
+    color: "#F2994A"
+  },
+  {
+    id: 2,
+    title: "Event 2",
+    date: "Mon 15 Aug 2022",
+    endDate: "Wed 17 Aug 2022",
+    startTime: "10:00 AM",
+    endTime: "11:30 PM",
+    status: "booked",
+    color: "#56CCF2"
+  }
 ];
 
 export default function AppManager() {
   const [rows, setRows] = useState<Row[]>([
-    { id: "row-1", widgets: [] },
-    { id: "row-2", widgets: [] },
+    { id: "row-1", widgets: [{ id: "header-1", type: "text", content: "Teste" }] },
+    { id: "row-2", widgets: [{ id: "text-1", type: "text", content: { title: "Grace Community Church", text: "Olá" } }] },
     { id: "row-3", widgets: [] },
+    { id: "row-4", widgets: [{ id: "events-1", type: "upcomingEvents", content: { events: upcomingEvents } }] },
   ]);
+  
   const { toast } = useToast();
   const [draggingWidget, setDraggingWidget] = useState<WidgetType | null>(null);
   const [activeRow, setActiveRow] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Filter widgets based on search query
+  const filteredWidgets = searchQuery 
+    ? widgetTypes.filter(widget => 
+        widget.label.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : widgetTypes;
 
   // Handle widget drag start
   const handleDragStart = (type: WidgetType) => {
@@ -100,6 +149,11 @@ export default function AppManager() {
       
       setRows(updatedRows);
       setDraggingWidget(null);
+      
+      toast({
+        title: "Widget Added",
+        description: `Added ${draggingWidget} widget to the layout.`,
+      });
     }
   };
 
@@ -107,37 +161,15 @@ export default function AppManager() {
   const getDefaultContent = (type: WidgetType) => {
     switch (type) {
       case "text":
-        return "Add your text here";
-      case "button":
-        return { label: "Click Me", action: "none" };
+        return { title: "New Text", text: "Add your text here" };
+      case "container":
+        return { title: "New Container" };
       case "link":
         return { text: "Learn More", url: "#" };
-      case "image":
-        return { src: "/placeholder.svg", alt: "Placeholder image" };
-      case "scripture":
-        return "John 3:16 - For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.";
+      case "upcomingEvents":
+        return { events: upcomingEvents };
       default:
-        return {};
-    }
-  };
-
-  // Render widget in the layout based on its type
-  const renderWidget = (widget: Widget) => {
-    switch (widget.type) {
-      case "text":
-        return <div className="p-2 bg-white rounded border">{widget.content}</div>;
-      case "button":
-        return <Button className="w-full">{widget.content.label}</Button>;
-      case "link":
-        return <a href={widget.content.url} className="text-blue-500 underline">{widget.content.text}</a>;
-      case "image":
-        return <img src={widget.content.src} alt={widget.content.alt} className="w-full h-32 object-cover" />;
-      case "video":
-        return <div className="bg-muted h-32 w-full flex items-center justify-center">Video Player</div>;
-      case "scripture":
-        return <div className="p-2 bg-white rounded border italic">{widget.content}</div>;
-      default:
-        return <div className="p-2 bg-gray-100 rounded">Widget: {widget.type}</div>;
+        return { title: `New ${type}` };
     }
   };
 
@@ -159,36 +191,120 @@ export default function AppManager() {
     });
   };
 
+  // Render event cards in the preview
+  const renderEventCard = (event: any) => (
+    <div key={event.id} className="mb-4 border-l-4 rounded-md bg-white shadow-sm" style={{ borderLeftColor: event.color }}>
+      <div className="p-3">
+        <div className="flex justify-between">
+          <div>
+            <h4 className="font-medium text-sm">{event.title}</h4>
+            <div className="text-xs text-gray-600">
+              {event.date} {event.endDate ? `- ${event.endDate}` : ''}
+            </div>
+            <div className="text-xs text-gray-600">
+              {event.startTime} To {event.endTime}
+            </div>
+          </div>
+          <div>
+            {event.status === "available" ? (
+              <Button size="sm" className="text-xs bg-teal-500 hover:bg-teal-600">
+                Register
+                <span className="text-xs ml-1 opacity-75">{event.spots} Available</span>
+              </Button>
+            ) : (
+              <Button size="sm" variant="outline" className="text-xs" disabled>
+                Fully Booked
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Render widget in the layout based on its type
+  const renderWidget = (widget: Widget) => {
+    switch (widget.type) {
+      case "text":
+        if (typeof widget.content === "string") {
+          return <div className="p-4 bg-white rounded border text-center font-medium">{widget.content}</div>;
+        } else {
+          return (
+            <div className="p-4 bg-white rounded border">
+              {widget.content.title && <h3 className="text-lg font-medium text-center mb-2">{widget.content.title}</h3>}
+              {widget.content.text && <p>{widget.content.text}</p>}
+            </div>
+          );
+        }
+      case "upcomingEvents":
+        return (
+          <div className="p-4 bg-white rounded border">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-lg font-medium">Upcoming events in 30 days</h3>
+              <Button variant="link" size="sm" className="text-blue-500">View All</Button>
+            </div>
+            <div className="space-y-1">
+              {widget.content.events.map((event: any) => renderEventCard(event))}
+            </div>
+          </div>
+        );
+      default:
+        return <div className="p-4 bg-gray-100 rounded border">Widget: {widget.type}</div>;
+    }
+  };
+
   return (
     <div className="h-[calc(100vh-8rem)]">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Member App Manager</h1>
-        <p className="text-muted-foreground">Customize your church's mobile app layout using drag and drop</p>
-      </div>
+      <Tabs defaultValue="editor" className="w-full mb-6">
+        <div className="flex justify-between items-center">
+          <TabsList>
+            <TabsTrigger value="editor">Editor</TabsTrigger>
+            <TabsTrigger value="preview">Preview</TabsTrigger>
+          </TabsList>
+          <div className="space-x-2">
+            <Button variant="outline" onClick={handleSaveLayout}>
+              <Save className="mr-2 h-4 w-4" /> Save
+            </Button>
+            <Button onClick={handlePublishLayout}>
+              <SendHorizontal className="mr-2 h-4 w-4" /> Publish
+            </Button>
+          </div>
+        </div>
+      </Tabs>
       
-      <ResizablePanelGroup direction="horizontal" className="h-[calc(100vh-12rem)]">
+      <ResizablePanelGroup direction="horizontal" className="h-[calc(100vh-12rem)] border rounded-md bg-muted/20">
         {/* Left Panel - Widget Library */}
-        <ResizablePanel defaultSize={25} minSize={20}>
-          <div className="h-full p-4 border rounded-l bg-card">
-            <h2 className="font-semibold mb-3">Widget Library</h2>
-            <p className="text-xs text-muted-foreground mb-4">Drag widgets to the app layout</p>
+        <ResizablePanel defaultSize={25} minSize={15}>
+          <div className="h-full p-4 bg-white">
+            <h2 className="font-semibold mb-3">Add Cards</h2>
+            <p className="text-xs text-muted-foreground mb-4">Drag cards to the Edit section.</p>
             
-            <div className="space-y-3 overflow-y-auto h-[calc(100%-3rem)]">
-              {widgetTypes.map((widget) => (
-                <Card 
+            <div className="relative mb-4">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search"
+                className="pl-8"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            
+            <div className="space-y-0.5 overflow-y-auto h-[calc(100%-7rem)]">
+              {filteredWidgets.map((widget) => (
+                <div 
                   key={widget.type}
                   draggable
                   onDragStart={() => handleDragStart(widget.type)}
-                  className="cursor-grab hover:border-primary transition-colors"
+                  className="flex items-center justify-between p-3 cursor-grab hover:bg-gray-50 rounded border-b"
                 >
-                  <CardContent className="p-3 flex items-center gap-2">
-                    <Grab className="h-4 w-4 text-muted-foreground" />
-                    <div className="flex-1">
-                      {widget.icon}
-                    </div>
-                    <span className="text-xs">{widget.label}</span>
-                  </CardContent>
-                </Card>
+                  <div className="flex items-center gap-2">
+                    {widget.icon}
+                    <span className="text-sm">{widget.label}</span>
+                  </div>
+                  <div className={`flex ${widget.featured ? "text-amber-500" : "text-blue-500"}`}>
+                    <GripVertical size={18} />
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -197,27 +313,22 @@ export default function AppManager() {
         <ResizableHandle withHandle />
         
         {/* Center Panel - App Layout Editor */}
-        <ResizablePanel defaultSize={50}>
-          <div className="h-full p-4 border-y bg-muted/30">
-            <h2 className="font-semibold mb-3">App Layout</h2>
-            <p className="text-xs text-muted-foreground mb-4">Drag widgets from the library into rows below</p>
+        <ResizablePanel defaultSize={45}>
+          <div className="h-full overflow-auto bg-gray-50 p-4">
+            <h2 className="font-semibold mb-3">Edit</h2>
+            <p className="text-xs text-muted-foreground mb-4">Move cards around by holding and dragging up or down. Click a card to edit or delete it.</p>
             
-            <div className="bg-white rounded-lg border p-4 space-y-4 h-[calc(100%-4rem)] overflow-y-auto">
-              {/* Fixed Header */}
-              <div className="bg-church-accent text-white p-3 rounded-t-lg text-center font-bold">
-                Church Name
-              </div>
-              
+            <div className="border border-dashed border-gray-300 p-4 bg-white min-h-[500px] rounded-md space-y-4">
               {/* Editable Rows */}
               {rows.map((row) => (
                 <div 
                   key={row.id}
-                  className={`border-2 rounded p-4 min-h-[100px] transition-colors ${activeRow === row.id ? 'border-primary border-dashed' : 'border-transparent'}`}
+                  className={`border ${activeRow === row.id ? 'border-primary border-2 border-dashed' : 'border-gray-200'} rounded p-2 min-h-[80px] transition-colors`}
                   onDragOver={(e) => handleDragOver(e, row.id)}
                   onDrop={(e) => handleDrop(e, row.id)}
                 >
                   {row.widgets.length === 0 ? (
-                    <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                    <div className="flex items-center justify-center h-full text-muted-foreground text-sm border-2 border-dashed border-gray-200 rounded-md p-4">
                       Drop widgets here
                     </div>
                   ) : (
@@ -231,14 +342,6 @@ export default function AppManager() {
                   )}
                 </div>
               ))}
-              
-              {/* Fixed Bottom Nav */}
-              <div className="bg-white border-t mt-auto p-2 rounded-b-lg flex justify-around">
-                <Button variant="ghost" size="sm">Home</Button>
-                <Button variant="ghost" size="sm">Events</Button>
-                <Button variant="ghost" size="sm">Giving</Button>
-                <Button variant="ghost" size="sm">Connect</Button>
-              </div>
             </div>
           </div>
         </ResizablePanel>
@@ -246,61 +349,84 @@ export default function AppManager() {
         <ResizableHandle withHandle />
         
         {/* Right Panel - Mobile Preview */}
-        <ResizablePanel defaultSize={25} minSize={20}>
-          <div className="h-full p-4 border rounded-r bg-card flex flex-col">
-            <h2 className="font-semibold mb-3">App Preview</h2>
-            <p className="text-xs text-muted-foreground mb-4">Live preview of your app</p>
+        <ResizablePanel defaultSize={30}>
+          <div className="h-full p-4 bg-white flex flex-col">
+            <h2 className="font-semibold mb-3">Preview</h2>
+            <p className="text-xs text-muted-foreground mb-4">This is what your page will look like</p>
             
-            <div className="relative flex-1 flex flex-col items-center justify-center">
-              <div className="rounded-[2rem] border-8 border-black h-[70%] aspect-[9/16] overflow-hidden relative shadow-lg">
-                <div className="absolute inset-0 bg-white p-2 flex flex-col">
-                  {/* Phone Notch */}
-                  <div className="w-1/3 h-5 mx-auto bg-black rounded-b-lg mb-1"></div>
+            <div className="flex gap-2 mb-4">
+              <Button variant="outline" size="sm" className="rounded-full">Guest</Button>
+              <Button variant="default" size="sm" className="rounded-full bg-teal-500 hover:bg-teal-600">Member</Button>
+            </div>
+            
+            <div className="flex-1 flex flex-col items-center justify-center">
+              <div className="rounded-3xl border-8 border-gray-800 h-[70%] aspect-[9/19] overflow-hidden relative shadow-lg bg-white">
+                <div className="absolute inset-0 flex flex-col">
+                  {/* Phone Status Bar */}
+                  <div className="bg-teal-500 text-white p-2 text-xs flex justify-between items-center">
+                    <div>12:01 AM</div>
+                    <div className="flex items-center gap-1">
+                      <div className="h-2 w-2 rounded-full bg-white"></div>
+                      <div className="h-2 w-2 rounded-full bg-white"></div>
+                      <div className="h-2 w-2 rounded-full bg-white"></div>
+                    </div>
+                  </div>
                   
-                  {/* Content Preview */}
-                  <div className="flex-1 overflow-hidden flex flex-col">
-                    {/* Header */}
-                    <div className="bg-church-accent text-white p-2 text-center font-bold text-sm">
-                      Church Name
+                  {/* App Header */}
+                  <div className="bg-teal-500 text-white p-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="h-8 w-8 rounded-full bg-white"></div>
+                      <div className="text-sm font-medium">Amado Coração de Jesus</div>
                     </div>
+                    <div className="flex gap-2">
+                      <button className="text-white">
+                        <Crown size={16} />
+                      </button>
+                      <button className="text-white">
+                        <Smartphone size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Scrollable Content */}
+                  <div className="flex-1 overflow-y-auto bg-gray-50 p-3 space-y-3">
+                    <div className="text-xl font-semibold">Hello Jorge,</div>
                     
-                    {/* Scrollable Content */}
-                    <div className="flex-1 overflow-y-auto p-2 space-y-2">
-                      {rows.flatMap(row => 
-                        row.widgets.map(widget => (
-                          <div key={widget.id} className="py-1 transform scale-90">
-                            {renderWidget(widget)}
-                          </div>
-                        ))
-                      )}
-                    </div>
-                    
-                    {/* Bottom Nav */}
-                    <div className="bg-white border-t p-1 flex justify-around text-[0.6rem]">
-                      <Button variant="ghost" size="sm" className="h-8 text-[0.6rem]">Home</Button>
-                      <Button variant="ghost" size="sm" className="h-8 text-[0.6rem]">Events</Button>
-                      <Button variant="ghost" size="sm" className="h-8 text-[0.6rem]">Giving</Button>
-                      <Button variant="ghost" size="sm" className="h-8 text-[0.6rem]">Connect</Button>
-                    </div>
+                    {/* Render widgets in preview */}
+                    {rows.flatMap(row => 
+                      row.widgets.map(widget => (
+                        <div key={widget.id} className="py-1">
+                          {renderWidget(widget)}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  
+                  {/* Bottom Nav */}
+                  <div className="bg-white border-t p-2 flex justify-around">
+                    <Button variant="ghost" size="sm" className="flex flex-col items-center h-auto py-1 text-xs">
+                      <Box size={18} />
+                      <span>Home</span>
+                    </Button>
+                    <Button variant="ghost" size="sm" className="flex flex-col items-center h-auto py-1 text-xs">
+                      <Smartphone size={18} />
+                      <span>My Profile</span>
+                    </Button>
+                    <Button variant="ghost" size="sm" className="flex flex-col items-center h-auto py-1 text-xs">
+                      <FileText size={18} />
+                      <span>Directory</span>
+                    </Button>
+                    <Button variant="ghost" size="sm" className="flex flex-col items-center h-auto py-1 text-xs">
+                      <Calendar size={18} />
+                      <span>Events</span>
+                    </Button>
+                    <Button variant="ghost" size="sm" className="flex flex-col items-center h-auto py-1 text-xs">
+                      <SlidersHorizontal size={18} />
+                      <span>More</span>
+                    </Button>
                   </div>
                 </div>
               </div>
-            </div>
-            
-            <div className="space-y-2 mt-4">
-              <Button 
-                className="w-full" 
-                variant="outline" 
-                onClick={handleSaveLayout}
-              >
-                <Save className="mr-2 h-4 w-4" /> Save Layout
-              </Button>
-              <Button 
-                className="w-full" 
-                onClick={handlePublishLayout}
-              >
-                <SendHorizontal className="mr-2 h-4 w-4" /> Publish Layout
-              </Button>
             </div>
           </div>
         </ResizablePanel>
