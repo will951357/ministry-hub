@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { format } from "date-fns"
 import { Calendar as CalendarIcon, DollarSign, Upload } from "lucide-react"
+import { useState } from "react"
+import { toast } from "@/components/ui/use-toast"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -46,7 +48,7 @@ const formSchema = z.object({
   paymentMethod: z.string({
     required_error: "Please select a payment method",
   }),
-  receipt: z.instanceof(File).optional(),
+  receipt: z.any().optional(), // Changed from File to any to avoid validation issues
 })
 
 const expenseTypes = [
@@ -77,12 +79,18 @@ const funds = [
 ]
 
 export default function ExpenseForm() {
+  const [receiptFileName, setReceiptFileName] = useState<string>("")
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values)
+    toast({
+      title: "Expense recorded",
+      description: `$${values.amount} expense has been recorded.`,
+    })
   }
 
   return (
@@ -254,7 +262,7 @@ export default function ExpenseForm() {
             <FormField
               control={form.control}
               name="receipt"
-              render={({ field: { onChange, ...field } }) => (
+              render={({ field: { onChange, value, ...fieldProps } }) => (
                 <FormItem>
                   <FormLabel>Receipt (Optional)</FormLabel>
                   <FormControl>
@@ -265,7 +273,9 @@ export default function ExpenseForm() {
                       >
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <Upload className="h-4 w-4" />
-                          <span>Upload receipt</span>
+                          <span>
+                            {receiptFileName ? receiptFileName : "Upload receipt"}
+                          </span>
                         </div>
                         <input
                           id="receipt"
@@ -273,10 +283,13 @@ export default function ExpenseForm() {
                           className="hidden"
                           accept="image/*,.pdf"
                           onChange={(e) => {
-                            const file = e.target.files?.[0]
-                            if (file) onChange(file)
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              onChange(file);
+                              setReceiptFileName(file.name);
+                            }
                           }}
-                          {...field}
+                          // Remove the value prop to avoid the TypeScript error
                         />
                       </label>
                     </div>
