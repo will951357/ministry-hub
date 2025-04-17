@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { PlusCircle, Search, Filter, Baby, Eye, Trash } from "lucide-react";
+import { PlusCircle, Search, Filter, Baby, Eye, Trash, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,6 +31,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
+import { StatsCard } from "@/components/dashboard/StatsCard";
 
 interface Kid {
   id: string;
@@ -96,11 +97,30 @@ export default function Kids() {
   const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
   const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
   
-  // Calculate total kids registered last month
+  // Calculate new kids registered last month
   const kidsLastMonth = kids.filter(kid => {
     const addedDate = new Date(kid.addedDate);
     return addedDate >= lastMonth && addedDate <= lastMonthEnd;
   }).length;
+
+  // Calculate trend percentage
+  const previousMonth = new Date(today.getFullYear(), today.getMonth() - 2, 1);
+  const previousMonthEnd = new Date(today.getFullYear(), today.getMonth() - 1, 0);
+  
+  const kidsPreviousMonth = kids.filter(kid => {
+    const addedDate = new Date(kid.addedDate);
+    return addedDate >= previousMonth && addedDate <= previousMonthEnd;
+  }).length;
+  
+  // Calculate trend percentage (avoid division by zero)
+  let trendPercentage = 0;
+  if (kidsPreviousMonth > 0) {
+    trendPercentage = Math.round(((kidsLastMonth - kidsPreviousMonth) / kidsPreviousMonth) * 100);
+  } else if (kidsLastMonth > 0) {
+    trendPercentage = 100; // If previous month had 0 but current month has some, that's a 100% increase
+  }
+  
+  const isTrendPositive = trendPercentage >= 0;
 
   const filteredKids = kids.filter(kid => 
     kid.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -141,6 +161,34 @@ export default function Kids() {
     return date.toLocaleDateString();
   };
 
+  const handleExportData = () => {
+    // Generate CSV content
+    const headers = "ID,Name,Parent,Birth Date,Contact,Dietary Restrictions,Special Needs,ID Password,Added Date\n";
+    const rows = filteredKids.map(kid => 
+      `${kid.id},"${kid.name}","${kid.parent}","${formatDate(kid.birthDate)}","${kid.contactOption}","${kid.alimentaryRestriction}","${kid.specialNecessities}","${kid.identificationPassword}","${formatDate(kid.addedDate)}"`
+    ).join("\n");
+    
+    const csvContent = headers + rows;
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    
+    // Create download link and trigger click
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "kids_registry.csv";
+    document.body.appendChild(a);
+    a.click();
+    
+    // Clean up
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Export Successful",
+      description: "Kids registry data has been exported to CSV",
+    });
+  };
+
   return (
     <div className="container mx-auto py-6">
       <div className="flex flex-col space-y-6">
@@ -151,40 +199,51 @@ export default function Kids() {
           </p>
         </div>
 
-        {/* Stats cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Total Kids</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalKids}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Registered Last Month</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{kidsLastMonth}</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Search bar */}
-        <div className="flex items-center gap-2">
-          <div className="flex-1">
-            <Input
-              placeholder="Search by name or parent..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="max-w-sm"
+        {/* Stats cards and Search row */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* Stats card - takes 1/4 of the row on desktop */}
+          <div className="md:col-span-1">
+            <StatsCard
+              title="Total Kids"
+              value={totalKids.toString()}
+              description={`${kidsLastMonth} new registration${kidsLastMonth !== 1 ? 's' : ''} last month`}
+              trend={trendPercentage !== 0 ? {
+                value: Math.abs(trendPercentage),
+                isPositive: isTrendPositive
+              } : undefined}
+              icon={<Baby />}
+              className="h-full"
             />
           </div>
-          <Button variant="outline" size="icon">
-            <Filter className="h-4 w-4" />
-            <span className="sr-only">Filter</span>
-          </Button>
+          
+          {/* Search and filters - takes 3/4 of the row on desktop */}
+          <div className="md:col-span-3">
+            <div className="flex flex-col sm:flex-row gap-3 h-full">
+              <div className="relative flex-grow">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                <Input
+                  placeholder="Search by name or parent..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="icon">
+                  <Filter className="h-4 w-4" />
+                  <span className="sr-only">Filter</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex items-center gap-1"
+                  onClick={handleExportData}
+                >
+                  <Download className="h-4 w-4" />
+                  <span className="hidden sm:inline">Export</span>
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Kids list */}
@@ -239,6 +298,13 @@ export default function Kids() {
                   </TableCell>
                 </TableRow>
               ))}
+              {filteredKids.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                    No children found matching your search criteria.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         )}
