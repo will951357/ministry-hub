@@ -9,11 +9,12 @@ interface ChartCardProps {
   children: ReactNode;
   icon?: ReactNode;
   className?: string;
+  onClick?: () => void;
 }
 
-export function ChartCard({ title, description, children, icon, className }: ChartCardProps) {
+export function ChartCard({ title, description, children, icon, className, onClick }: ChartCardProps) {
   return (
-    <Card className={cn("relative p-6 border-church-border bg-white", className)}>
+    <Card className={cn("relative p-6 border-church-border bg-white", className)} onClick={onClick}>
       {icon && (
         <div className="absolute top-4 right-4 p-2 rounded-full bg-primary/10 text-primary">
           {icon}
