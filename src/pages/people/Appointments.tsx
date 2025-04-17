@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { format } from "date-fns";
+import { format, startOfMonth, endOfMonth, isSameMonth } from "date-fns";
 import { Filter, Plus, CalendarIcon } from "lucide-react";
 import { appointments } from "@/data/appointments";
 import { appointmentTypes } from "@/types/appointment";
@@ -8,6 +8,7 @@ import { AppointmentCalendar } from "@/components/appointments/AppointmentCalend
 import { AppointmentTable } from "@/components/appointments/AppointmentTable";
 import { AppointmentHeader } from "@/components/appointments/AppointmentHeader";
 import { PendingAppointments } from "@/components/appointments/PendingAppointments";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { 
   Card, 
   CardContent, 
@@ -23,14 +24,12 @@ export default function Appointments() {
   const [date, setDate] = useState<Date>(new Date());
   const [view, setView] = useState<string>("all");
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
-  // Filter appointments based on selected date
+  // Filter appointments based on selected month
   const filteredAppointments = appointments.filter(appointment => {
-    const sameDay = appointment.date.getDate() === date.getDate() && 
-                    appointment.date.getMonth() === date.getMonth() &&
-                    appointment.date.getFullYear() === date.getFullYear();
-                    
-    return (view === "all" || appointment.type === view) && sameDay;
+    const sameMonth = isSameMonth(appointment.date, date);
+    return (view === "all" || appointment.type === view) && sameMonth;
   });
 
   // Get pending appointments
@@ -84,7 +83,7 @@ export default function Appointments() {
         </Card>
       )}
 
-      {/* Incomplete Appointments Counter */}
+      {/* Incomplete Appointments Counter - Now with better vertical alignment */}
       <Card className="mb-6 border-church-border shadow-sm">
         <CardHeader className="pb-2 flex flex-row items-center justify-between">
           <div>
@@ -93,7 +92,7 @@ export default function Appointments() {
               {incompleteAppointments.length} appointment{incompleteAppointments.length !== 1 ? 's' : ''} need your attention
             </CardDescription>
           </div>
-          <div className="bg-amber-100 text-amber-800 rounded-full px-4 py-2 text-xl font-semibold flex items-center">
+          <div className="bg-amber-100 text-amber-800 rounded-full px-4 py-2 text-xl font-semibold flex items-center self-center">
             <CalendarIcon className="h-5 w-5 mr-2" />
             {incompleteAppointments.length}
           </div>
@@ -101,30 +100,35 @@ export default function Appointments() {
       </Card>
       
       <div className="grid md:grid-cols-4 gap-6">
-        {/* Left sidebar with calendar - making it more responsive */}
-        <Card className="md:col-span-1 border-church-border h-fit shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-medium">Calendar</CardTitle>
-            <CardDescription>Select a date to view appointments</CardDescription>
-          </CardHeader>
-          <CardContent className="px-2 pb-6">
-            <div className="max-w-full overflow-x-auto">
-              <AppointmentCalendar 
-                selectedDate={date}
-                appointments={appointments}
-                onDateSelect={setDate}
-              />
-            </div>
-          </CardContent>
-        </Card>
+        {/* Left sidebar with calendar - improving responsiveness */}
+        {!isMobile && (
+          <Card className="md:col-span-1 border-church-border h-fit shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg font-medium">Calendar</CardTitle>
+              <CardDescription>Select a month to view appointments</CardDescription>
+            </CardHeader>
+            <CardContent className="px-2 pb-6">
+              <div className="max-w-full overflow-x-auto">
+                <AppointmentCalendar 
+                  selectedDate={date}
+                  appointments={appointments}
+                  onDateSelect={setDate}
+                  viewMode="month"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        )}
         
         {/* Main content area */}
-        <Card className="md:col-span-3 border-church-border shadow-sm">
+        <Card className={`${isMobile ? "col-span-full" : "md:col-span-3"} border-church-border shadow-sm`}>
           <CardHeader className="pb-2">
             <AppointmentHeader
               date={date}
               appointmentCount={filteredAppointments.length}
               onDateSelect={setDate}
+              viewMode="month"
+              showMonthNavigation={isMobile}
             />
           </CardHeader>
           

@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { format, isSameDay } from "date-fns";
+import { format, isSameDay, isSameMonth } from "date-fns";
 import { DayProps } from "react-day-picker";
 import { Appointment, appointmentTypes } from "@/types/appointment";
 import { getAppointmentsForDate } from "@/data/appointments";
@@ -16,12 +15,14 @@ interface AppointmentCalendarProps {
   selectedDate: Date;
   appointments: Appointment[];
   onDateSelect: (date: Date) => void;
+  viewMode?: "day" | "month";
 }
 
 export function AppointmentCalendar({ 
   selectedDate, 
   appointments, 
-  onDateSelect 
+  onDateSelect,
+  viewMode = "day"
 }: AppointmentCalendarProps) {
   // Custom day render for calendar with hover info
   const renderCalendarDay = (day: DayProps) => {
@@ -70,12 +71,28 @@ export function AppointmentCalendar({
     );
   };
 
+  // Adjust the calendar's onSelect handler based on viewMode
+  const handleDateSelect = (date: Date | undefined) => {
+    if (!date) return;
+    
+    // For month view, we want to keep the day as the first of the month
+    // when selecting a date, so the month filtering works correctly
+    if (viewMode === "month") {
+      const newDate = new Date(date);
+      // Keep the same day as in the currently selected date
+      newDate.setDate(selectedDate.getDate());
+      onDateSelect(newDate);
+    } else {
+      onDateSelect(date);
+    }
+  };
+
   return (
     <div className="flex flex-col">
       <Calendar
         mode="single"
         selected={selectedDate}
-        onSelect={(newDate) => newDate && onDateSelect(newDate)}
+        onSelect={handleDateSelect}
         className="rounded-md pointer-events-auto w-full"
         components={{
           Day: renderCalendarDay
