@@ -360,7 +360,7 @@ export default function AppManager() {
             </div>
             
             <div className="flex-1 flex flex-col items-center justify-center">
-              <div className="rounded-3xl border-8 border-gray-800 h-[70%] aspect-[9/19] overflow-hidden relative shadow-lg bg-white">
+              <div className="rounded-3xl border-8 border-gray-800 h-[85%] aspect-[9/19] overflow-hidden relative shadow-2xl bg-white">
                 <div className="absolute inset-0 flex flex-col">
                   {/* Phone Status Bar */}
                   <div className="bg-teal-500 text-white p-2 text-xs flex justify-between items-center">
