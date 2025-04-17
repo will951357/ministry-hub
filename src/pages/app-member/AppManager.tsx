@@ -20,12 +20,22 @@ import {
   BadgeDollarSign,
   SlidersHorizontal,
   MessagesSquare,
-  GripVertical 
+  GripVertical,
+  Trash2,
+  X,
+  Edit,
+  Check
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Define widget types
 type WidgetType = 
@@ -94,17 +104,18 @@ const upcomingEvents = [
 ];
 
 export default function AppManager() {
+  // Start with empty rows for the edit section
   const [rows, setRows] = useState<Row[]>([
-    { id: "row-1", widgets: [{ id: "header-1", type: "text", content: "Teste" }] },
-    { id: "row-2", widgets: [{ id: "text-1", type: "text", content: { title: "Grace Community Church", text: "Olá" } }] },
+    { id: "row-1", widgets: [] },
+    { id: "row-2", widgets: [] },
     { id: "row-3", widgets: [] },
-    { id: "row-4", widgets: [{ id: "events-1", type: "upcomingEvents", content: { events: upcomingEvents } }] },
   ]);
   
   const { toast } = useToast();
   const [draggingWidget, setDraggingWidget] = useState<WidgetType | null>(null);
   const [activeRow, setActiveRow] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedWidget, setSelectedWidget] = useState<string | null>(null);
 
   // Filter widgets based on search query
   const filteredWidgets = searchQuery 
@@ -191,6 +202,32 @@ export default function AppManager() {
     });
   };
 
+  // Delete a widget from a row
+  const handleDeleteWidget = (rowId: string, widgetId: string) => {
+    const updatedRows = rows.map(row => {
+      if (row.id === rowId) {
+        return {
+          ...row,
+          widgets: row.widgets.filter(widget => widget.id !== widgetId)
+        };
+      }
+      return row;
+    });
+    
+    setRows(updatedRows);
+    setSelectedWidget(null);
+    
+    toast({
+      title: "Widget Removed",
+      description: "The widget has been removed from the layout.",
+    });
+  };
+
+  // Handle widget selection
+  const handleWidgetClick = (widgetId: string) => {
+    setSelectedWidget(widgetId === selectedWidget ? null : widgetId);
+  };
+
   // Render event cards in the preview
   const renderEventCard = (event: any) => (
     <div key={event.id} className="mb-4 border-l-4 rounded-md bg-white shadow-sm" style={{ borderLeftColor: event.color }}>
@@ -207,7 +244,7 @@ export default function AppManager() {
           </div>
           <div>
             {event.status === "available" ? (
-              <Button size="sm" className="text-xs bg-teal-500 hover:bg-teal-600">
+              <Button size="sm" className="text-xs bg-church-accent hover:bg-church-accent/90">
                 Register
                 <span className="text-xs ml-1 opacity-75">{event.spots} Available</span>
               </Button>
@@ -223,7 +260,7 @@ export default function AppManager() {
   );
 
   // Render widget in the layout based on its type
-  const renderWidget = (widget: Widget) => {
+  const renderWidget = (widget: Widget, isPreview = false) => {
     switch (widget.type) {
       case "text":
         if (typeof widget.content === "string") {
@@ -241,7 +278,7 @@ export default function AppManager() {
           <div className="p-4 bg-white rounded border">
             <div className="flex justify-between items-center mb-3">
               <h3 className="text-lg font-medium">Upcoming events in 30 days</h3>
-              <Button variant="link" size="sm" className="text-blue-500">View All</Button>
+              <Button variant="link" size="sm" className="text-church-accent">View All</Button>
             </div>
             <div className="space-y-1">
               {widget.content.events.map((event: any) => renderEventCard(event))}
@@ -251,6 +288,17 @@ export default function AppManager() {
       default:
         return <div className="p-4 bg-gray-100 rounded border">Widget: {widget.type}</div>;
     }
+  };
+
+  // Find the row and widget given a widget ID
+  const findWidgetAndRow = (widgetId: string) => {
+    for (const row of rows) {
+      const widget = row.widgets.find(w => w.id === widgetId);
+      if (widget) {
+        return { row, widget };
+      }
+    }
+    return null;
   };
 
   return (
@@ -265,7 +313,7 @@ export default function AppManager() {
             <Button variant="outline" onClick={handleSaveLayout}>
               <Save className="mr-2 h-4 w-4" /> Save
             </Button>
-            <Button onClick={handlePublishLayout}>
+            <Button onClick={handlePublishLayout} className="bg-church-accent hover:bg-church-accent/90">
               <SendHorizontal className="mr-2 h-4 w-4" /> Publish
             </Button>
           </div>
@@ -301,7 +349,7 @@ export default function AppManager() {
                     {widget.icon}
                     <span className="text-sm">{widget.label}</span>
                   </div>
-                  <div className={`flex ${widget.featured ? "text-amber-500" : "text-blue-500"}`}>
+                  <div className={`flex ${widget.featured ? "text-amber-500" : "text-church-accent"}`}>
                     <GripVertical size={18} />
                   </div>
                 </div>
@@ -313,7 +361,7 @@ export default function AppManager() {
         <ResizableHandle withHandle />
         
         {/* Center Panel - App Layout Editor */}
-        <ResizablePanel defaultSize={45}>
+        <ResizablePanel defaultSize={40}>
           <div className="h-full overflow-auto bg-gray-50 p-4">
             <h2 className="font-semibold mb-3">Edit</h2>
             <p className="text-xs text-muted-foreground mb-4">Move cards around by holding and dragging up or down. Click a card to edit or delete it.</p>
@@ -323,7 +371,7 @@ export default function AppManager() {
               {rows.map((row) => (
                 <div 
                   key={row.id}
-                  className={`border ${activeRow === row.id ? 'border-primary border-2 border-dashed' : 'border-gray-200'} rounded p-2 min-h-[80px] transition-colors`}
+                  className={`border ${activeRow === row.id ? 'border-church-accent border-2 border-dashed' : 'border-gray-200'} rounded p-2 min-h-[80px] transition-colors`}
                   onDragOver={(e) => handleDragOver(e, row.id)}
                   onDrop={(e) => handleDrop(e, row.id)}
                 >
@@ -334,8 +382,40 @@ export default function AppManager() {
                   ) : (
                     <div className="space-y-2">
                       {row.widgets.map((widget) => (
-                        <div key={widget.id} className="py-1">
+                        <div 
+                          key={widget.id} 
+                          className={`py-1 relative group ${selectedWidget === widget.id ? 'ring-2 ring-church-accent' : ''}`}
+                          onClick={() => handleWidgetClick(widget.id)}
+                        >
                           {renderWidget(widget)}
+                          
+                          {/* Widget Controls - Show on selection */}
+                          {selectedWidget === widget.id && (
+                            <div className="absolute top-2 right-2 flex gap-1 z-10">
+                              <Button 
+                                size="sm" 
+                                variant="destructive" 
+                                className="h-7 w-7 p-0"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteWidget(row.id, widget.id);
+                                }}
+                              >
+                                <Trash2 size={14} />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="h-7 w-7 p-0 bg-white"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Future edit functionality
+                                }}
+                              >
+                                <Edit size={14} />
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -349,21 +429,22 @@ export default function AppManager() {
         <ResizableHandle withHandle />
         
         {/* Right Panel - Mobile Preview */}
-        <ResizablePanel defaultSize={30}>
+        <ResizablePanel defaultSize={35}>
           <div className="h-full p-4 bg-white flex flex-col">
             <h2 className="font-semibold mb-3">Preview</h2>
-            <p className="text-xs text-muted-foreground mb-4">This is what your page will look like</p>
+            <p className="text-xs text-muted-foreground mb-3">This is what your page will look like</p>
             
-            <div className="flex gap-2 mb-4">
+            <div className="flex gap-2 mb-3">
               <Button variant="outline" size="sm" className="rounded-full">Guest</Button>
-              <Button variant="default" size="sm" className="rounded-full bg-teal-500 hover:bg-teal-600">Member</Button>
+              <Button variant="default" size="sm" className="rounded-full bg-church-accent hover:bg-church-accent/90">Member</Button>
             </div>
             
-            <div className="flex-1 flex flex-col items-center justify-center">
-              <div className="rounded-3xl border-8 border-gray-800 h-[85%] aspect-[9/19] overflow-hidden relative shadow-2xl bg-white">
+            {/* Larger Mobile Preview with adjusted sizing */}
+            <div className="flex-1 relative flex items-center justify-center bg-gray-50 rounded-lg p-2">
+              <div className="rounded-3xl border-8 border-gray-800 h-[calc(100%-1.5rem)] aspect-[9/19] overflow-hidden relative shadow-xl bg-white">
                 <div className="absolute inset-0 flex flex-col">
                   {/* Phone Status Bar */}
-                  <div className="bg-teal-500 text-white p-2 text-xs flex justify-between items-center">
+                  <div className="bg-church-primary text-white p-2 text-xs flex justify-between items-center">
                     <div>12:01 AM</div>
                     <div className="flex items-center gap-1">
                       <div className="h-2 w-2 rounded-full bg-white"></div>
@@ -373,7 +454,7 @@ export default function AppManager() {
                   </div>
                   
                   {/* App Header */}
-                  <div className="bg-teal-500 text-white p-3 flex items-center justify-between">
+                  <div className="bg-church-primary text-white p-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="h-8 w-8 rounded-full bg-white"></div>
                       <div className="text-sm font-medium">Amado Coração de Jesus</div>
@@ -390,13 +471,13 @@ export default function AppManager() {
                   
                   {/* Scrollable Content */}
                   <div className="flex-1 overflow-y-auto bg-gray-50 p-3 space-y-3">
-                    <div className="text-xl font-semibold">Hello Jorge,</div>
+                    <div className="text-xl font-semibold text-church-primary">Hello Jorge,</div>
                     
                     {/* Render widgets in preview */}
                     {rows.flatMap(row => 
                       row.widgets.map(widget => (
                         <div key={widget.id} className="py-1">
-                          {renderWidget(widget)}
+                          {renderWidget(widget, true)}
                         </div>
                       ))
                     )}
@@ -404,7 +485,7 @@ export default function AppManager() {
                   
                   {/* Bottom Nav */}
                   <div className="bg-white border-t p-2 flex justify-around">
-                    <Button variant="ghost" size="sm" className="flex flex-col items-center h-auto py-1 text-xs">
+                    <Button variant="ghost" size="sm" className="flex flex-col items-center h-auto py-1 text-xs text-church-primary">
                       <Box size={18} />
                       <span>Home</span>
                     </Button>
