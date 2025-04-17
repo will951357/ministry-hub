@@ -218,8 +218,9 @@ export default function Kids() {
           
           {/* Search and filters - takes 3/4 of the row on desktop */}
           <div className="md:col-span-3">
-            <div className="flex flex-col sm:flex-row gap-3 h-full">
-              <div className="relative flex-grow">
+            <div className="flex flex-col gap-3 h-full">
+              {/* Search row */}
+              <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                 <Input
                   placeholder="Search by name or parent..."
@@ -228,6 +229,8 @@ export default function Kids() {
                   className="pl-10"
                 />
               </div>
+              
+              {/* Buttons row */}
               <div className="flex gap-2">
                 <Button variant="outline" size="icon">
                   <Filter className="h-4 w-4" />
@@ -258,55 +261,57 @@ export default function Kids() {
             </p>
           </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Parent</TableHead>
-                <TableHead>Birthday</TableHead>
-                <TableHead>ID Password</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredKids.map((kid) => (
-                <TableRow key={kid.id}>
-                  <TableCell className="font-medium">{kid.name}</TableCell>
-                  <TableCell>{kid.parent}</TableCell>
-                  <TableCell>{formatDate(kid.birthDate)}</TableCell>
-                  <TableCell>{kid.identificationPassword}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={() => handleViewKid(kid)}
-                      >
-                        <Eye className="h-4 w-4" />
-                        <span className="sr-only">View</span>
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={() => handleDeletePrompt(kid)}
-                        className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
-                      >
-                        <Trash className="h-4 w-4" />
-                        <span className="sr-only">Delete</span>
-                      </Button>
-                    </div>
-                  </TableCell>
+          <Card className="border-border">
+            <Table>
+              <TableHeader className="bg-muted/50">
+                <TableRow className="hover:bg-muted/50">
+                  <TableHead>Name</TableHead>
+                  <TableHead>Parent</TableHead>
+                  <TableHead>Birthday</TableHead>
+                  <TableHead>ID Password</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-              {filteredKids.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                    No children found matching your search criteria.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredKids.map((kid) => (
+                  <TableRow key={kid.id} className="border-t border-border">
+                    <TableCell className="font-medium">{kid.name}</TableCell>
+                    <TableCell>{kid.parent}</TableCell>
+                    <TableCell>{formatDate(kid.birthDate)}</TableCell>
+                    <TableCell>{kid.identificationPassword}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handleViewKid(kid)}
+                        >
+                          <Eye className="h-4 w-4" />
+                          <span className="sr-only">View</span>
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handleDeletePrompt(kid)}
+                          className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
+                        >
+                          <Trash className="h-4 w-4" />
+                          <span className="sr-only">Delete</span>
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {filteredKids.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                      No children found matching your search criteria.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </Card>
         )}
       </div>
 
