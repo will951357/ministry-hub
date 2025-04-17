@@ -13,7 +13,9 @@ import {
   Trash2,
   ChevronRight,
   ArrowLeft,
-  FileDown
+  FileDown,
+  TrendingUp,
+  TrendingDown
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,6 +28,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { StatsCard } from "@/components/dashboard/StatsCard";
 
 const sampleParticipants = [
   { id: 1, name: "John Smith", avatar: "/placeholder.svg" },
@@ -253,6 +256,9 @@ export default function Journeys() {
   const activeJourneys = journeys.filter(journey => journey.status === "active").length;
   const totalEnrolled = journeys.reduce((total, journey) => total + journey.enrolledCount, 0);
   const totalCompleted = journeys.reduce((total, journey) => total + journey.completedCount, 0);
+  
+  const completedChangePercent = Math.floor(Math.random() * 50) - 20;
+  const isPositiveTrend = completedChangePercent > 0;
 
   const generateId = () => Math.random().toString(36).substring(2, 9);
 
@@ -441,11 +447,20 @@ export default function Journeys() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-church-primary mb-2">Faith Journeys</h1>
-        <p className="text-church-secondary">
-          Track and support the spiritual journeys of your congregation members.
-        </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-semibold text-church-primary mb-2">Faith Journeys</h1>
+          <p className="text-church-secondary">
+            Track and support the spiritual journeys of your congregation members.
+          </p>
+        </div>
+        <Button 
+          className="bg-church-accent hover:bg-church-accent/90"
+          onClick={() => setIsAddJourneyOpen(true)}
+        >
+          <PlusCircle className="mr-2 h-4 w-4" />
+          New Journey
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -469,26 +484,21 @@ export default function Journeys() {
           </CardHeader>
         </Card>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Completed Journeys</CardDescription>
-            <CardTitle className="text-3xl flex items-center">
-              <CheckCircle className="mr-2 h-5 w-5 text-church-accent" />
-              {totalCompleted}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+        <StatsCard 
+          title="Completed Journeys"
+          value={totalCompleted.toString()}
+          icon={<CheckCircle className="h-5 w-5" />}
+          trend={{ 
+            value: Math.abs(completedChangePercent), 
+            isPositive: isPositiveTrend 
+          }}
+          className="bg-white"
+          description="Compared to last month"
+        />
       </div>
 
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-medium text-church-primary">All Journeys</h2>
-        <Button 
-          className="bg-church-accent hover:bg-church-accent/90"
-          onClick={() => setIsAddJourneyOpen(true)}
-        >
-          <PlusCircle className="mr-2 h-4 w-4" />
-          New Journey
-        </Button>
       </div>
 
       <Card>
