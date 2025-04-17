@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -46,8 +45,14 @@ import {
   DialogFooter,
   DialogClose
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-// Define widget types
 type WidgetType = 
   | "container"
   | "link"
@@ -73,7 +78,6 @@ interface Row {
   widgets: Widget[];
 }
 
-// Widget definitions with their icons and labels
 const widgetTypes: { type: WidgetType; label: string; icon: React.ReactNode; featured?: boolean }[] = [
   { type: "container", label: "Container", icon: <Box size={18} /> },
   { type: "link", label: "Link", icon: <LinkIcon size={18} /> },
@@ -89,7 +93,6 @@ const widgetTypes: { type: WidgetType; label: string; icon: React.ReactNode; fea
   { type: "text", label: "Text", icon: <Type size={18} /> },
 ];
 
-// Sample upcoming events data
 const upcomingEvents = [
   {
     id: 1,
@@ -123,7 +126,6 @@ const upcomingEvents = [
 ];
 
 export default function AppManager() {
-  // Start with empty rows for the edit section
   const [rows, setRows] = useState<Row[]>([
     { id: "row-1", widgets: [] },
     { id: "row-2", widgets: [] },
@@ -137,20 +139,18 @@ export default function AppManager() {
   const [selectedWidget, setSelectedWidget] = useState<string | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [currentEditWidget, setCurrentEditWidget] = useState<{rowId: string, widget: Widget} | null>(null);
+  const [selectedPage, setSelectedPage] = useState("home");
 
-  // Filter widgets based on search query
   const filteredWidgets = searchQuery 
     ? widgetTypes.filter(widget => 
         widget.label.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : widgetTypes;
 
-  // Handle widget drag start
   const handleDragStart = (type: WidgetType) => {
     setDraggingWidget(type);
   };
 
-  // Handle allowing a row to receive dropped widgets
   const handleDragOver = (e: React.DragEvent, rowId: string) => {
     e.preventDefault();
     if (activeRow !== rowId) {
@@ -158,13 +158,11 @@ export default function AppManager() {
     }
   };
 
-  // Handle widget drop into a row
   const handleDrop = (e: React.DragEvent, rowId: string) => {
     e.preventDefault();
     setActiveRow(null);
     
     if (draggingWidget) {
-      // Add the new widget to the row
       const updatedRows = rows.map(row => {
         if (row.id === rowId) {
           return {
@@ -189,7 +187,6 @@ export default function AppManager() {
     }
   };
 
-  // Generate default content based on widget type
   const getDefaultContent = (type: WidgetType) => {
     switch (type) {
       case "text":
@@ -205,7 +202,6 @@ export default function AppManager() {
     }
   };
 
-  // Handle saving the layout
   const handleSaveLayout = () => {
     console.log("Saving layout:", rows);
     toast({
@@ -214,7 +210,6 @@ export default function AppManager() {
     });
   };
 
-  // Handle publishing the layout
   const handlePublishLayout = () => {
     console.log("Publishing layout:", rows);
     toast({
@@ -223,7 +218,6 @@ export default function AppManager() {
     });
   };
 
-  // Delete a widget from a row
   const handleDeleteWidget = (rowId: string, widgetId: string) => {
     const updatedRows = rows.map(row => {
       if (row.id === rowId) {
@@ -244,18 +238,15 @@ export default function AppManager() {
     });
   };
 
-  // Handle widget selection
   const handleWidgetClick = (widgetId: string) => {
     setSelectedWidget(widgetId === selectedWidget ? null : widgetId);
   };
 
-  // Open edit dialog for a widget
   const handleEditWidget = (rowId: string, widget: Widget) => {
     setCurrentEditWidget({ rowId, widget });
     setEditDialogOpen(true);
   };
 
-  // Update widget content
   const handleUpdateWidget = (updatedContent: any) => {
     if (!currentEditWidget) return;
 
@@ -289,7 +280,6 @@ export default function AppManager() {
     });
   };
 
-  // Render event cards in the preview
   const renderEventCard = (event: any) => (
     <div key={event.id} className="mb-4 border-l-4 rounded-md bg-white shadow-sm" style={{ borderLeftColor: event.color }}>
       <div className="p-3">
@@ -320,7 +310,6 @@ export default function AppManager() {
     </div>
   );
 
-  // Render widget in the layout based on its type
   const renderWidget = (widget: Widget, isPreview = false) => {
     switch (widget.type) {
       case "text":
@@ -347,7 +336,6 @@ export default function AppManager() {
     }
   };
 
-  // Render edit dialog content based on widget type
   const renderEditDialogContent = () => {
     if (!currentEditWidget) return null;
 
@@ -447,13 +435,25 @@ export default function AppManager() {
 
   return (
     <div className="h-[calc(100vh-8rem)]">
-      <Tabs defaultValue="editor" className="w-full mb-6">
-        <div className="flex justify-between items-center">
-          <TabsList>
-            <TabsTrigger value="editor">Editor</TabsTrigger>
-            <TabsTrigger value="preview">Preview</TabsTrigger>
-          </TabsList>
-          <div className="space-x-2">
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-church-primary">App Builder</h1>
+        <p className="text-muted-foreground text-sm mb-4">
+          Create and customize pages for your church app
+        </p>
+        
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <Select value={selectedPage} onValueChange={setSelectedPage}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Select page" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="home">Home Page</SelectItem>
+                <SelectItem value="events">Events Page</SelectItem>
+                <SelectItem value="about">About Us</SelectItem>
+                <SelectItem value="contact">Contact</SelectItem>
+              </SelectContent>
+            </Select>
             <Button variant="outline" onClick={handleSaveLayout}>
               <Save className="mr-2 h-4 w-4" /> Save
             </Button>
@@ -461,11 +461,17 @@ export default function AppManager() {
               <SendHorizontal className="mr-2 h-4 w-4" /> Publish
             </Button>
           </div>
+          
+          <Tabs defaultValue="editor" className="w-auto">
+            <TabsList>
+              <TabsTrigger value="editor">Editor</TabsTrigger>
+              <TabsTrigger value="preview">Preview</TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
-      </Tabs>
+      </div>
       
       <ResizablePanelGroup direction="horizontal" className="h-[calc(100vh-12rem)] border rounded-md bg-muted/20">
-        {/* Left Panel - Widget Library */}
         <ResizablePanel defaultSize={25} minSize={15}>
           <div className="h-full p-4 bg-white">
             <h2 className="font-semibold mb-3">Add Cards</h2>
@@ -504,14 +510,12 @@ export default function AppManager() {
         
         <ResizableHandle withHandle />
         
-        {/* Center Panel - App Layout Editor */}
         <ResizablePanel defaultSize={35}>
           <div className="h-full overflow-auto bg-gray-50 p-4">
             <h2 className="font-semibold mb-3">Edit</h2>
             <p className="text-xs text-muted-foreground mb-4">Move cards around by holding and dragging up or down. Click a card to edit or delete it.</p>
             
             <div className="border border-dashed border-gray-300 p-4 bg-white min-h-[500px] rounded-md space-y-4">
-              {/* Editable Rows */}
               {rows.map((row) => (
                 <div 
                   key={row.id}
@@ -533,7 +537,6 @@ export default function AppManager() {
                         >
                           {renderWidget(widget)}
                           
-                          {/* Widget Controls - Show on selection */}
                           {selectedWidget === widget.id && (
                             <div className="absolute top-2 right-2 flex gap-1 z-10">
                               <Button 
@@ -572,7 +575,6 @@ export default function AppManager() {
         
         <ResizableHandle withHandle />
         
-        {/* Right Panel - Mobile Preview */}
         <ResizablePanel defaultSize={40}>
           <div className="h-full p-4 bg-white flex flex-col">
             <h2 className="font-semibold mb-3">Preview</h2>
@@ -583,11 +585,9 @@ export default function AppManager() {
               <Button variant="default" size="sm" className="rounded-full bg-church-accent hover:bg-church-accent/90">Member</Button>
             </div>
             
-            {/* Large Mobile Preview - Takes up almost all the space */}
             <div className="flex-1 relative flex items-center justify-center bg-gray-50 rounded-lg p-2">
-              <div className="rounded-3xl border-8 border-gray-800 h-[95%] w-auto max-w-[95%] overflow-hidden relative shadow-2xl bg-white">
+              <div className="rounded-3xl border-8 border-gray-800 h-[95%] w-[280px] overflow-hidden relative shadow-2xl bg-white">
                 <div className="absolute inset-0 flex flex-col">
-                  {/* Phone Status Bar */}
                   <div className="bg-church-primary text-white p-2 text-xs flex justify-between items-center">
                     <div>12:01 AM</div>
                     <div className="flex items-center gap-1">
@@ -597,7 +597,6 @@ export default function AppManager() {
                     </div>
                   </div>
                   
-                  {/* App Header */}
                   <div className="bg-church-primary text-white p-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="h-8 w-8 rounded-full bg-white"></div>
@@ -613,11 +612,9 @@ export default function AppManager() {
                     </div>
                   </div>
                   
-                  {/* Scrollable Content */}
                   <div className="flex-1 overflow-y-auto bg-gray-50 p-3 space-y-3">
                     <div className="text-xl font-semibold text-church-primary">Hello Jorge,</div>
                     
-                    {/* Render widgets in preview */}
                     {rows.flatMap(row => 
                       row.widgets.map(widget => (
                         <div key={widget.id} className="py-1">
@@ -626,7 +623,6 @@ export default function AppManager() {
                       ))
                     )}
                     
-                    {/* Show placeholder if no widgets added */}
                     {rows.every(row => row.widgets.length === 0) && (
                       <div className="p-4 border border-dashed rounded-md bg-white text-center">
                         <p className="text-muted-foreground">Add widgets in the editor to see them here</p>
@@ -634,7 +630,6 @@ export default function AppManager() {
                     )}
                   </div>
                   
-                  {/* Bottom Nav */}
                   <div className="bg-white border-t p-2 flex justify-around">
                     <Button variant="ghost" size="sm" className="flex flex-col items-center h-auto py-1 text-xs text-church-primary">
                       <Box size={18} />
@@ -664,7 +659,6 @@ export default function AppManager() {
         </ResizablePanel>
       </ResizablePanelGroup>
 
-      {/* Edit Widget Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
