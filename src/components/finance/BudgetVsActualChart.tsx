@@ -1,6 +1,7 @@
-
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, Tooltip, ResponsiveContainer } from "recharts";
+import { Card } from "@/components/ui/card";
+import { LineChart } from "lucide-react";
 
 const data = [
   { name: "Worship", budget: 9000, actual: 8430 },
@@ -30,43 +31,58 @@ const chartConfig = {
 
 export function BudgetVsActualChart() {
   return (
-    <ChartContainer config={chartConfig} className="h-full w-full">
-      <BarChart
-        data={data}
-        layout="vertical"
-        margin={{ top: 10, right: 30, left: 100, bottom: 10 }}
-      >
-        <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
-        <XAxis type="number" tick={{ fontSize: 12 }} />
-        <YAxis 
-          dataKey="name" 
-          type="category" 
-          tick={{ fontSize: 12 }}
-          width={80}
-        />
-        <Tooltip
-          content={({ active, payload }) => {
-            if (active && payload && payload.length) {
-              return (
-                <ChartTooltipContent
-                  active={active}
-                  payload={payload}
-                  formatter={(value, name) => [
-                    `$${value.toLocaleString()}`,
-                    typeof name === 'string' 
-                      ? name.charAt(0).toUpperCase() + name.slice(1)
-                      : String(name)
-                  ]}
-                />
-              );
-            }
-            return null;
-          }}
-        />
-        <Legend />
-        <Bar dataKey="budget" fill="var(--color-budget)" radius={[0, 4, 4, 0]} barSize={20} />
-        <Bar dataKey="actual" fill="var(--color-actual)" radius={[0, 4, 4, 0]} barSize={20} />
-      </BarChart>
-    </ChartContainer>
+    <Card className="relative p-6 border-church-border">
+      <div className="absolute top-4 right-4 p-2 rounded-full bg-primary/10">
+        <LineChart className="h-5 w-5 text-primary" />
+      </div>
+      
+      <div className="mb-6">
+        <h3 className="text-lg font-medium">Budget vs Actual</h3>
+        <p className="text-sm text-church-secondary">Comparison of budgeted and actual expenses</p>
+      </div>
+
+      <div className="h-[300px]">
+        <ChartContainer config={chartConfig}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data}
+              layout="vertical"
+              margin={{ top: 10, right: 30, left: 100, bottom: 10 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
+              <XAxis type="number" tick={{ fontSize: 12 }} />
+              <YAxis 
+                dataKey="name" 
+                type="category" 
+                tick={{ fontSize: 12 }}
+                width={80}
+              />
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    return (
+                      <ChartTooltipContent
+                        active={active}
+                        payload={payload}
+                        formatter={(value, name) => [
+                          `$${value.toLocaleString()}`,
+                          typeof name === 'string' 
+                            ? name.charAt(0).toUpperCase() + name.slice(1)
+                            : String(name)
+                        ]}
+                      />
+                    );
+                  }
+                  return null;
+                }}
+              />
+              <Legend />
+              <Bar dataKey="budget" fill="var(--color-budget)" radius={[0, 4, 4, 0]} barSize={20} />
+              <Bar dataKey="actual" fill="var(--color-actual)" radius={[0, 4, 4, 0]} barSize={20} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </div>
+    </Card>
   );
 }

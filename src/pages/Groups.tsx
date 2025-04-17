@@ -1,7 +1,5 @@
-
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Users, Calendar, Bell, Info, Filter, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -247,17 +245,21 @@ export default function Groups() {
               >
                 <Bell size={16} className="text-church-secondary" />
               </div>
-              <h3 className={`text-lg font-medium mb-2 ${isGroupSelectMode ? "pl-8" : "pr-8"}`}>{group.name}</h3>
-              <p className="text-church-secondary text-sm mb-4 line-clamp-2">
-                {group.description}
-              </p>
-              <div className="flex justify-between items-center">
-                <Badge variant={group.status === "active" ? "default" : "secondary"}>
-                  {group.status === "active" ? "Active" : "Inactive"}
-                </Badge>
-                <div className="flex items-center gap-1 text-xs text-church-secondary">
-                  <Users size={14} />
-                  <span>{group.members} members</span>
+              <div className="space-y-4">
+                <h3 className={`text-lg font-medium ${isGroupSelectMode ? "pl-8" : ""}`}>
+                  {group.name}
+                </h3>
+                <p className="text-church-secondary text-sm line-clamp-2">
+                  {group.description}
+                </p>
+                <div className="flex justify-between items-center">
+                  <Badge variant={group.status === "active" ? "default" : "secondary"}>
+                    {group.status === "active" ? "Active" : "Inactive"}
+                  </Badge>
+                  <div className="flex items-center gap-1 text-xs text-church-secondary">
+                    <Users size={14} />
+                    <span>{group.members} members</span>
+                  </div>
                 </div>
               </div>
             </div>
