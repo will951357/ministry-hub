@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -28,6 +27,7 @@ import AppMember from "./pages/AppMember";
 import Blog from "./pages/app-member/Blog";
 import NewPost from "./pages/app-member/NewPost";
 import AppManager from "./pages/app-member/AppManager";
+import ExpenseForm from "./pages/finance/ExpenseForm";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +60,7 @@ const App = () => (
             <Route path="tithes" element={<Tithes />} />
             <Route path="funds" element={<Funds />} />
             <Route path="accounting" element={<Accounting />} />
+            <Route path="expenses/new" element={<ExpenseForm />} />
           </Route>
           
           {/* App Member section */}
