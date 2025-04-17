@@ -70,6 +70,8 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
     setOpenSubmenu(prev => prev === id ? null : id);
   };
   
+  const [membershipRequestsCount, setMembershipRequestsCount] = useState(4);
+  
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <Home size={20} />, href: '/' },
     { 
@@ -77,8 +79,15 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
       label: 'People', 
       icon: <Users size={20} />, 
       href: '/people',
+      badge: membershipRequestsCount,
       subItems: [
-        { id: 'members', label: 'Members', icon: <UserCheck size={18} />, href: '/people/members' },
+        { 
+          id: 'members', 
+          label: 'Members', 
+          icon: <UserCheck size={18} />, 
+          href: '/people/members',
+          badge: membershipRequestsCount 
+        },
         { id: 'visitors', label: 'Visitors', icon: <UserPlus size={18} />, href: '/people/visitors' },
         { id: 'journeys', label: 'Journeys', icon: <Map size={18} />, href: '/people/journeys' },
         { id: 'appointments', label: 'Appointments', icon: <CalendarClock size={18} />, href: '/people/appointments' },
@@ -172,8 +181,13 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
                     {isOpen && (
                       <>
                         <span className="flex-1 text-left">{item.label}</span>
+                        {item.badge && (
+                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white text-xs font-medium">
+                            {item.badge}
+                          </span>
+                        )}
                         <ChevronRight 
-                          className={cn("h-4 w-4 transition-transform", 
+                          className={cn("h-4 w-4 transition-transform ml-2", 
                             openSubmenu === item.id && "transform rotate-90"
                           )} 
                         />
@@ -196,7 +210,12 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
                         onClick={() => setActiveItem(item.id)}
                       >
                         <span className="mr-3">{subItem.icon}</span>
-                        <span>{subItem.label}</span>
+                        <span className="flex-1">{subItem.label}</span>
+                        {subItem.badge && (
+                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white text-xs font-medium">
+                            {subItem.badge}
+                          </span>
+                        )}
                       </Link>
                     ))}
                   </CollapsibleContent>
