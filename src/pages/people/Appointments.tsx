@@ -1,6 +1,7 @@
+
 import { useState } from "react";
-import { format, startOfMonth, endOfMonth, isSameMonth } from "date-fns";
-import { Filter, Plus, CalendarIcon } from "lucide-react";
+import { format, isSameMonth } from "date-fns";
+import { Plus } from "lucide-react";
 import { appointments } from "@/data/appointments";
 import { appointmentTypes } from "@/types/appointment";
 import { AppointmentCalendar } from "@/components/appointments/AppointmentCalendar";
@@ -12,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
+
 export default function Appointments() {
   const [date, setDate] = useState<Date>(new Date());
   const [view, setView] = useState<string>("all");
@@ -27,13 +29,11 @@ export default function Appointments() {
   // Get pending appointments
   const pendingAppointments = appointments.filter(appointment => appointment.status === "pending");
 
-  // Get incomplete appointments count
-  const incompleteAppointments = appointments.filter(appointment => appointment.status === "confirmed" && !appointment.completed);
-
   // Handle creating a new appointment
   const handleCreateAppointment = () => {
     navigate("/people/appointments/create");
   };
+
   return <div>
       <div className="flex justify-between items-center mb-6">
         <div>
@@ -42,11 +42,7 @@ export default function Appointments() {
             Schedule and manage pastoral appointments and meetings.
           </p>
         </div>
-        <div className="flex space-x-2">
-          <Button variant="outline" size="sm">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
+        <div>
           <Button onClick={handleCreateAppointment}>
             <Plus className="h-4 w-4 mr-2" />
             New Appointment
@@ -66,22 +62,6 @@ export default function Appointments() {
             <PendingAppointments appointments={pendingAppointments} />
           </CardContent>
         </Card>}
-
-      {/* Incomplete Appointments Counter - Now with better vertical alignment */}
-      <Card className="mb-6 border-church-border shadow-sm">
-        <CardHeader className="pb-2 flex flex-row items-center justify-between mx-0 my-0 py-[3px] px-[20px]">
-          <div>
-            <CardTitle className="text-lg font-medium">Appointments Not Completed</CardTitle>
-            <CardDescription>
-              {incompleteAppointments.length} appointment{incompleteAppointments.length !== 1 ? 's' : ''} need your attention
-            </CardDescription>
-          </div>
-          <div className="bg-amber-100 text-amber-800 rounded-full px-4 py-2 text-xl font-semibold flex items-center self-center">
-            <CalendarIcon className="h-5 w-5 mr-2" />
-            {incompleteAppointments.length}
-          </div>
-        </CardHeader>
-      </Card>
       
       <div className="grid md:grid-cols-4 gap-6">
         {/* Left sidebar with calendar - improving responsiveness */}
