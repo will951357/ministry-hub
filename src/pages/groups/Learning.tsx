@@ -271,6 +271,7 @@ export default function Learning() {
   const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
   const [selectedCourses, setSelectedCourses] = useState<number[]>([]);
   const [isCourseSelectMode, setIsCourseSelectMode] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const navigate = useNavigate();
   
   const form = useForm<CourseFormValues>({
@@ -349,6 +350,10 @@ export default function Learning() {
   };
 
   const openAddClassDialog = () => {
+    if (!selectedCourse) {
+      toast.error("Please select a course first");
+      return;
+    }
     setIsAddClassDialogOpen(true);
   };
 
