@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +26,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Input } from "@/components/ui/input";
+import { StatsCard } from "@/components/dashboard/StatsCard";
+import { ChartCard } from "@/components/dashboard/ChartCard";
 
 type Ministry = {
   id: number;
@@ -161,89 +162,54 @@ export default function Ministries() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-md font-medium text-muted-foreground">Pending Approvals</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="flex items-center gap-2">
-                <div className="bg-amber-500/10 p-3 rounded-full">
-                  <FileText className="h-6 w-6 text-amber-500" />
-                </div>
-                <div>
-                  <p className="text-2xl font-semibold">{pendingApprovals}</p>
-                  <p className="text-sm text-muted-foreground">Documents pending</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StatsCard
+            title="Pending Approvals"
+            value={pendingApprovals.toString()}
+            description="Documents pending"
+            icon={<FileText className="h-4 w-4" />}
+          />
           
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-md font-medium text-muted-foreground">Active Ministries</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="flex items-center gap-2">
-                <div className="bg-primary/10 p-3 rounded-full">
-                  <Users className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-2xl font-semibold">{activeMinistries}</p>
-                  <p className="text-sm text-muted-foreground">Currently active</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StatsCard
+            title="Active Ministries"
+            value={activeMinistries.toString()}
+            description="Currently active"
+            icon={<Users className="h-4 w-4" />}
+          />
           
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-md font-medium text-muted-foreground">Administrators</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="flex items-center gap-2">
-                <div className="bg-green-500/10 p-3 rounded-full">
-                  <UserCheck className="h-6 w-6 text-green-500" />
-                </div>
-                <div>
-                  <p className="text-2xl font-semibold">{administratorsCount}</p>
-                  <p className="text-sm text-muted-foreground">Ministry leaders</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StatsCard
+            title="Administrators"
+            value={administratorsCount.toString()}
+            description="Ministry leaders"
+            icon={<UserCheck className="h-4 w-4" />}
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {MINISTRIES_DATA.map((ministry) => (
-            <Card 
+            <ChartCard 
               key={ministry.id} 
+              title={ministry.name}
+              description={ministry.description}
+              icon={<Users className="h-4 w-4" />}
               className="cursor-pointer hover:shadow-md transition-shadow"
               onClick={() => handleViewDetails(ministry)}
             >
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-lg">{ministry.name}</CardTitle>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
                   <Badge variant={ministry.status === "active" ? "default" : "destructive"}>
                     {ministry.status === "active" ? "Active" : "Inactive"}
                   </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                  {ministry.description}
-                </p>
-                <div className="flex justify-between items-center">
                   <div className="flex items-center gap-1 text-sm">
                     <Users className="h-4 w-4 text-muted-foreground" />
                     <span>{ministry.members} members</span>
                   </div>
-                  <Button variant="outline" size="sm" className="h-8">
-                    Details
-                    <ChevronRight className="ml-1 h-4 w-4" />
-                  </Button>
                 </div>
-              </CardContent>
-            </Card>
+                <Button variant="outline" size="sm" className="h-8 w-full">
+                  Details
+                  <ChevronRight className="ml-1 h-4 w-4" />
+                </Button>
+              </div>
+            </ChartCard>
           ))}
         </div>
 

@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+import { StatsCard } from "@/components/dashboard/StatsCard";
 
 // Sample groups data
 const groupsData = [
@@ -191,34 +192,6 @@ export default function Groups() {
             )}
           </div>
         </div>
-
-        <Card className="mb-6 border-church-border">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Groups Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center gap-2">
-                <div className="bg-church-accent/10 p-2 rounded-full">
-                  <Users className="h-6 w-6 text-church-accent" />
-                </div>
-                <div>
-                  <p className="text-sm text-church-secondary">Active Groups</p>
-                  <p className="text-2xl font-semibold">{activeGroups.length}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="bg-primary/10 p-2 rounded-full">
-                  <Calendar className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-church-secondary">Total Events</p>
-                  <p className="text-2xl font-semibold">{totalEvents}</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredGroups.map((group) => (

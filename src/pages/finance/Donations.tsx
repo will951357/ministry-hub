@@ -1,15 +1,9 @@
-
 import { useState } from "react";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { DollarSign, Download, Filter } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { DollarSign, Download, Filter, ArrowUpRight, PiggyBank, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { StatsCard } from "@/components/dashboard/StatsCard";
 
 export default function Donations() {
   const [activeTab, setActiveTab] = useState("all");
@@ -40,33 +34,24 @@ export default function Donations() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Donations</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$24,560.00</div>
-            <p className="text-xs text-muted-foreground">+12.5% from last month</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Donations This Month</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$3,240.00</div>
-            <p className="text-xs text-muted-foreground">42 donations</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Average Donation</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$78.50</div>
-            <p className="text-xs text-muted-foreground">Per donation</p>
-          </CardContent>
-        </Card>
+        <StatsCard
+          title="Total Donations"
+          value="$24,560.00"
+          description="+12.5% from last month"
+          icon={<DollarSign className="h-4 w-4" />}
+        />
+        <StatsCard
+          title="Donations This Month"
+          value="$3,240.00"
+          description="42 donations"
+          icon={<CreditCard className="h-4 w-4" />}
+        />
+        <StatsCard
+          title="Average Donation"
+          value="$78.50"
+          description="Per donation"
+          icon={<PiggyBank className="h-4 w-4" />}
+        />
       </div>
 
       <Tabs defaultValue="all" onValueChange={setActiveTab} className="w-full">

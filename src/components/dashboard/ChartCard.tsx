@@ -1,19 +1,21 @@
 
 import { ReactNode } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 interface ChartCardProps {
   title: string;
   description?: string;
   children: ReactNode;
   icon?: ReactNode;
+  className?: string;
 }
 
-export function ChartCard({ title, description, children, icon }: ChartCardProps) {
+export function ChartCard({ title, description, children, icon, className }: ChartCardProps) {
   return (
-    <Card className="relative p-6 border-church-border bg-white">
+    <Card className={cn("relative p-6 border-church-border bg-white", className)}>
       {icon && (
-        <div className="absolute top-4 right-4 p-2 rounded-full bg-primary/10">
+        <div className="absolute top-4 right-4 p-2 rounded-full bg-primary/10 text-primary">
           {icon}
         </div>
       )}
