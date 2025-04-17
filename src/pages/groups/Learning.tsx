@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Users, Book, FileText, Award, UserCheck, Filter, Bell, Search } from "lucide-react";
 import { CalendarIcon } from "lucide-react";
@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useNavigate } from "react-router-dom";
 
 interface Member {
   id: number;
@@ -264,14 +265,13 @@ interface ClassFormValues {
 }
 
 export default function Learning() {
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isAddClassDialogOpen, setIsAddClassDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
   const [selectedCourses, setSelectedCourses] = useState<number[]>([]);
   const [isCourseSelectMode, setIsCourseSelectMode] = useState(false);
+  const navigate = useNavigate();
   
   const form = useForm<CourseFormValues>({
     defaultValues: {
@@ -312,8 +312,7 @@ export default function Learning() {
     if (isCourseSelectMode) {
       toggleCourseSelection(course.id);
     } else {
-      setSelectedCourse(course);
-      setIsDialogOpen(true);
+      navigate(`/groups/learning/edit/${course.id}`);
     }
   };
 
@@ -557,121 +556,6 @@ export default function Learning() {
           </Card>
         </div>
       </div>
-
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-xl">{selectedCourse?.name}</DialogTitle>
-          </DialogHeader>
-          
-          {selectedCourse && (
-            <div className="space-y-4">
-              <div>
-                <h4 className="text-sm font-medium text-church-secondary mb-1">Description</h4>
-                <p>{selectedCourse.description}</p>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h4 className="text-sm font-medium text-church-secondary mb-1">Schedule</h4>
-                  <p>{selectedCourse.dayOfWeek}s</p>
-                  <p className="text-sm text-church-secondary">
-                    {formatDate(selectedCourse.startDate)} - {formatDate(selectedCourse.endDate)}
-                  </p>
-                </div>
-                
-                <div>
-                  <h4 className="text-sm font-medium text-church-secondary mb-1">Status</h4>
-                  <Badge variant={getStatusBadgeVariant(selectedCourse.status)}>
-                    {selectedCourse.status.charAt(0).toUpperCase() + selectedCourse.status.slice(1)}
-                  </Badge>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h4 className="text-sm font-medium text-church-secondary mb-1">Target Audience</h4>
-                  <p>{selectedCourse.targetAudience}</p>
-                </div>
-                
-                <div>
-                  <h4 className="text-sm font-medium text-church-secondary mb-1">Certificate Type</h4>
-                  <p>{selectedCourse.certificateType}</p>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h4 className="text-sm font-medium text-church-secondary mb-1">Enrollment</h4>
-                  <p>
-                    <UserCheck size={16} className="inline mr-1" />
-                    {selectedCourse.currentApplicants}/{selectedCourse.maxApplicants}
-                  </p>
-                </div>
-                
-                <div>
-                  <h4 className="text-sm font-medium text-church-secondary mb-1">Minimum Grade</h4>
-                  <p>{selectedCourse.minAverageGrade}%</p>
-                </div>
-              </div>
-              
-              <div>
-                <h4 className="text-sm font-medium text-church-secondary mb-1">Side Materials</h4>
-                <div className="flex flex-wrap gap-2">
-                  {selectedCourse.sideMaterials.map((material, index) => (
-                    <Badge key={index} variant="outline" className="flex items-center gap-1">
-                      <FileText size={12} />
-                      {material}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="border-t pt-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-sm font-medium">Classes ({selectedCourse.classes.length})</h4>
-                  <Button variant="outline" size="sm" onClick={openAddClassDialog}>
-                    <Plus size={14} className="mr-1" />
-                    Add Class
-                  </Button>
-                </div>
-                
-                {selectedCourse.classes.length > 0 ? (
-                  <div className="space-y-2 max-h-40 overflow-y-auto">
-                    {selectedCourse.classes.map((classItem) => (
-                      <div key={classItem.id} className="border rounded-md p-2 text-sm">
-                        <div className="font-medium">{classItem.subject}</div>
-                        <div className="flex items-center justify-between mt-1 text-church-secondary">
-                          <div className="flex items-center gap-1">
-                            <CalendarIcon size={12} />
-                            <span>{formatDate(classItem.date)}</span>
-                          </div>
-                          {classItem.sideMaterial && (
-                            <div className="flex items-center gap-1">
-                              <FileText size={12} />
-                              <span>{classItem.sideMaterial}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-church-secondary">No classes have been added yet.</p>
-                )}
-              </div>
-              
-              <div className="pt-4 flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Close</Button>
-                <Button>
-                  <FileText size={16} className="mr-1" />
-                  View Details
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
 
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent className="sm:max-w-md">
