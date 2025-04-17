@@ -12,6 +12,8 @@ interface StatsCardProps {
     isPositive: boolean;
   };
   className?: string;
+  onClick?: () => void;
+  footer?: ReactNode;
 }
 
 export function StatsCard({
@@ -21,9 +23,14 @@ export function StatsCard({
   icon,
   trend,
   className,
+  onClick,
+  footer,
 }: StatsCardProps) {
   return (
-    <div className={cn("stats-card", className)}>
+    <div 
+      className={cn("stats-card", className, onClick && "cursor-pointer")}
+      onClick={onClick}
+    >
       <div className="flex items-start justify-between">
         <div>
           <p className="text-sm font-medium text-muted-foreground">{title}</p>
@@ -41,6 +48,7 @@ export function StatsCard({
         </div>
         {icon && <div className="rounded-md bg-primary/10 p-2 text-primary">{icon}</div>}
       </div>
+      {footer && <div className="mt-4">{footer}</div>}
     </div>
   );
 }

@@ -47,7 +47,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-// Type for visitor
 type VisitMethod = "app" | "in-person";
 
 type Visitor = {
@@ -61,7 +60,6 @@ type Visitor = {
   visitMethod: VisitMethod;
 };
 
-// Mock data - in a real app, this would come from an API
 const mockVisitors: Visitor[] = [
   {
     id: "1",
@@ -115,7 +113,6 @@ const mockVisitors: Visitor[] = [
   }
 ];
 
-// Cell group options - in a real app, this would come from an API
 const cellGroups = [
   "All Groups",
   "North Side",
@@ -125,7 +122,6 @@ const cellGroups = [
   "College Ministry"
 ];
 
-// Schema for new visitor form
 const visitorSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   phone: z.string().min(5, { message: "Please enter a valid phone number." }),
@@ -148,7 +144,6 @@ export default function Visitors() {
   const [visitors, setVisitors] = useState<Visitor[]>(mockVisitors);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Form for adding new visitors
   const form = useForm<VisitorFormValues>({
     resolver: zodResolver(visitorSchema),
     defaultValues: {
@@ -160,12 +155,10 @@ export default function Visitors() {
     },
   });
 
-  // Calculate metrics
-  const visitorsLast30Days = 23; // Mock data
-  const previousPeriodVisitors = 18; // Mock data
+  const visitorsLast30Days = 23;
+  const previousPeriodVisitors = 18;
   const variationPercentage = ((visitorsLast30Days - previousPeriodVisitors) / previousPeriodVisitors) * 100;
-  
-  // Filter visitors based on search term and filters
+
   const filteredVisitors = visitors.filter(visitor => {
     const matchesSearch = 
       visitor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -238,7 +231,6 @@ export default function Visitors() {
     });
   };
 
-  // Check if all filtered visitors are selected
   const areAllSelected = filteredVisitors.length > 0 && 
     selectedVisitors.length === filteredVisitors.length;
 
@@ -383,7 +375,6 @@ export default function Visitors() {
         </Dialog>
       </div>
 
-      {/* Statistics Cards */}
       <div className="grid gap-4 md:grid-cols-2">
         <StatsCard
           title="Visitors (Last 30 Days)"
@@ -409,7 +400,6 @@ export default function Visitors() {
         />
       </div>
 
-      {/* Search and actions row */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
@@ -477,7 +467,6 @@ export default function Visitors() {
         </div>
       </div>
 
-      {/* Select All toggle outside the table */}
       <div className="flex items-center justify-between bg-gray-50 p-3 rounded-md">
         <Button 
           variant="ghost" 
@@ -497,7 +486,6 @@ export default function Visitors() {
         </div>
       </div>
 
-      {/* Visitors Table */}
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-xl">Visitor List</CardTitle>
