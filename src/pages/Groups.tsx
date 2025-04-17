@@ -3,10 +3,12 @@ import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, Calendar, Bell, Info } from "lucide-react";
+import { Plus, Users, Calendar, Bell, Info, Filter, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Sample groups data
 const groupsData = [
@@ -74,13 +76,28 @@ export default function Groups() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isNotificationDialogOpen, setIsNotificationDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedGroups, setSelectedGroups] = useState<number[]>([]);
+  const [isGroupSelectMode, setIsGroupSelectMode] = useState(false);
   
   const activeGroups = groupsData.filter(group => group.status === "active");
   const totalEvents = groupsData.reduce((total, group) => total + group.events, 0);
   
   const handleGroupClick = (group: Group) => {
-    setSelectedGroup(group);
-    setIsDialogOpen(true);
+    if (isGroupSelectMode) {
+      toggleGroupSelection(group.id);
+    } else {
+      setSelectedGroup(group);
+      setIsDialogOpen(true);
+    }
+  };
+
+  const toggleGroupSelection = (groupId: number) => {
+    setSelectedGroups(prev => 
+      prev.includes(groupId) 
+        ? prev.filter(id => id !== groupId) 
+        : [...prev, groupId]
+    );
   };
 
   const handleSendNotification = (group: Group) => {
@@ -94,6 +111,33 @@ export default function Groups() {
       setIsNotificationDialogOpen(false);
     }
   };
+
+  const sendBulkNotification = () => {
+    const selectedGroupCount = selectedGroups.length;
+    if (selectedGroupCount > 0) {
+      const memberCount = selectedGroups.reduce((total, groupId) => {
+        const group = groupsData.find(g => g.id === groupId);
+        return total + (group?.members || 0);
+      }, 0);
+      
+      toast.success(`Notification sent to ${memberCount} members across ${selectedGroupCount} groups`);
+      setSelectedGroups([]);
+      setIsGroupSelectMode(false);
+    } else {
+      toast.error("Please select at least one group");
+    }
+  };
+
+  const handleFilter = () => {
+    toast.info("Filter functionality coming soon");
+  };
+
+  const filteredGroups = searchQuery 
+    ? groupsData.filter(group => 
+        group.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        group.description.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : groupsData;
 
   return (
     <MainLayout>
@@ -109,6 +153,44 @@ export default function Groups() {
             <Plus size={16} />
             <span>Create Group</span>
           </Button>
+        </div>
+
+        {/* Action bar */}
+        <div className="flex flex-col md:flex-row gap-3 justify-between mb-6">
+          <div className="relative w-full md:w-1/3">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Search groups..." 
+              className="pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleFilter}>
+              <Filter className="mr-2 h-4 w-4" />
+              Filter
+            </Button>
+            {isGroupSelectMode ? (
+              <>
+                <Button variant="outline" onClick={() => {
+                  setSelectedGroups([]);
+                  setIsGroupSelectMode(false);
+                }}>
+                  Cancel
+                </Button>
+                <Button onClick={sendBulkNotification}>
+                  <Bell className="mr-2 h-4 w-4" />
+                  Send Notification ({selectedGroups.length})
+                </Button>
+              </>
+            ) : (
+              <Button variant="secondary" onClick={() => setIsGroupSelectMode(true)}>
+                <Bell className="mr-2 h-4 w-4" />
+                Select Groups
+              </Button>
+            )}
+          </div>
         </div>
 
         <Card className="mb-6 border-church-border">
@@ -140,12 +222,22 @@ export default function Groups() {
         </Card>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {groupsData.map((group) => (
+          {filteredGroups.map((group) => (
             <div 
               key={group.id} 
-              className="bg-white rounded-lg border border-church-border p-6 shadow-sm hover:shadow-md transition-all cursor-pointer relative"
+              className={`bg-white rounded-lg border ${
+                selectedGroups.includes(group.id) ? "border-primary" : "border-church-border"
+              } p-6 shadow-sm hover:shadow-md transition-all cursor-pointer relative`}
               onClick={() => handleGroupClick(group)}
             >
+              {isGroupSelectMode && (
+                <div className="absolute top-4 left-4 z-10" onClick={(e) => {
+                  e.stopPropagation();
+                  toggleGroupSelection(group.id);
+                }}>
+                  <Checkbox checked={selectedGroups.includes(group.id)} />
+                </div>
+              )}
               <div 
                 className="absolute top-4 right-4 p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors z-10"
                 onClick={(e) => {
@@ -155,7 +247,7 @@ export default function Groups() {
               >
                 <Bell size={16} className="text-church-secondary" />
               </div>
-              <h3 className="text-lg font-medium mb-2 pr-8">{group.name}</h3>
+              <h3 className={`text-lg font-medium mb-2 ${isGroupSelectMode ? "pl-8" : "pr-8"}`}>{group.name}</h3>
               <p className="text-church-secondary text-sm mb-4 line-clamp-2">
                 {group.description}
               </p>

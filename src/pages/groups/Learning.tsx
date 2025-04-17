@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, Book, FileText, Award, UserCheck } from "lucide-react";
+import { Plus, Users, Book, FileText, Award, UserCheck, Filter, Bell, Search } from "lucide-react";
 import { CalendarIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -99,7 +98,6 @@ const membersData: Member[] = [
   }
 ];
 
-// Sample courses data with classes
 const coursesData: Course[] = [
   {
     id: 1,
@@ -272,6 +270,8 @@ export default function Learning() {
   const [isAddClassDialogOpen, setIsAddClassDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
+  const [selectedCourses, setSelectedCourses] = useState<number[]>([]);
+  const [isCourseSelectMode, setIsCourseSelectMode] = useState(false);
   
   const form = useForm<CourseFormValues>({
     defaultValues: {
@@ -309,8 +309,20 @@ export default function Learning() {
     : coursesData;
   
   const handleCourseClick = (course: Course) => {
-    setSelectedCourse(course);
-    setIsDialogOpen(true);
+    if (isCourseSelectMode) {
+      toggleCourseSelection(course.id);
+    } else {
+      setSelectedCourse(course);
+      setIsDialogOpen(true);
+    }
+  };
+
+  const toggleCourseSelection = (courseId: number) => {
+    setSelectedCourses(prev => 
+      prev.includes(courseId) 
+        ? prev.filter(id => id !== courseId) 
+        : [...prev, courseId]
+    );
   };
 
   const formatDate = (dateString: string) => {
@@ -371,6 +383,26 @@ export default function Learning() {
     form.setValue("responsibleMembers", updatedSelection);
   };
 
+  const handleFilter = () => {
+    toast.info("Filter functionality coming soon");
+  };
+
+  const sendBulkNotification = () => {
+    const selectedCourseCount = selectedCourses.length;
+    if (selectedCourseCount > 0) {
+      const studentCount = selectedCourses.reduce((total, courseId) => {
+        const course = coursesData.find(c => c.id === courseId);
+        return total + (course?.currentApplicants || 0);
+      }, 0);
+      
+      toast.success(`Notification sent to ${studentCount} students across ${selectedCourseCount} courses`);
+      setSelectedCourses([]);
+      setIsCourseSelectMode(false);
+    } else {
+      toast.error("Please select at least one course");
+    }
+  };
+
   return (
     <MainLayout>
       <div>
@@ -385,6 +417,43 @@ export default function Learning() {
             <Plus size={16} />
             <span>Create Course</span>
           </Button>
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-3 justify-between mb-6">
+          <div className="relative w-full md:w-1/3">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Search courses..." 
+              className="pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleFilter}>
+              <Filter className="mr-2 h-4 w-4" />
+              Filter
+            </Button>
+            {isCourseSelectMode ? (
+              <>
+                <Button variant="outline" onClick={() => {
+                  setSelectedCourses([]);
+                  setIsCourseSelectMode(false);
+                }}>
+                  Cancel
+                </Button>
+                <Button onClick={sendBulkNotification}>
+                  <Bell className="mr-2 h-4 w-4" />
+                  Send Notification ({selectedCourses.length})
+                </Button>
+              </>
+            ) : (
+              <Button variant="secondary" onClick={() => setIsCourseSelectMode(true)}>
+                <Bell className="mr-2 h-4 w-4" />
+                Select Courses
+              </Button>
+            )}
+          </div>
         </div>
 
         <Card className="mb-6 border-church-border">
@@ -438,13 +507,6 @@ export default function Learning() {
         <div className="mb-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">All Courses</h2>
-            <div className="w-1/3">
-              <Input 
-                placeholder="Search courses..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
           </div>
           
           <Card>
@@ -452,6 +514,7 @@ export default function Learning() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    {isCourseSelectMode && <TableHead className="w-[50px]"></TableHead>}
                     <TableHead>Course Name</TableHead>
                     <TableHead>Audience</TableHead>
                     <TableHead>Schedule</TableHead>
@@ -463,9 +526,20 @@ export default function Learning() {
                   {filteredCourses.map((course) => (
                     <TableRow 
                       key={course.id} 
-                      className="cursor-pointer hover:bg-muted/50"
+                      className={`cursor-pointer hover:bg-muted/50 ${
+                        selectedCourses.includes(course.id) ? "bg-primary/5" : ""
+                      }`}
                       onClick={() => handleCourseClick(course)}
                     >
+                      {isCourseSelectMode && (
+                        <TableCell>
+                          <Checkbox 
+                            checked={selectedCourses.includes(course.id)} 
+                            onCheckedChange={() => toggleCourseSelection(course.id)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </TableCell>
+                      )}
                       <TableCell className="font-medium">{course.name}</TableCell>
                       <TableCell>{course.targetAudience}</TableCell>
                       <TableCell>{course.dayOfWeek}s, {formatDate(course.startDate)} - {formatDate(course.endDate)}</TableCell>
