@@ -2,7 +2,7 @@
 import React from 'react';
 import { format } from 'date-fns';
 import { Plus } from 'lucide-react';
-import { Calendar } from '@/components/ui/calendar';
+import { Calendar, type DayProps } from "react-day-picker";
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -41,7 +41,7 @@ export function EventCalendar({ events, onAddEvent, onSelectDate, selectedDate }
         onSelect={onSelectDate}
         className={cn("rounded-md border w-full p-4")}
         components={{
-          Day: ({ date, ...props }) => {
+          Day: ({ date, ...props }: DayProps) => {
             const dateEvents = getEventsForDate(date);
             const hasDateEvents = dateEvents.length > 0;
 
