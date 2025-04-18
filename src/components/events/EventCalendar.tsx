@@ -51,7 +51,6 @@ export function EventCalendar({ events, onAddEvent, onSelectDate, selectedDate }
                   <TooltipTrigger asChild>
                     <div className="relative w-full">
                       <div
-                        {...props}
                         className={cn(
                           props.className,
                           "relative hover:bg-muted/50 rounded-md transition-colors",
