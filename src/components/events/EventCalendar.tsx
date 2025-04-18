@@ -2,7 +2,7 @@
 import React from 'react';
 import { format } from 'date-fns';
 import { Plus } from 'lucide-react';
-import { DayPicker, type DayProps } from "react-day-picker";
+import { DayPicker } from "react-day-picker";
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -34,14 +34,40 @@ export function EventCalendar({ events, onAddEvent, onSelectDate, selectedDate }
   };
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto">
+    <div className="w-full p-4 bg-background rounded-lg border">
       <DayPicker
         mode="single"
         selected={selectedDate}
         onSelect={onSelectDate}
-        className={cn("rounded-md border w-full p-4")}
+        className={cn("w-full")}
+        classNames={{
+          months: "w-full flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+          month: "w-full space-y-4",
+          caption: "flex justify-center pt-1 relative items-center",
+          caption_label: "text-sm font-medium",
+          nav: "space-x-1 flex items-center",
+          nav_button: cn(
+            "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 transition-colors rounded-md hover:bg-accent"
+          ),
+          nav_button_previous: "absolute left-1",
+          nav_button_next: "absolute right-1",
+          table: "w-full border-collapse space-y-1",
+          head_row: "flex w-full",
+          head_cell: "w-9 font-normal text-muted-foreground rounded-md",
+          row: "flex w-full mt-2",
+          cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent rounded-md",
+          day: cn(
+            "h-9 w-9 p-0 font-normal rounded-md hover:bg-accent transition-colors",
+          ),
+          day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+          day_today: "bg-accent text-accent-foreground",
+          day_outside: "text-muted-foreground opacity-50",
+          day_disabled: "text-muted-foreground opacity-50",
+          day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+          day_hidden: "invisible",
+        }}
         components={{
-          Day: ({ date, ...props }: DayProps) => {
+          Day: ({ date, ...props }) => {
             const dateEvents = getEventsForDate(date);
             const hasDateEvents = dateEvents.length > 0;
 
@@ -51,13 +77,15 @@ export function EventCalendar({ events, onAddEvent, onSelectDate, selectedDate }
                   <TooltipTrigger asChild>
                     <div className="relative w-full">
                       <div
+                        {...props}
                         className={cn(
-                          props.className,
-                          "relative hover:bg-muted/50 rounded-md transition-colors",
+                          "relative hover:bg-muted/50 rounded-md transition-colors w-9 h-9 p-0 font-normal aria-selected:opacity-100",
                           hasDateEvents && "font-bold text-primary",
                         )}
                       >
-                        <span>{format(date, 'd')}</span>
+                        <span className="flex items-center justify-center h-full">
+                          {format(date, 'd')}
+                        </span>
                         {hasDateEvents && (
                           <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">
                             <div className="h-1 w-1 rounded-full bg-primary" />
