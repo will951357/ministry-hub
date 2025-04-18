@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Calendar as CalendarIcon, MapPin, Users, DollarSign, Eye, EyeOff, CircleCheck, CircleX, CircleSlash, Download, Bell, Search, Plus, TrendingUp, CalendarDays, UserCheck, CreditCard, Filter } from "lucide-react";
 import { QrCode, Edit } from "lucide-react";
@@ -24,36 +23,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-type EventStatus = 'confirmed' | 'canceled' | 'sold-out';
-type EventVisibility = 'public' | 'private';
-
-type EventUser = {
-  id: number;
-  name: string;
-  email: string;
-  checkedIn: boolean;
-};
-
-type Event = {
-  id: number;
-  title: string;
-  date: Date;
-  startTime: string;
-  endTime: string;
-  time: string;
-  location: string;
-  description: string;
-  attendees: number;
-  maxAttendees: number;
-  price: number;
-  visibility: EventVisibility;
-  status: EventStatus;
-  createdBy: string;
-  hasCheckin: boolean;
-  registeredUsers: EventUser[];
-  responsibleMembers: string[];
-};
+import { EventCalendar } from '@/components/events/EventCalendar';
+import { EventStats } from '@/components/events/EventStats';
+import {
+  Event,
+  EventVisibility,
+  EventStatus,
+  EventUser,
+} from '@/types/event';
 
 const sampleEvents: Event[] = [
   {
@@ -212,13 +189,14 @@ const sampleEvents: Event[] = [
 
 const Events = () => {
   const { toast } = useToast();
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [showAddEventModal, setShowAddEventModal] = useState(false);
+  const [selectedAddDate, setSelectedAddDate] = useState<Date | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [visibilityFilter, setVisibilityFilter] = useState<EventVisibility | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<EventStatus | 'all'>('all');
   const [priceFilter, setPriceFilter] = useState<'free' | 'paid' | 'all'>('all');
   const [sendToAll, setSendToAll] = useState(true);
-  const [showAddEventModal, setShowAddEventModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [showEventDetails, setShowEventDetails] = useState(false);
   const [showCheckinQR, setShowCheckinQR] = useState(false);
@@ -245,9 +223,9 @@ const Events = () => {
 
   const eventsByDate = useMemo(() => {
     return filteredEvents.filter(event => 
-      date ? isSameDay(event.date, date) : true
+      selectedDate ? isSameDay(event.date, selectedDate) : true
     );
-  }, [filteredEvents, date]);
+  }, [filteredEvents, selectedDate]);
 
   const hasEvents = (dateToCheck: Date): boolean => {
     return sampleEvents.some(event => isSameDay(event.date, dateToCheck));
@@ -320,379 +298,301 @@ const Events = () => {
     return sampleEvents.reduce((total, event) => total + (event.price * event.attendees), 0);
   }, []);
 
+  const handleAddEvent = (date: Date) => {
+    setSelectedAddDate(date);
+    setShowAddEventModal(true);
+  };
+
   return (
     <MainLayout>
       <div className="container mx-auto py-6">
-        <div className="flex flex-col space-y-4">
+        <div className="flex flex-col space-y-6">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold">Events</h1>
-              <p className="text-muted-foreground mt-1">Manage your church events - view, add, and update events information.</p>
+              <p className="text-muted-foreground mt-1">
+                Manage your church events and calendar
+              </p>
             </div>
-            <Button 
-              onClick={() => setShowAddEventModal(true)}
-              className="flex items-center gap-2"
-            >
+            <Button onClick={() => setShowAddEventModal(true)} className="gap-2">
               <Plus className="h-4 w-4" /> Add Event
             </Button>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Event Calendar</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <TooltipProvider>
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    className={cn("rounded-md border", "p-3 pointer-events-auto")}
-                    modifiers={{
-                      hasEvent: (date) => hasEvents(date),
-                    }}
-                    modifiersStyles={{
-                      hasEvent: { 
-                        fontWeight: 'bold',
-                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                        borderRadius: '0%',
-                        color: 'rgb(109, 40, 217)'
-                      }
-                    }}
-                  />
-                </TooltipProvider>
-                <div className="mt-2 flex justify-between">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => setDate(new Date())} 
-                  >
-                    Today
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => setDate(undefined)} 
-                  >
-                    Show All
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
 
-            <div className="flex flex-col gap-3">
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Total Events</p>
-                      <h3 className="mt-2 text-2xl font-semibold">{totalUpcomingEvents}</h3>
-                      <p className="text-xs text-muted-foreground mt-1 flex items-center">
-                        <TrendingUp className="h-3 w-3 inline mr-1" />
-                        Upcoming events
-                      </p>
-                    </div>
-                    <div className="rounded-md bg-primary/10 p-2 text-primary">
-                      <CalendarDays className="h-5 w-5 text-church-accent" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Current Month</p>
-                      <h3 className="mt-2 text-2xl font-semibold">{currentMonthEvents}</h3>
-                      <p className="text-xs text-muted-foreground mt-1 flex items-center">
-                        <TrendingUp className="h-3 w-3 inline mr-1" />
-                        Events in {format(new Date(), 'MMMM')}
-                      </p>
-                    </div>
-                    <div className="rounded-md bg-primary/10 p-2 text-primary">
-                      <CalendarIcon className="h-5 w-5 text-church-accent" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Registrations</p>
-                      <h3 className="mt-2 text-2xl font-semibold">{totalRegistrations}</h3>
-                      <div className="flex items-center mt-2">
-                        <CreditCard className="h-4 w-4 text-green-600 mr-1" />
-                        <span className="text-sm font-medium">${totalRevenue.toFixed(2)}</span>
-                      </div>
-                    </div>
-                    <div className="rounded-md bg-primary/10 p-2 text-primary">
-                      <UserCheck className="h-5 w-5 text-church-accent" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-          
-          <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
-            <div className="relative flex-grow">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search events..."
-                className="pl-8"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+          <EventStats events={sampleEvents} />
+
+          <div className="grid gap-6 grid-cols-1 xl:grid-cols-2">
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold">Calendar View</h2>
+              <EventCalendar
+                events={sampleEvents}
+                onAddEvent={handleAddEvent}
+                onSelectDate={setSelectedDate}
+                selectedDate={selectedDate}
               />
             </div>
-            
-            <div className="flex gap-2 flex-shrink-0">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="gap-1">
-                    <Filter className="h-4 w-4" />
-                    Filter
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => {
-                    setVisibilityFilter('all');
-                    setStatusFilter('all');
-                    setPriceFilter('all');
-                  }}>
-                    All Events
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setVisibilityFilter(visibilityFilter === 'public' ? 'all' : 'public')}>
-                    Public Events
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setVisibilityFilter(visibilityFilter === 'private' ? 'all' : 'private')}>
-                    Private Events
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setStatusFilter(statusFilter === 'confirmed' ? 'all' : 'confirmed')}>
-                    Confirmed Events
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setPriceFilter(priceFilter === 'free' ? 'all' : 'free')}>
-                    Free Events
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setPriceFilter(priceFilter === 'paid' ? 'all' : 'paid')}>
-                    Paid Events
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold">Events List</h2>
+              <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
+                <div className="relative flex-grow">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search events..."
+                    className="pl-8"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                
+                <div className="flex gap-2 flex-shrink-0">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="gap-1">
+                        <Filter className="h-4 w-4" />
+                        Filter
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => {
+                        setVisibilityFilter('all');
+                        setStatusFilter('all');
+                        setPriceFilter('all');
+                      }}>
+                        All Events
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setVisibilityFilter(visibilityFilter === 'public' ? 'all' : 'public')}>
+                        Public Events
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setVisibilityFilter(visibilityFilter === 'private' ? 'all' : 'private')}>
+                        Private Events
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setStatusFilter(statusFilter === 'confirmed' ? 'all' : 'confirmed')}>
+                        Confirmed Events
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setPriceFilter(priceFilter === 'free' ? 'all' : 'free')}>
+                        Free Events
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setPriceFilter(priceFilter === 'paid' ? 'all' : 'paid')}>
+                        Paid Events
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="gap-1">
+                        <Download className="h-4 w-4" />
+                        Export
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleExport('csv')}>CSV</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleExport('pdf')}>PDF</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleExport('ical')}>iCal</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button className="gap-1">
+                        <Bell className="h-4 w-4" />
+                        Notify
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => { setSendToAll(true); handleSendNotification(); }}>
+                        All Attendees
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => { setSendToAll(false); handleSendNotification(); }}>
+                        Organizers Only
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
               
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="gap-1">
-                    <Download className="h-4 w-4" />
-                    Export
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleExport('csv')}>CSV</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleExport('pdf')}>PDF</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleExport('ical')}>iCal</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button className="gap-1">
-                    <Bell className="h-4 w-4" />
-                    Notify
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => { setSendToAll(true); handleSendNotification(); }}>
-                    All Attendees
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => { setSendToAll(false); handleSendNotification(); }}>
-                    Organizers Only
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="flex flex-wrap gap-2">
+                {visibilityFilter !== 'all' || statusFilter !== 'all' || priceFilter !== 'all' ? (
+                  <>
+                    <Badge 
+                      className="cursor-pointer bg-secondary hover:bg-secondary/80"
+                      onClick={() => {
+                        setVisibilityFilter('all');
+                        setStatusFilter('all');
+                        setPriceFilter('all');
+                      }}
+                    >
+                      Clear All Filters
+                    </Badge>
+                    
+                    {visibilityFilter !== 'all' && (
+                      <Badge className="cursor-pointer bg-primary">
+                        {visibilityFilter === 'public' ? (
+                          <><Eye className="h-3 w-3 mr-1" /> Public</>
+                        ) : (
+                          <><EyeOff className="h-3 w-3 mr-1" /> Private</>
+                        )}
+                      </Badge>
+                    )}
+                    
+                    {statusFilter !== 'all' && (
+                      <Badge className="cursor-pointer bg-primary">
+                        <CircleCheck className="h-3 w-3 mr-1" /> {statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
+                      </Badge>
+                    )}
+                    
+                    {priceFilter !== 'all' && (
+                      <Badge className="cursor-pointer bg-primary">
+                        {priceFilter === 'free' ? 'Free' : <><DollarSign className="h-3 w-3 mr-1" /> Paid</>}
+                      </Badge>
+                    )}
+                  </>
+                ) : null}
+              </div>
+
+              <Card>
+                <CardHeader className="py-4">
+                  <CardTitle>
+                    {selectedDate ? (
+                      <>Events on {format(selectedDate, "MMMM d, yyyy")}</>
+                    ) : (
+                      <>All Events</>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {eventsByDate.length > 0 ? (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Event</TableHead>
+                          <TableHead>Date & Time</TableHead>
+                          <TableHead>Location</TableHead>
+                          <TableHead>Attendees</TableHead>
+                          <TableHead>Price</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {eventsByDate.map((event) => (
+                          <TableRow key={event.id}>
+                            <TableCell>
+                              <div className="font-medium hover:text-church-accent cursor-pointer" onClick={() => handleViewDetails(event)}>
+                                {event.title}
+                                {event.visibility === 'private' && (
+                                  <EyeOff className="h-3 w-3 inline ml-1 text-muted-foreground" />
+                                )}
+                              </div>
+                              <div className="text-xs text-muted-foreground mt-1">{event.description.slice(0, 50)}...</div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex flex-col">
+                                <span>{format(event.date, "MMM d, yyyy")}</span>
+                                <span className="text-muted-foreground text-xs">
+                                  {event.startTime} - {event.endTime}
+                                </span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center">
+                                <MapPin className="h-3 w-3 mr-1 text-muted-foreground" />
+                                <span>{event.location}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center">
+                                <Users className="h-3 w-3 mr-1 text-muted-foreground" />
+                                <span>{event.attendees}</span>
+                                {event.maxAttendees && (
+                                  <span className="text-xs text-muted-foreground ml-1">
+                                    /{event.maxAttendees}
+                                  </span>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {event.price === 0 ? (
+                                <span className="text-green-600">Free</span>
+                              ) : (
+                                <div className="flex items-center">
+                                  <DollarSign className="h-3 w-3 mr-1" />
+                                  <span>${event.price.toFixed(2)}</span>
+                                </div>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {getStatusBadge(event.status)}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-2">
+                                {event.hasCheckin && (
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={() => handleGenerateQRCode(event)}
+                                    className="h-8"
+                                  >
+                                    <QrCode className="h-3.5 w-3.5" />
+                                  </Button>
+                                )}
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  onClick={() => handleEditEvent(event.id)}
+                                  className="h-8"
+                                >
+                                  <Edit className="h-3.5 w-3.5" />
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  onClick={() => handleViewDetails(event)}
+                                  className="h-8"
+                                >
+                                  <Eye className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">No events found for the selected filters.</p>
+                      <Button 
+                        variant="link" 
+                        onClick={() => {
+                          setSearchTerm('');
+                          setVisibilityFilter('all');
+                          setStatusFilter('all');
+                          setPriceFilter('all');
+                          setSelectedDate(undefined);
+                        }}
+                      >
+                        Clear all filters
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           </div>
-          
-          <div className="flex flex-wrap gap-2">
-            {visibilityFilter !== 'all' || statusFilter !== 'all' || priceFilter !== 'all' ? (
-              <>
-                <Badge 
-                  className="cursor-pointer bg-secondary hover:bg-secondary/80"
-                  onClick={() => {
-                    setVisibilityFilter('all');
-                    setStatusFilter('all');
-                    setPriceFilter('all');
-                  }}
-                >
-                  Clear All Filters
-                </Badge>
-                
-                {visibilityFilter !== 'all' && (
-                  <Badge className="cursor-pointer bg-primary">
-                    {visibilityFilter === 'public' ? (
-                      <><Eye className="h-3 w-3 mr-1" /> Public</>
-                    ) : (
-                      <><EyeOff className="h-3 w-3 mr-1" /> Private</>
-                    )}
-                  </Badge>
-                )}
-                
-                {statusFilter !== 'all' && (
-                  <Badge className="cursor-pointer bg-primary">
-                    <CircleCheck className="h-3 w-3 mr-1" /> {statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
-                  </Badge>
-                )}
-                
-                {priceFilter !== 'all' && (
-                  <Badge className="cursor-pointer bg-primary">
-                    {priceFilter === 'free' ? 'Free' : <><DollarSign className="h-3 w-3 mr-1" /> Paid</>}
-                  </Badge>
-                )}
-              </>
-            ) : null}
-          </div>
-
-          <Card>
-            <CardHeader className="py-4">
-              <CardTitle>
-                {date ? (
-                  <>Events on {format(date, "MMMM d, yyyy")}</>
-                ) : (
-                  <>All Events</>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {eventsByDate.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Event</TableHead>
-                      <TableHead>Date & Time</TableHead>
-                      <TableHead>Location</TableHead>
-                      <TableHead>Attendees</TableHead>
-                      <TableHead>Price</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {eventsByDate.map((event) => (
-                      <TableRow key={event.id}>
-                        <TableCell>
-                          <div className="font-medium hover:text-church-accent cursor-pointer" onClick={() => handleViewDetails(event)}>
-                            {event.title}
-                            {event.visibility === 'private' && (
-                              <EyeOff className="h-3 w-3 inline ml-1 text-muted-foreground" />
-                            )}
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-1">{event.description.slice(0, 50)}...</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <span>{format(event.date, "MMM d, yyyy")}</span>
-                            <span className="text-muted-foreground text-xs">
-                              {event.startTime} - {event.endTime}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center">
-                            <MapPin className="h-3 w-3 mr-1 text-muted-foreground" />
-                            <span>{event.location}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center">
-                            <Users className="h-3 w-3 mr-1 text-muted-foreground" />
-                            <span>{event.attendees}</span>
-                            {event.maxAttendees && (
-                              <span className="text-xs text-muted-foreground ml-1">
-                                /{event.maxAttendees}
-                              </span>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {event.price === 0 ? (
-                            <span className="text-green-600">Free</span>
-                          ) : (
-                            <div className="flex items-center">
-                              <DollarSign className="h-3 w-3 mr-1" />
-                              <span>${event.price.toFixed(2)}</span>
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {getStatusBadge(event.status)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            {event.hasCheckin && (
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                onClick={() => handleGenerateQRCode(event)}
-                                className="h-8"
-                              >
-                                <QrCode className="h-3.5 w-3.5" />
-                              </Button>
-                            )}
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              onClick={() => handleEditEvent(event.id)}
-                              className="h-8"
-                            >
-                              <Edit className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              onClick={() => handleViewDetails(event)}
-                              className="h-8"
-                            >
-                              <Eye className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">No events found for the selected filters.</p>
-                  <Button 
-                    variant="link" 
-                    onClick={() => {
-                      setSearchTerm('');
-                      setVisibilityFilter('all');
-                      setStatusFilter('all');
-                      setPriceFilter('all');
-                      setDate(undefined);
-                    }}
-                  >
-                    Clear all filters
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
         </div>
       </div>
-      
-      <AddEventModal 
-        open={showAddEventModal} 
+
+      <AddEventModal
+        open={showAddEventModal}
         onOpenChange={setShowAddEventModal}
+        defaultDate={selectedAddDate}
         onEventAdded={(event) => {
           toast({
             title: "Event Added",
             description: `${event.title} has been successfully added.`,
           });
+          setSelectedAddDate(null);
         }}
       />
 
