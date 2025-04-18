@@ -1,23 +1,6 @@
-
 import { useState } from "react";
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle,
-  CardDescription
-} from "@/components/ui/card";
-import { 
-  Download, 
-  FileText, 
-  Filter, 
-  ArrowUpRight, 
-  ArrowDownRight,
-  Calendar,
-  Clock,
-  Plus,
-  Receipt
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Download, FileText, Filter, ArrowUpRight, ArrowDownRight, Calendar, Clock, Plus, Receipt } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -32,20 +15,16 @@ import { YearlyBudgetProgressChart } from "@/components/finance/YearlyBudgetProg
 import { BudgetUsageByCategory } from "@/components/finance/BudgetUsageByCategory";
 import { FundBalanceChart } from "@/components/finance/FundBalanceChart";
 import { BudgetTable } from "@/components/finance/BudgetTable";
-
 export default function Accounting() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [timeRange, setTimeRange] = useState("this-month");
   const [selectedMonth, setSelectedMonth] = useState("april-2025");
-  
   const handleExport = (format: string) => {
     toast.success(`Financial report exported as ${format.toUpperCase()}`, {
-      description: "Your file is ready to download",
+      description: "Your file is ready to download"
     });
   };
-
-  return (
-    <div className="container mx-auto py-6 space-y-6">
+  return <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Accounting</h1>
@@ -235,10 +214,7 @@ export default function Accounting() {
               </div>
               <div className="flex items-center gap-2">
                 <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                  <SelectTrigger className="w-[180px]">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    <SelectValue placeholder="Select month" />
-                  </SelectTrigger>
+                  
                   <SelectContent>
                     <SelectItem value="january-2025">January 2025</SelectItem>
                     <SelectItem value="february-2025">February 2025</SelectItem>
@@ -260,6 +236,5 @@ export default function Accounting() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>;
 }
