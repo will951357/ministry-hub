@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Calendar as CalendarIcon, MapPin, Users, DollarSign, Eye, EyeOff, CircleCheck, CircleX, CircleSlash, Download, Bell, Search, Plus, Filter, QrCode, Edit } from "lucide-react";
 import { format, isSameDay, startOfMonth, endOfMonth } from "date-fns";
@@ -409,7 +410,7 @@ const Events = () => {
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => { setSendToAll(false); handleSendNotification(); }}>
                           Organizers Only
-                        </DropdownDropdownMenuItem>
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
