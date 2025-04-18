@@ -41,7 +41,7 @@ export function EventCalendar({ events, onAddEvent, onSelectDate, selectedDate }
         onSelect={onSelectDate}
         className={cn("rounded-md border w-full p-4")}
         components={{
-          day: ({ date, ...props }) => {
+          Day: ({ date, ...props }) => {
             const dateEvents = getEventsForDate(date);
             const hasDateEvents = dateEvents.length > 0;
 

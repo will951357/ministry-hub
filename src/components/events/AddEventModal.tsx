@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,9 +28,10 @@ interface AddEventModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onEventAdded: (event: any) => void;
+  defaultDate?: Date | null;
 }
 
-export function AddEventModal({ open, onOpenChange, onEventAdded }: AddEventModalProps) {
+export function AddEventModal({ open, onOpenChange, onEventAdded, defaultDate }: AddEventModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -45,10 +46,17 @@ export function AddEventModal({ open, onOpenChange, onEventAdded }: AddEventModa
   const [observations, setObservations] = useState('');
   const [responsibleMembers, setResponsibleMembers] = useState('');
 
+  // Set date when defaultDate changes
+  useEffect(() => {
+    if (defaultDate) {
+      setDate(defaultDate);
+    }
+  }, [defaultDate]);
+
   const resetForm = () => {
     setName('');
     setDescription('');
-    setDate(new Date());
+    setDate(defaultDate || new Date());
     setStartTime('09:00');
     setEndTime('10:00');
     setLocation('');
