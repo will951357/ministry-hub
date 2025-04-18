@@ -34,6 +34,26 @@ export function EventCalendar({ events, onAddEvent, onSelectDate, selectedDate }
         selected={selectedDate}
         onSelect={onSelectDate}
         className={cn("w-full")}
+        classNames={{
+          months: "w-full flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+          month: "w-full space-y-4",
+          caption: "relative flex items-center justify-center px-8 py-4",
+          caption_label: "text-xl font-semibold text-center flex-1",
+          nav: "space-x-1 flex items-center",
+          nav_button: cn(
+            "h-9 w-9 bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-muted"
+          ),
+          nav_button_previous: "absolute left-1",
+          nav_button_next: "absolute right-1",
+          table: "w-full border-collapse",
+          head_row: "flex w-full",
+          head_cell: "w-full font-medium text-muted-foreground p-3 text-center border-b",
+          row: "flex w-full mt-0",
+          cell: "relative w-full p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent/50",
+          day: cn(
+            "h-32 w-full p-0 font-normal aria-selected:opacity-100 hover:bg-accent/50 rounded-none border border-border"
+          ),
+        }}
         components={{
           Day: ({ date, ...props }) => {
             const dateEvents = getEventsForDate(date);
@@ -66,7 +86,7 @@ export function EventCalendar({ events, onAddEvent, onSelectDate, selectedDate }
                           </Button>
                         </div>
                         {hasEvents && (
-                          <div className="mt-1 space-y-1">
+                          <div className="mt-1 space-y-1 max-h-24 overflow-y-auto">
                             {dateEvents.slice(0, 3).map((event) => (
                               <div
                                 key={event.id}
