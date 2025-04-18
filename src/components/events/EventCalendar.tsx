@@ -2,7 +2,7 @@
 import React from 'react';
 import { format } from 'date-fns';
 import { Plus } from 'lucide-react';
-import { Calendar, type DayProps } from "react-day-picker";
+import { DayPicker, type DayProps } from "react-day-picker";
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -35,7 +35,7 @@ export function EventCalendar({ events, onAddEvent, onSelectDate, selectedDate }
 
   return (
     <div className="relative w-full max-w-4xl mx-auto">
-      <Calendar
+      <DayPicker
         mode="single"
         selected={selectedDate}
         onSelect={onSelectDate}
