@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Filter } from "lucide-react";
@@ -22,13 +23,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
+import { Event } from '@/types/event';
 
 type CalendarItemType = 'events' | 'birthdays' | 'appointments' | 'classes';
 
-interface CalendarEvent {
-  id: number;
-  title: string;
-  date: Date;
+// Create a bridge interface that extends the Event type
+interface CalendarEvent extends Event {
   type: CalendarItemType;
 }
 
@@ -39,10 +39,86 @@ const Calendar = () => {
 
   // Mock events data - in a real app, this would come from an API
   const allEvents: CalendarEvent[] = [
-    { id: 1, title: "Sunday Service", date: new Date(), type: "events" },
-    { id: 2, title: "John's Birthday", date: new Date(), type: "birthdays" },
-    { id: 3, title: "Pastoral Meeting", date: new Date(), type: "appointments" },
-    { id: 4, title: "Bible Study", date: new Date(), type: "classes" },
+    { 
+      id: 1, 
+      title: "Sunday Service", 
+      date: new Date(), 
+      type: "events",
+      startTime: "09:00",
+      endTime: "11:00",
+      time: "9:00 AM - 11:00 AM",
+      location: "Main Sanctuary",
+      description: "Weekly Sunday worship service",
+      attendees: 120,
+      maxAttendees: 200,
+      price: 0,
+      visibility: "public",
+      status: "confirmed",
+      createdBy: "Pastor Johnson",
+      hasCheckin: true,
+      registeredUsers: [],
+      responsibleMembers: ["Pastor Johnson", "Worship Team"]
+    },
+    { 
+      id: 2, 
+      title: "John's Birthday", 
+      date: new Date(), 
+      type: "birthdays",
+      startTime: "15:00",
+      endTime: "17:00",
+      time: "3:00 PM - 5:00 PM",
+      location: "Fellowship Hall",
+      description: "Birthday celebration for John",
+      attendees: 25,
+      maxAttendees: 50,
+      price: 0,
+      visibility: "private",
+      status: "confirmed",
+      createdBy: "Mary Smith",
+      hasCheckin: false,
+      registeredUsers: [],
+      responsibleMembers: ["Mary Smith"]
+    },
+    { 
+      id: 3, 
+      title: "Pastoral Meeting", 
+      date: new Date(), 
+      type: "appointments",
+      startTime: "13:00",
+      endTime: "14:00",
+      time: "1:00 PM - 2:00 PM",
+      location: "Pastor's Office",
+      description: "Weekly pastoral team meeting",
+      attendees: 5,
+      maxAttendees: 10,
+      price: 0,
+      visibility: "private",
+      status: "confirmed",
+      createdBy: "Pastor Johnson",
+      hasCheckin: false,
+      registeredUsers: [],
+      responsibleMembers: ["Pastor Johnson", "Associate Pastors"]
+    },
+    { 
+      id: 4, 
+      title: "Bible Study", 
+      date: new Date(), 
+      type: "classes",
+      startTime: "18:30",
+      endTime: "20:00",
+      time: "6:30 PM - 8:00 PM",
+      location: "Classroom 3",
+      description: "Weekly Bible study on the Book of Romans",
+      attendees: 15,
+      maxAttendees: 30,
+      price: 0,
+      visibility: "public",
+      status: "confirmed",
+      createdBy: "Elder Smith",
+      hasCheckin: true,
+      registeredUsers: [],
+      responsibleMembers: ["Elder Smith"]
+    },
   ];
 
   // Filter events based on selected types
