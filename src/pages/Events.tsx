@@ -380,7 +380,7 @@ const Events = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          const newDate = new Date(selectedDate || newDate());
+                          const newDate = new Date(selectedDate || new Date());
                           if (calendarViewMode === 'month') {
                             newDate.setMonth(newDate.getMonth() + 1);
                           } else if (calendarViewMode === 'week') {
