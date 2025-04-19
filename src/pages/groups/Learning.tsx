@@ -1,4 +1,6 @@
+
 import { useState } from "react";
+import * as React from "react"; // Added explicit React import to resolve UMD global errors
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -1269,7 +1271,7 @@ export default function Learning() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Date</p>
-                    <p>{formatDate(selectedClass.date)}</p>
+                    <p>{formatDate(selectedClass.startDate)}</p> {/* Changed from date to startDate */}
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Teacher</p>
