@@ -1,6 +1,5 @@
-
 import React, { useState, useMemo } from 'react';
-import { format, isSameDay } from "date-fns";
+import { format } from "date-fns";
 import { Calendar as CalendarIcon, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -22,17 +21,51 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
 
 type CalendarItemType = 'events' | 'birthdays' | 'appointments' | 'classes';
+
+interface CalendarEvent {
+  id: number;
+  title: string;
+  date: Date;
+  type: CalendarItemType;
+}
 
 const Calendar = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [calendarViewMode, setCalendarViewMode] = useState<'month' | 'week' | 'day'>('month');
   const [selectedTypes, setSelectedTypes] = useState<CalendarItemType[]>(['events', 'birthdays', 'appointments', 'classes']);
 
-  // TODO: Fetch real data from respective sources
-  const events = []; // Will be fetched based on selectedTypes
+  // Mock events data - in a real app, this would come from an API
+  const allEvents: CalendarEvent[] = [
+    { id: 1, title: "Sunday Service", date: new Date(), type: "events" },
+    { id: 2, title: "John's Birthday", date: new Date(), type: "birthdays" },
+    { id: 3, title: "Pastoral Meeting", date: new Date(), type: "appointments" },
+    { id: 4, title: "Bible Study", date: new Date(), type: "classes" },
+  ];
+
+  // Filter events based on selected types
+  const filteredEvents = useMemo(() => 
+    allEvents.filter(event => selectedTypes.includes(event.type)),
+    [selectedTypes]
+  );
   
+  const getTypeColor = (type: CalendarItemType) => {
+    switch(type) {
+      case 'events':
+        return "bg-church-accent text-white"; // Bright sky blue
+      case 'birthdays':
+        return "bg-[#D946EF] text-white"; // Magenta pink
+      case 'appointments':
+        return "bg-[#F97316] text-white"; // Bright orange
+      case 'classes':
+        return "bg-[#0EA5E9] text-white"; // Ocean blue
+      default:
+        return "bg-muted";
+    }
+  };
+
   const handleTypeToggle = (type: CalendarItemType) => {
     setSelectedTypes(prev => 
       prev.includes(type) 
@@ -101,27 +134,47 @@ const Calendar = () => {
                     <DropdownMenuContent>
                       <DropdownMenuItem
                         onClick={() => handleTypeToggle('events')}
-                        className={cn(selectedTypes.includes('events') && "bg-accent")}
+                        className={cn(
+                          "flex items-center gap-2",
+                          selectedTypes.includes('events') && "bg-accent"
+                        )}
                       >
-                        Events
+                        <Badge variant="secondary" className={getTypeColor('events')}>
+                          Events
+                        </Badge>
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleTypeToggle('birthdays')}
-                        className={cn(selectedTypes.includes('birthdays') && "bg-accent")}
+                        className={cn(
+                          "flex items-center gap-2",
+                          selectedTypes.includes('birthdays') && "bg-accent"
+                        )}
                       >
-                        Birthdays
+                        <Badge variant="secondary" className={getTypeColor('birthdays')}>
+                          Birthdays
+                        </Badge>
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleTypeToggle('appointments')}
-                        className={cn(selectedTypes.includes('appointments') && "bg-accent")}
+                        className={cn(
+                          "flex items-center gap-2",
+                          selectedTypes.includes('appointments') && "bg-accent"
+                        )}
                       >
-                        Appointments
+                        <Badge variant="secondary" className={getTypeColor('appointments')}>
+                          Appointments
+                        </Badge>
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleTypeToggle('classes')}
-                        className={cn(selectedTypes.includes('classes') && "bg-accent")}
+                        className={cn(
+                          "flex items-center gap-2",
+                          selectedTypes.includes('classes') && "bg-accent"
+                        )}
                       >
-                        Classes
+                        <Badge variant="secondary" className={getTypeColor('classes')}>
+                          Classes
+                        </Badge>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -173,7 +226,7 @@ const Calendar = () => {
 
               {calendarViewMode === 'month' && (
                 <MonthCalendarView 
-                  events={events}
+                  events={filteredEvents}
                   selectedDate={selectedDate || new Date()} 
                   onSelectDate={setSelectedDate}
                   onAddEvent={() => {}}
@@ -182,7 +235,7 @@ const Calendar = () => {
               
               {calendarViewMode === 'week' && (
                 <WeekCalendarView 
-                  events={events}
+                  events={filteredEvents}
                   selectedDate={selectedDate || new Date()}
                   onSelectEvent={() => {}}
                   onAddEvent={() => {}}
@@ -191,7 +244,7 @@ const Calendar = () => {
               
               {calendarViewMode === 'day' && (
                 <DayCalendarView 
-                  events={events}
+                  events={filteredEvents}
                   selectedDate={selectedDate || new Date()}
                   onSelectEvent={() => {}}
                   onAddEvent={() => {}}
