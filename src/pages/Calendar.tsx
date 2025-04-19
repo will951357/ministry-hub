@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -21,58 +20,96 @@ interface CalendarEvent extends Event {
   type: CalendarItemType;
 }
 
+const sampleEvents: CalendarEvent[] = [
+  {
+    id: 1,
+    title: "Sunday Service",
+    date: new Date(),
+    type: "events",
+    startTime: "09:00",
+    endTime: "11:00",
+    time: "9:00 AM - 11:00 AM",
+    location: "Main Sanctuary",
+    description: "Weekly Sunday worship service",
+    attendees: 120,
+    maxAttendees: 200,
+    price: 0,
+    visibility: "public",
+    status: "confirmed",
+    createdBy: "Pastor Johnson",
+    hasCheckin: true,
+    registeredUsers: [],
+    responsibleMembers: ["Pastor Johnson", "Worship Team"]
+  },
+  {
+    id: 2,
+    title: "Youth Bible Study",
+    date: new Date(),
+    type: "classes",
+    startTime: "18:30",
+    endTime: "20:00",
+    time: "6:30 PM - 8:00 PM",
+    location: "Youth Room",
+    description: "Weekly youth Bible study",
+    attendees: 25,
+    maxAttendees: 40,
+    price: 0,
+    visibility: "public",
+    status: "confirmed",
+    createdBy: "Youth Pastor",
+    hasCheckin: true,
+    registeredUsers: [],
+    responsibleMembers: ["Youth Pastor", "Youth Leaders"]
+  },
+  {
+    id: 3,
+    title: "John's Birthday",
+    date: new Date(new Date().setDate(new Date().getDate() + 2)),
+    type: "birthdays",
+    startTime: "00:00",
+    endTime: "23:59",
+    time: "All Day",
+    location: "N/A",
+    description: "John's Birthday Celebration",
+    attendees: 0,
+    maxAttendees: 0,
+    price: 0,
+    visibility: "public",
+    status: "confirmed",
+    createdBy: "System",
+    hasCheckin: false,
+    registeredUsers: [],
+    responsibleMembers: []
+  },
+  {
+    id: 4,
+    title: "Pastoral Visit",
+    date: new Date(new Date().setDate(new Date().getDate() + 3)),
+    type: "appointments",
+    startTime: "14:00",
+    endTime: "15:00",
+    time: "2:00 PM - 3:00 PM",
+    location: "Smith Family Home",
+    description: "Pastoral visit to Smith family",
+    attendees: 1,
+    maxAttendees: 1,
+    price: 0,
+    visibility: "private",
+    status: "confirmed",
+    createdBy: "Pastor Johnson",
+    hasCheckin: false,
+    registeredUsers: [],
+    responsibleMembers: ["Pastor Johnson"]
+  }
+];
+
 const Calendar = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [calendarViewMode, setCalendarViewMode] = useState<'month' | 'week' | 'day'>('month');
   const [selectedTypes, setSelectedTypes] = useState<CalendarItemType[]>(['events', 'birthdays', 'appointments', 'classes']);
 
-  // Reduced sample events data
-  const allEvents: CalendarEvent[] = [
-    { 
-      id: 1, 
-      title: "Sunday Service", 
-      date: new Date(), 
-      type: "events",
-      startTime: "09:00",
-      endTime: "11:00",
-      time: "9:00 AM - 11:00 AM",
-      location: "Main Sanctuary",
-      description: "Weekly Sunday worship service",
-      attendees: 120,
-      maxAttendees: 200,
-      price: 0,
-      visibility: "public",
-      status: "confirmed",
-      createdBy: "Pastor Johnson",
-      hasCheckin: true,
-      registeredUsers: [],
-      responsibleMembers: ["Pastor Johnson", "Worship Team"]
-    },
-    { 
-      id: 2, 
-      title: "Bible Study", 
-      date: new Date(), 
-      type: "classes",
-      startTime: "18:30",
-      endTime: "20:00",
-      time: "6:30 PM - 8:00 PM",
-      location: "Classroom 3",
-      description: "Weekly Bible study on the Book of Romans",
-      attendees: 15,
-      maxAttendees: 30,
-      price: 0,
-      visibility: "public",
-      status: "confirmed",
-      createdBy: "Elder Smith",
-      hasCheckin: true,
-      registeredUsers: [],
-      responsibleMembers: ["Elder Smith"]
-    },
-  ];
-
-  // Filter events based on selected types
   const filteredEvents = useMemo(() => 
-    allEvents.filter(event => selectedTypes.includes(event.type)),
+    sampleEvents.filter(event => selectedTypes.includes(event.type)),
     [selectedTypes]
   );
 

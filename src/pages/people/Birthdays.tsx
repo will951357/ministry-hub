@@ -8,7 +8,6 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-// Mock data for birthdays
 const BIRTHDAYS_DATA = [
   {
     id: 1,
@@ -64,7 +63,6 @@ export default function Birthdays() {
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   const [showCalendarView, setShowCalendarView] = useState(false);
 
-  // Get next 3 upcoming birthdays
   const getUpcomingBirthdays = () => {
     const today = new Date();
     const upcomingBirthdays = BIRTHDAYS_DATA.map(person => {
@@ -75,7 +73,6 @@ export default function Birthdays() {
         birthday.getDate()
       );
       
-      // If the birthday has passed this year, add a year
       if (nextBirthday < today) {
         return {
           ...person,
@@ -95,7 +92,6 @@ export default function Birthdays() {
     return upcomingBirthdays;
   };
 
-  // Filter birthdays for the selected month
   const monthBirthdays = BIRTHDAYS_DATA.filter(person => {
     const birthday = parseISO(person.birthday);
     return birthday.getMonth() === selectedMonth.getMonth();
@@ -121,7 +117,6 @@ export default function Birthdays() {
 
   return (
     <div className="space-y-6">
-      {/* Header Section */}
       <div>
         <h1 className="text-2xl font-semibold text-church-primary mb-2">Birthdays</h1>
         <p className="text-church-secondary">
@@ -129,7 +124,6 @@ export default function Birthdays() {
         </p>
       </div>
 
-      {/* Upcoming Birthdays Section */}
       <Card>
         <CardHeader>
           <CardTitle>Upcoming Birthdays</CardTitle>
@@ -164,7 +158,6 @@ export default function Birthdays() {
         </CardContent>
       </Card>
 
-      {/* Monthly Birthdays Section */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
@@ -180,87 +173,56 @@ export default function Birthdays() {
             <Button variant="outline" size="icon" onClick={() => navigateMonth('next')}>
               <ChevronRight className="h-4 w-4" />
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => setShowCalendarView(!showCalendarView)}
-            >
-              {showCalendarView ? "Show List" : "Show Calendar"}
-            </Button>
           </div>
         </CardHeader>
         <CardContent>
-          {showCalendarView ? (
-            <div className="flex justify-center">
-              <CalendarComponent
-                mode="default"
-                month={selectedMonth}
-                onMonthChange={setSelectedMonth}
-                modifiers={{
-                  birthday: (date) => 
-                    monthBirthdays.some(person => {
-                      const birthday = parseISO(person.birthday);
-                      return birthday.getDate() === date.getDate();
-                    })
-                }}
-                modifiersStyles={{
-                  birthday: { 
-                    backgroundColor: "#fce7f3",
-                    fontWeight: "bold",
-                    color: "#db2777"
-                  }
-                }}
-                className="rounded-md border shadow-sm pointer-events-auto"
-              />
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead className="w-[100px]"></TableHead>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Contact</TableHead>
+                <TableHead className="w-[100px]"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {monthBirthdays.map((person) => (
+                <TableRow key={person.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        <AvatarImage src={person.photo} alt={person.name} />
+                        <AvatarFallback>{person.avatar}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="font-medium">{person.name}</div>
+                        <div className="text-sm text-muted-foreground">{person.email}</div>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {formatDate(parseISO(person.birthday))}
+                    {isThisMonth(parseISO(person.birthday)) && (
+                      <Badge variant="secondary" className="ml-2">
+                        This Month
+                      </Badge>
+                    )}
+                  </TableCell>
+                  <TableCell>{person.email}</TableCell>
+                  <TableCell>
+                    <div className="flex justify-end gap-2">
+                      <Button variant="ghost" size="icon">
+                        <Mail className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon">
+                        <Phone className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {monthBirthdays.map((person) => (
-                  <TableRow key={person.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar>
-                          <AvatarImage src={person.photo} alt={person.name} />
-                          <AvatarFallback>{person.avatar}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">{person.name}</div>
-                          <div className="text-sm text-muted-foreground">{person.email}</div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {formatDate(parseISO(person.birthday))}
-                      {isThisMonth(parseISO(person.birthday)) && (
-                        <Badge variant="secondary" className="ml-2">
-                          This Month
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>{person.email}</TableCell>
-                    <TableCell>
-                      <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon">
-                          <Mail className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon">
-                          <Phone className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>
