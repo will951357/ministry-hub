@@ -2,7 +2,7 @@ import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, Book, FileText, Award, UserCheck, Filter, Bell, Search } from "lucide-react";
+import { Plus, Users, Book, FileText, Award, UserCheck, Filter, Bell, Search, ChevronDown, ChevronRight } from "lucide-react";
 import { CalendarIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +20,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 interface Member {
   id: number;
@@ -29,11 +31,23 @@ interface Member {
   avatar: string;
 }
 
+interface ClassLesson {
+  id: number;
+  title: string;
+  date: string;
+  description?: string;
+  materials?: string[];
+}
+
 interface Class {
   id: number;
   subject: string;
   date: string;
   sideMaterial?: string;
+  description?: string;
+  teacher?: string;
+  lessons?: ClassLesson[];
+  students?: number;
 }
 
 interface Course {
@@ -52,6 +66,7 @@ interface Course {
   sideMaterials: string[];
   classes: Class[];
   responsibleMembers: Member[];
+  expanded?: boolean;
 }
 
 const membersData: Member[] = [
@@ -119,13 +134,44 @@ const coursesData: Course[] = [
         id: 1,
         subject: "Introduction to Bible Study",
         date: "2025-05-10",
-        sideMaterial: "Introduction Handout"
+        sideMaterial: "Introduction Handout",
+        description: "Basics of biblical interpretation and study approaches",
+        teacher: "John Smith",
+        students: 10,
+        lessons: [
+          {
+            id: 1,
+            title: "Understanding Scripture Context",
+            date: "2025-05-10",
+            description: "Historical and cultural context of scripture",
+            materials: ["Context Worksheet", "Timeline Handout"]
+          },
+          {
+            id: 2,
+            title: "Bible Study Methods",
+            date: "2025-05-17",
+            description: "Different approaches to studying the Bible",
+            materials: ["Methods Overview"]
+          }
+        ]
       },
       {
         id: 2,
         subject: "Hermeneutics",
         date: "2025-05-17",
-        sideMaterial: "Interpretation Guide"
+        sideMaterial: "Interpretation Guide",
+        description: "Biblical interpretation principles and techniques",
+        teacher: "Rebecca Davis",
+        students: 8,
+        lessons: [
+          {
+            id: 1,
+            title: "Basic Interpretation Principles",
+            date: "2025-05-17",
+            description: "Foundational principles of Biblical interpretation",
+            materials: ["Principles Handout"]
+          }
+        ]
       }
     ],
     responsibleMembers: [membersData[0], membersData[3]]
@@ -149,7 +195,19 @@ const coursesData: Course[] = [
         id: 1,
         subject: "Servant Leadership",
         date: "2025-06-15",
-        sideMaterial: "Leadership Principles"
+        sideMaterial: "Leadership Principles",
+        description: "Biblical servant leadership model and application",
+        teacher: "David Wilson",
+        students: 15,
+        lessons: [
+          {
+            id: 1,
+            title: "Servant Leadership Foundations",
+            date: "2025-06-15",
+            description: "Biblical basis for servant leadership",
+            materials: ["Scripture References", "Discussion Guide"]
+          }
+        ]
       }
     ],
     responsibleMembers: [membersData[0], membersData[2]]
@@ -262,6 +320,8 @@ interface ClassFormValues {
   subject: string;
   date: Date | undefined;
   sideMaterial: string;
+  description: string;
+  teacher: string;
 }
 
 export default function Learning() {
@@ -272,6 +332,9 @@ export default function Learning() {
   const [selectedCourses, setSelectedCourses] = useState<number[]>([]);
   const [isCourseSelectMode, setIsCourseSelectMode] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [expandedCourses, setExpandedCourses] = useState<number[]>([]);
+  const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+  const [isClassDetailsOpen, setIsClassDetailsOpen] = useState(false);
   const navigate = useNavigate();
   
   const form = useForm<CourseFormValues>({
@@ -294,7 +357,9 @@ export default function Learning() {
     defaultValues: {
       subject: "",
       date: undefined,
-      sideMaterial: ""
+      sideMaterial: "",
+      description: "",
+      teacher: ""
     }
   });
   
@@ -313,8 +378,22 @@ export default function Learning() {
     if (isCourseSelectMode) {
       toggleCourseSelection(course.id);
     } else {
-      navigate(`/groups/learning/edit/${course.id}`);
+      toggleExpandCourse(course.id);
     }
+  };
+
+  const toggleExpandCourse = (courseId: number) => {
+    setExpandedCourses(prev => 
+      prev.includes(courseId)
+        ? prev.filter(id => id !== courseId)
+        : [...prev, courseId]
+    );
+  };
+
+  const handleClassClick = (courseId: number, classItem: Class) => {
+    setSelectedCourse(coursesData.find(c => c.id === courseId) || null);
+    setSelectedClass(classItem);
+    setIsClassDetailsOpen(true);
   };
 
   const toggleCourseSelection = (courseId: number) => {
@@ -349,11 +428,8 @@ export default function Learning() {
     console.log("Form submitted with data:", data);
   };
 
-  const openAddClassDialog = () => {
-    if (!selectedCourse) {
-      toast.error("Please select a course first");
-      return;
-    }
+  const openAddClassDialog = (course: Course) => {
+    setSelectedCourse(course);
     setIsAddClassDialogOpen(true);
   };
 
@@ -366,7 +442,11 @@ export default function Learning() {
       id: selectedCourse.classes.length + 1,
       subject: data.subject,
       date: formattedDate,
-      sideMaterial: data.sideMaterial
+      sideMaterial: data.sideMaterial,
+      description: data.description,
+      teacher: data.teacher,
+      students: 0,
+      lessons: []
     };
     
     selectedCourse.classes.push(newClass);
@@ -414,7 +494,7 @@ export default function Learning() {
           <div>
             <h1 className="text-2xl font-semibold text-church-primary">Learning</h1>
             <p className="text-church-secondary">
-              Manage all courses and learning opportunities.
+              Manage all courses, classes, and learning opportunities.
             </p>
           </div>
           <Button onClick={() => setIsCreateDialogOpen(true)}>
@@ -486,11 +566,13 @@ export default function Learning() {
               </div>
               <div className="flex items-center gap-2">
                 <div className="bg-secondary/10 p-2 rounded-full">
-                  <Award className="h-6 w-6 text-secondary" />
+                  <FileText className="h-6 w-6 text-secondary" />
                 </div>
                 <div>
-                  <p className="text-sm text-church-secondary">Upcoming</p>
-                  <p className="text-2xl font-semibold">{upcomingCourses.length}</p>
+                  <p className="text-sm text-church-secondary">Total Classes</p>
+                  <p className="text-2xl font-semibold">
+                    {coursesData.reduce((total, course) => total + course.classes.length, 0)}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -515,48 +597,93 @@ export default function Learning() {
           
           <Card>
             <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    {isCourseSelectMode && <TableHead className="w-[50px]"></TableHead>}
-                    <TableHead>Course Name</TableHead>
-                    <TableHead>Audience</TableHead>
-                    <TableHead>Schedule</TableHead>
-                    <TableHead>Enrollment</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredCourses.map((course) => (
-                    <TableRow 
-                      key={course.id} 
-                      className={`cursor-pointer hover:bg-muted/50 ${
-                        selectedCourses.includes(course.id) ? "bg-primary/5" : ""
-                      }`}
-                      onClick={() => handleCourseClick(course)}
+              <Accordion type="multiple" className="w-full">
+                {filteredCourses.map((course) => (
+                  <AccordionItem 
+                    key={course.id} 
+                    value={course.id.toString()}
+                    className={`${
+                      selectedCourses.includes(course.id) ? "bg-primary/5" : ""
+                    }`}
+                  >
+                    <AccordionTrigger 
+                      className="px-4 py-3 hover:no-underline hover:bg-muted/50"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleCourseClick(course);
+                      }}
                     >
-                      {isCourseSelectMode && (
-                        <TableCell>
+                      <div className="flex items-center flex-1">
+                        {isCourseSelectMode && (
                           <Checkbox 
                             checked={selectedCourses.includes(course.id)} 
                             onCheckedChange={() => toggleCourseSelection(course.id)}
                             onClick={(e) => e.stopPropagation()}
+                            className="mr-3"
                           />
-                        </TableCell>
-                      )}
-                      <TableCell className="font-medium">{course.name}</TableCell>
-                      <TableCell>{course.targetAudience}</TableCell>
-                      <TableCell>{course.dayOfWeek}s, {formatDate(course.startDate)} - {formatDate(course.endDate)}</TableCell>
-                      <TableCell>{course.currentApplicants}/{course.maxApplicants}</TableCell>
-                      <TableCell>
-                        <Badge variant={getStatusBadgeVariant(course.status)}>
-                          {course.status.charAt(0).toUpperCase() + course.status.slice(1)}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                        )}
+                        <div className="flex-1">
+                          <div className="font-medium">{course.name}</div>
+                          <div className="text-sm text-muted-foreground">{course.targetAudience} • {course.dayOfWeek}s</div>
+                        </div>
+                        <div className="hidden md:flex items-center gap-8 mr-8">
+                          <div className="text-sm">
+                            <span className="text-muted-foreground">Classes:</span> {course.classes.length}
+                          </div>
+                          <div className="text-sm">
+                            <span className="text-muted-foreground">Students:</span> {course.currentApplicants}/{course.maxApplicants}
+                          </div>
+                          <Badge variant={getStatusBadgeVariant(course.status)}>
+                            {course.status.charAt(0).toUpperCase() + course.status.slice(1)}
+                          </Badge>
+                        </div>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="px-0">
+                      <div className="border-t bg-muted/20 px-4 py-2 flex justify-between items-center">
+                        <div className="text-sm font-medium">Classes ({course.classes.length})</div>
+                        <Button 
+                          size="sm" 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openAddClassDialog(course);
+                          }}
+                        >
+                          <Plus size={14} className="mr-1" />
+                          Add Class
+                        </Button>
+                      </div>
+                      <div className="divide-y">
+                        {course.classes.length > 0 ? (
+                          course.classes.map((classItem) => (
+                            <div 
+                              key={classItem.id} 
+                              className="px-6 py-3 hover:bg-muted/30 cursor-pointer"
+                              onClick={() => handleClassClick(course.id, classItem)}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <div className="font-medium">{classItem.subject}</div>
+                                  <div className="text-sm text-muted-foreground flex gap-4">
+                                    <span>{formatDate(classItem.date)}</span>
+                                    {classItem.teacher && <span>Teacher: {classItem.teacher}</span>}
+                                    {classItem.students !== undefined && <span>Students: {classItem.students}</span>}
+                                  </div>
+                                </div>
+                                <ChevronRight size={16} className="text-muted-foreground" />
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="px-6 py-4 text-center text-muted-foreground">
+                            No classes have been added to this course yet.
+                          </div>
+                        )}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
             </CardContent>
           </Card>
         </div>
@@ -962,6 +1089,19 @@ export default function Learning() {
                 
                 <FormField
                   control={classForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Enter class description" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={classForm.control}
                   name="date"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
@@ -1001,6 +1141,19 @@ export default function Learning() {
                 
                 <FormField
                   control={classForm.control}
+                  name="teacher"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Teacher</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter teacher name" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={classForm.control}
                   name="sideMaterial"
                   render={({ field }) => (
                     <FormItem>
@@ -1024,6 +1177,145 @@ export default function Learning() {
               </form>
             </Form>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isClassDetailsOpen} onOpenChange={setIsClassDetailsOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Class Details</DialogTitle>
+            <DialogDescription>
+              {selectedClass?.subject} - {selectedCourse?.name}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedClass && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-medium mb-2">Overview</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Date</p>
+                    <p>{formatDate(selectedClass.date)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Teacher</p>
+                    <p>{selectedClass.teacher || "Not assigned"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Students</p>
+                    <p>{selectedClass.students || 0}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Materials</p>
+                    <p>{selectedClass.sideMaterial || "None"}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-medium mb-2">Description</h3>
+                <p className="text-sm">{selectedClass.description || "No description available."}</p>
+              </div>
+              
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-lg font-medium">Lessons</h3>
+                  <Button size="sm">
+                    <Plus size={14} className="mr-1" />
+                    Add Lesson
+                  </Button>
+                </div>
+                
+                {selectedClass.lessons && selectedClass.lessons.length > 0 ? (
+                  <div className="space-y-2">
+                    {selectedClass.lessons.map(lesson => (
+                      <Card key={lesson.id}>
+                        <CardContent className="p-4">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h4 className="font-medium">{lesson.title}</h4>
+                              <p className="text-sm text-muted-foreground">{formatDate(lesson.date)}</p>
+                              <p className="text-sm mt-1">{lesson.description}</p>
+                            </div>
+                            <Button size="sm" variant="outline">View Details</Button>
+                          </div>
+                          {lesson.materials && lesson.materials.length > 0 && (
+                            <div className="mt-2">
+                              <p className="text-xs text-muted-foreground">Materials:</p>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {lesson.materials.map((material, idx) => (
+                                  <Badge key={idx} variant="outline">{material}</Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 border rounded-md">
+                    <p className="text-muted-foreground">No lessons have been added yet.</p>
+                    <Button variant="link" size="sm">
+                      Add your first lesson
+                    </Button>
+                  </div>
+                )}
+              </div>
+              
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-lg font-medium">Students</h3>
+                  <Button size="sm">
+                    <Plus size={14} className="mr-1" />
+                    Add Student
+                  </Button>
+                </div>
+                
+                {selectedClass.students && selectedClass.students > 0 ? (
+                  <div className="border rounded-md">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Attendance</TableHead>
+                          <TableHead>Grade</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="font-medium">Sample Student</TableCell>
+                          <TableCell>100%</TableCell>
+                          <TableCell>A</TableCell>
+                          <TableCell className="text-right">
+                            <Button variant="ghost" size="sm">View</Button>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 border rounded-md">
+                    <p className="text-muted-foreground">No students have been added yet.</p>
+                    <Button variant="link" size="sm">
+                      Add your first student
+                    </Button>
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setIsClassDetailsOpen(false)}>
+                  Close
+                </Button>
+                <Button>
+                  Edit Class
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </MainLayout>
