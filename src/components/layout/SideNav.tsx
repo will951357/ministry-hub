@@ -74,6 +74,7 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
   
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <Home size={20} />, href: '/' },
+    { id: 'calendar', label: 'Calendar', icon: <Calendar size={20} />, href: '/calendar' },
     { 
       id: 'people', 
       label: 'People', 

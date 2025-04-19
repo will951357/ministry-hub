@@ -29,6 +29,7 @@ import NewPost from "./pages/app-member/NewPost";
 import AppManager from "./pages/app-member/AppManager";
 import ExpenseForm from "./pages/finance/ExpenseForm";
 import ClassDetails from "./pages/groups/ClassDetails";
+import Calendar from "./pages/Calendar";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,9 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          
+          {/* Calendar section */}
+          <Route path="/calendar" element={<Calendar />} />
           
           {/* People section */}
           <Route path="/people" element={<People />}>
