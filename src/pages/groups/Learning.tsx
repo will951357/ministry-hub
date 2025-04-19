@@ -2,7 +2,7 @@ import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, Book, FileText, Award, UserCheck, Filter, Bell, Search, ChevronDown, ChevronRight } from "lucide-react";
+import { Plus, Users, Book, FileText, Award, UserCheck, Filter, Bell, Search, ChevronDown, ChevronRight, Eye } from "lucide-react";
 import { CalendarIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -42,12 +42,16 @@ interface ClassLesson {
 interface Class {
   id: number;
   subject: string;
-  date: string;
-  sideMaterial?: string;
+  teacher: string;
+  students: number;
+  averageGrade: number;
+  presenceRate: number;
+  startDate: string;
+  endDate: string;
+  status: 'scheduled' | 'in_progress' | 'completed';
   description?: string;
-  teacher?: string;
+  sideMaterial?: string;
   lessons?: ClassLesson[];
-  students?: number;
 }
 
 interface Course {
@@ -133,10 +137,14 @@ const coursesData: Course[] = [
       {
         id: 1,
         subject: "Introduction to Biblical Interpretation",
-        date: "2025-05-10",
-        description: "Understanding the basics of hermeneutics",
         teacher: "John Smith",
         students: 15,
+        averageGrade: 85,
+        presenceRate: 92,
+        startDate: "2025-05-10",
+        endDate: "2025-05-24",
+        status: "completed",
+        description: "Understanding the basics of hermeneutics",
         lessons: [
           {
             id: 1,
@@ -155,10 +163,14 @@ const coursesData: Course[] = [
       {
         id: 2,
         subject: "Biblical Languages Overview",
-        date: "2025-05-17",
-        description: "Introduction to Hebrew and Greek concepts",
         teacher: "Sarah Johnson",
         students: 12,
+        averageGrade: 78,
+        presenceRate: 88,
+        startDate: "2025-05-25",
+        endDate: "2025-06-08",
+        status: "in_progress",
+        description: "Introduction to Hebrew and Greek concepts",
         lessons: [
           {
             id: 1,
@@ -171,10 +183,14 @@ const coursesData: Course[] = [
       {
         id: 3,
         subject: "Systematic Study Methods",
-        date: "2025-05-24",
-        description: "Structured approaches to Bible study",
         teacher: "David Wilson",
         students: 14,
+        averageGrade: 0,
+        presenceRate: 0,
+        startDate: "2025-06-15",
+        endDate: "2025-06-29",
+        status: "scheduled",
+        description: "Structured approaches to Bible study",
         lessons: []
       }
     ],
@@ -198,11 +214,14 @@ const coursesData: Course[] = [
       {
         id: 1,
         subject: "Servant Leadership",
-        date: "2025-06-15",
-        sideMaterial: "Leadership Principles",
-        description: "Biblical servant leadership model and application",
         teacher: "David Wilson",
         students: 15,
+        averageGrade: 0,
+        presenceRate: 0,
+        startDate: "2025-06-15",
+        endDate: "2025-06-29",
+        status: "scheduled",
+        description: "Biblical servant leadership model and application",
         lessons: [
           {
             id: 1,
@@ -251,8 +270,14 @@ const coursesData: Course[] = [
       {
         id: 1,
         subject: "Identity in Christ",
-        date: "2025-05-05",
-        sideMaterial: "Workbook"
+        teacher: "David Wilson",
+        students: 0,
+        averageGrade: 0,
+        presenceRate: 0,
+        startDate: "2025-05-05",
+        endDate: "2025-05-10",
+        status: "scheduled",
+        description: "Workbook"
       }
     ],
     responsibleMembers: [membersData[1], membersData[4]]
@@ -275,14 +300,26 @@ const coursesData: Course[] = [
       {
         id: 1,
         subject: "Communication",
-        date: "2025-01-10",
-        sideMaterial: "Communication Guide"
+        teacher: "David Wilson",
+        students: 0,
+        averageGrade: 0,
+        presenceRate: 0,
+        startDate: "2025-01-10",
+        endDate: "2025-01-15",
+        status: "scheduled",
+        description: "Workbook"
       },
       {
         id: 2,
         subject: "Conflict Resolution",
-        date: "2025-01-17",
-        sideMaterial: "Conflict Resolution Workbook"
+        teacher: "David Wilson",
+        students: 0,
+        averageGrade: 0,
+        presenceRate: 0,
+        startDate: "2025-01-17",
+        endDate: "2025-01-21",
+        status: "scheduled",
+        description: "Workbook"
       }
     ],
     responsibleMembers: [membersData[0], membersData[1]]
@@ -445,11 +482,15 @@ export default function Learning() {
     const newClass: Class = {
       id: selectedCourse.classes.length + 1,
       subject: data.subject,
-      date: formattedDate,
-      sideMaterial: data.sideMaterial,
-      description: data.description,
       teacher: data.teacher,
       students: 0,
+      averageGrade: 0,
+      presenceRate: 0,
+      startDate: formattedDate,
+      endDate: formattedDate,
+      status: "scheduled",
+      description: data.description,
+      sideMaterial: data.sideMaterial,
       lessons: []
     };
     
@@ -601,93 +642,121 @@ export default function Learning() {
           
           <Card>
             <CardContent className="p-0">
-              <Accordion type="multiple" className="w-full">
-                {filteredCourses.map((course) => (
-                  <AccordionItem 
-                    key={course.id} 
-                    value={course.id.toString()}
-                    className={`${
-                      selectedCourses.includes(course.id) ? "bg-primary/5" : ""
-                    }`}
-                  >
-                    <AccordionTrigger 
-                      className="px-4 py-3 hover:no-underline hover:bg-muted/50"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleCourseClick(course);
-                      }}
-                    >
-                      <div className="flex items-center flex-1">
-                        {isCourseSelectMode && (
-                          <Checkbox 
-                            checked={selectedCourses.includes(course.id)} 
-                            onCheckedChange={() => toggleCourseSelection(course.id)}
-                            onClick={(e) => e.stopPropagation()}
-                            className="mr-3"
-                          />
-                        )}
-                        <div className="flex-1">
-                          <div className="font-medium">{course.name}</div>
-                          <div className="text-sm text-muted-foreground space-x-3">
-                            <span>{course.classes.length} Classes</span>
-                            <span>•</span>
-                            <span>{course.currentApplicants} Students</span>
-                            <span>•</span>
-                            <span>{formatDate(course.startDate)} - {formatDate(course.endDate)}</span>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Title</TableHead>
+                    <TableHead className="text-center">Classes</TableHead>
+                    <TableHead className="text-center">Students</TableHead>
+                    <TableHead className="text-center">Status</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredCourses.map((course) => (
+                    <React.Fragment key={course.id}>
+                      <TableRow className={selectedCourses.includes(course.id) ? "bg-primary/5" : ""}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            {isCourseSelectMode && (
+                              <Checkbox 
+                                checked={selectedCourses.includes(course.id)} 
+                                onCheckedChange={() => toggleCourseSelection(course.id)}
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            )}
+                            <div>
+                              <div className="font-medium">{course.name}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {formatDate(course.startDate)} - {formatDate(course.endDate)}
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                        <div className="hidden md:flex items-center gap-4 mr-8">
+                        </TableCell>
+                        <TableCell className="text-center">{course.classes.length}</TableCell>
+                        <TableCell className="text-center">{course.currentApplicants}</TableCell>
+                        <TableCell className="text-center">
                           <Badge variant={getStatusBadgeVariant(course.status)}>
                             {course.status.charAt(0).toUpperCase() + course.status.slice(1)}
                           </Badge>
-                        </div>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="px-0">
-                      <div className="border-t bg-muted/20 px-4 py-2 flex justify-between items-center">
-                        <div className="text-sm font-medium">Classes ({course.classes.length})</div>
-                        <Button 
-                          size="sm" 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openAddClassDialog(course);
-                          }}
-                        >
-                          <Plus size={14} className="mr-1" />
-                          Add Class
-                        </Button>
-                      </div>
-                      <div className="divide-y">
-                        {course.classes.length > 0 ? (
-                          course.classes.map((classItem) => (
-                            <div 
-                              key={classItem.id} 
-                              className="px-6 py-3 hover:bg-muted/30 cursor-pointer"
-                              onClick={() => handleClassClick(course.id, classItem)}
-                            >
-                              <div className="flex items-center justify-between">
-                                <div>
-                                  <div className="font-medium">{classItem.subject}</div>
-                                  <div className="text-sm text-muted-foreground flex gap-4">
-                                    <span>{formatDate(classItem.date)}</span>
-                                    {classItem.teacher && <span>Teacher: {classItem.teacher}</span>}
-                                    {classItem.students !== undefined && <span>Students: {classItem.students}</span>}
-                                  </div>
-                                </div>
-                                <ChevronRight size={16} className="text-muted-foreground" />
-                              </div>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => toggleExpandCourse(course.id)}
+                          >
+                            <ChevronDown
+                              className={cn(
+                                "h-4 w-4 transition-transform",
+                                expandedCourses.includes(course.id) && "rotate-180"
+                              )}
+                            />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                      {expandedCourses.includes(course.id) && (
+                        <TableRow>
+                          <TableCell colSpan={5} className="p-0">
+                            <div className="bg-muted/50">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead>Class Name</TableHead>
+                                    <TableHead>Professor</TableHead>
+                                    <TableHead className="text-center">Students</TableHead>
+                                    <TableHead className="text-center">Avg. Grade</TableHead>
+                                    <TableHead className="text-center">Presence</TableHead>
+                                    <TableHead>Start Date</TableHead>
+                                    <TableHead>End Date</TableHead>
+                                    <TableHead className="text-center">Status</TableHead>
+                                    <TableHead className="w-[50px]"></TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {course.classes.map((classItem) => (
+                                    <TableRow key={classItem.id} className="hover:bg-muted/70">
+                                      <TableCell>{classItem.subject}</TableCell>
+                                      <TableCell>{classItem.teacher}</TableCell>
+                                      <TableCell className="text-center">{classItem.students}</TableCell>
+                                      <TableCell className="text-center">
+                                        {classItem.averageGrade > 0 ? `${classItem.averageGrade}%` : '-'}
+                                      </TableCell>
+                                      <TableCell className="text-center">
+                                        {classItem.presenceRate > 0 ? `${classItem.presenceRate}%` : '-'}
+                                      </TableCell>
+                                      <TableCell>{formatDate(classItem.startDate)}</TableCell>
+                                      <TableCell>{formatDate(classItem.endDate)}</TableCell>
+                                      <TableCell className="text-center">
+                                        <Badge variant={
+                                          classItem.status === 'completed' ? 'outline' :
+                                          classItem.status === 'in_progress' ? 'default' : 'secondary'
+                                        }>
+                                          {classItem.status.replace('_', ' ').charAt(0).toUpperCase() + 
+                                           classItem.status.slice(1).replace('_', ' ')}
+                                        </Badge>
+                                      </TableCell>
+                                      <TableCell>
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => handleClassClick(course.id, classItem)}
+                                        >
+                                          <Eye className="h-4 w-4" />
+                                        </Button>
+                                      </TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
                             </div>
-                          ))
-                        ) : (
-                          <div className="px-6 py-4 text-center text-muted-foreground">
-                            No classes have been added to this course yet.
-                          </div>
-                        )}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </div>
