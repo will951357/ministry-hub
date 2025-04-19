@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MainLayout } from "@/components/layout/MainLayout";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MonthCalendarView } from '@/components/events/MonthCalendarView';
 import { WeekCalendarView } from '@/components/events/WeekCalendarView';
@@ -81,7 +81,7 @@ const Calendar = () => {
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
+                      <CalendarComponent
                         mode="single"
                         selected={selectedDate}
                         onSelect={setSelectedDate}
