@@ -11,13 +11,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MonthCalendarView } from '@/components/events/MonthCalendarView';
 import { WeekCalendarView } from '@/components/events/WeekCalendarView';
 import { DayCalendarView } from '@/components/events/DayCalendarView';
-import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
   Popover,
@@ -27,86 +25,14 @@ import {
 
 type CalendarItemType = 'events' | 'birthdays' | 'appointments' | 'classes';
 
-const typeColors: Record<CalendarItemType, { bg: string, text: string }> = {
-  events: { bg: "bg-[#9b87f5]", text: "text-white" },
-  birthdays: { bg: "bg-[#FEC6A1]", text: "text-gray-900" },
-  appointments: { bg: "bg-[#0EA5E9]", text: "text-white" },
-  classes: { bg: "bg-[#F2FCE2]", text: "text-gray-900" }
-};
-
 const Calendar = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [calendarViewMode, setCalendarViewMode] = useState<'month' | 'week' | 'day'>('month');
   const [selectedTypes, setSelectedTypes] = useState<CalendarItemType[]>(['events', 'birthdays', 'appointments', 'classes']);
 
-  // Mock data for events - this will be replaced with real data fetching later
-  const mockEvents = useMemo(() => [
-    {
-      id: 1,
-      title: "Sunday Service",
-      date: new Date(),
-      startTime: "10:00",
-      endTime: "12:00",
-      time: "10:00 AM",
-      location: "Main Hall",
-      description: "Weekly Sunday service",
-      attendees: 120,
-      maxAttendees: 200,
-      price: 0,
-      visibility: "public" as const,
-      status: "confirmed" as const,
-      createdBy: "Pastor John",
-      hasCheckin: true,
-      registeredUsers: [],
-      responsibleMembers: ["Pastor John", "Deacon Smith"]
-    },
-    {
-      id: 2,
-      title: "Youth Group",
-      date: new Date(new Date().setDate(new Date().getDate() + 2)),
-      startTime: "18:00",
-      endTime: "20:00",
-      time: "6:00 PM",
-      location: "Youth Room",
-      description: "Weekly youth group meeting",
-      attendees: 30,
-      maxAttendees: 50,
-      price: 0,
-      visibility: "public" as const,
-      status: "confirmed" as const,
-      createdBy: "Youth Pastor",
-      hasCheckin: true,
-      registeredUsers: [],
-      responsibleMembers: ["Youth Pastor", "Volunteer A"]
-    },
-    {
-      id: 3,
-      title: "Prayer Meeting",
-      date: new Date(new Date().setDate(new Date().getDate() + 1)),
-      startTime: "19:00",
-      endTime: "20:30",
-      time: "7:00 PM",
-      location: "Prayer Room",
-      description: "Weekly prayer meeting",
-      attendees: 15,
-      maxAttendees: 30,
-      price: 0,
-      visibility: "public" as const,
-      status: "confirmed" as const,
-      createdBy: "Prayer Leader",
-      hasCheckin: false,
-      registeredUsers: [],
-      responsibleMembers: ["Prayer Leader"]
-    }
-  ], []);
-
-  // Filter events based on selected types
-  const filteredEvents = useMemo(() => {
-    // In a real implementation, you would categorize events and filter based on type
-    // For now, we'll just return all mock events if 'events' is selected
-    return selectedTypes.includes('events') ? mockEvents : [];
-  }, [mockEvents, selectedTypes]);
-
+  // TODO: Fetch real data from respective sources
+  const events = []; // Will be fetched based on selectedTypes
+  
   const handleTypeToggle = (type: CalendarItemType) => {
     setSelectedTypes(prev => 
       prev.includes(type) 
@@ -170,28 +96,33 @@ const Calendar = () => {
                       <Button variant="outline" className="gap-2">
                         <Filter className="h-4 w-4" />
                         Filter Items
-                        {selectedTypes.length > 0 && (
-                          <Badge variant="secondary" className="ml-2">
-                            {selectedTypes.length}
-                          </Badge>
-                        )}
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      {(Object.entries(typeColors) as [CalendarItemType, typeof typeColors[keyof typeof typeColors]][]).map(([type, colors]) => (
-                        <DropdownMenuItem
-                          key={type}
-                          onClick={() => handleTypeToggle(type)}
-                          className={cn(
-                            "flex items-center gap-2 capitalize",
-                            selectedTypes.includes(type) && colors.bg,
-                            selectedTypes.includes(type) && colors.text
-                          )}
-                        >
-                          <div className={cn("w-3 h-3 rounded-full", colors.bg)} />
-                          {type}
-                        </DropdownMenuItem>
-                      ))}
+                      <DropdownMenuItem
+                        onClick={() => handleTypeToggle('events')}
+                        className={cn(selectedTypes.includes('events') && "bg-accent")}
+                      >
+                        Events
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleTypeToggle('birthdays')}
+                        className={cn(selectedTypes.includes('birthdays') && "bg-accent")}
+                      >
+                        Birthdays
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleTypeToggle('appointments')}
+                        className={cn(selectedTypes.includes('appointments') && "bg-accent")}
+                      >
+                        Appointments
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleTypeToggle('classes')}
+                        className={cn(selectedTypes.includes('classes') && "bg-accent")}
+                      >
+                        Classes
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -242,7 +173,7 @@ const Calendar = () => {
 
               {calendarViewMode === 'month' && (
                 <MonthCalendarView 
-                  events={filteredEvents}
+                  events={events}
                   selectedDate={selectedDate || new Date()} 
                   onSelectDate={setSelectedDate}
                   onAddEvent={() => {}}
@@ -251,7 +182,7 @@ const Calendar = () => {
               
               {calendarViewMode === 'week' && (
                 <WeekCalendarView 
-                  events={filteredEvents}
+                  events={events}
                   selectedDate={selectedDate || new Date()}
                   onSelectEvent={() => {}}
                   onAddEvent={() => {}}
@@ -260,7 +191,7 @@ const Calendar = () => {
               
               {calendarViewMode === 'day' && (
                 <DayCalendarView 
-                  events={filteredEvents}
+                  events={events}
                   selectedDate={selectedDate || new Date()}
                   onSelectEvent={() => {}}
                   onAddEvent={() => {}}
