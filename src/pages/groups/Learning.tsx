@@ -132,46 +132,50 @@ const coursesData: Course[] = [
     classes: [
       {
         id: 1,
-        subject: "Introduction to Bible Study",
+        subject: "Introduction to Biblical Interpretation",
         date: "2025-05-10",
-        sideMaterial: "Introduction Handout",
-        description: "Basics of biblical interpretation and study approaches",
+        description: "Understanding the basics of hermeneutics",
         teacher: "John Smith",
-        students: 10,
+        students: 15,
         lessons: [
           {
             id: 1,
-            title: "Understanding Scripture Context",
+            title: "Context and Culture",
             date: "2025-05-10",
-            description: "Historical and cultural context of scripture",
-            materials: ["Context Worksheet", "Timeline Handout"]
+            description: "Understanding historical and cultural context"
           },
           {
             id: 2,
-            title: "Bible Study Methods",
+            title: "Literary Genres",
             date: "2025-05-17",
-            description: "Different approaches to studying the Bible",
-            materials: ["Methods Overview"]
+            description: "Different types of biblical literature"
           }
         ]
       },
       {
         id: 2,
-        subject: "Hermeneutics",
+        subject: "Biblical Languages Overview",
         date: "2025-05-17",
-        sideMaterial: "Interpretation Guide",
-        description: "Biblical interpretation principles and techniques",
-        teacher: "Rebecca Davis",
-        students: 8,
+        description: "Introduction to Hebrew and Greek concepts",
+        teacher: "Sarah Johnson",
+        students: 12,
         lessons: [
           {
             id: 1,
-            title: "Basic Interpretation Principles",
+            title: "Hebrew Basics",
             date: "2025-05-17",
-            description: "Foundational principles of Biblical interpretation",
-            materials: ["Principles Handout"]
+            description: "Introduction to Hebrew alphabet and concepts"
           }
         ]
+      },
+      {
+        id: 3,
+        subject: "Systematic Study Methods",
+        date: "2025-05-24",
+        description: "Structured approaches to Bible study",
+        teacher: "David Wilson",
+        students: 14,
+        lessons: []
       }
     ],
     responsibleMembers: [membersData[0], membersData[3]]
@@ -624,15 +628,15 @@ export default function Learning() {
                         )}
                         <div className="flex-1">
                           <div className="font-medium">{course.name}</div>
-                          <div className="text-sm text-muted-foreground">{course.targetAudience} • {course.dayOfWeek}s</div>
+                          <div className="text-sm text-muted-foreground space-x-3">
+                            <span>{course.classes.length} Classes</span>
+                            <span>•</span>
+                            <span>{course.currentApplicants} Students</span>
+                            <span>•</span>
+                            <span>{formatDate(course.startDate)} - {formatDate(course.endDate)}</span>
+                          </div>
                         </div>
-                        <div className="hidden md:flex items-center gap-8 mr-8">
-                          <div className="text-sm">
-                            <span className="text-muted-foreground">Classes:</span> {course.classes.length}
-                          </div>
-                          <div className="text-sm">
-                            <span className="text-muted-foreground">Students:</span> {course.currentApplicants}/{course.maxApplicants}
-                          </div>
+                        <div className="hidden md:flex items-center gap-4 mr-8">
                           <Badge variant={getStatusBadgeVariant(course.status)}>
                             {course.status.charAt(0).toUpperCase() + course.status.slice(1)}
                           </Badge>
