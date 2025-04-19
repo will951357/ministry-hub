@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { format, isSameDay } from "date-fns";
 import { Calendar as CalendarIcon, Filter } from "lucide-react";
@@ -37,6 +38,74 @@ const Calendar = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [calendarViewMode, setCalendarViewMode] = useState<'month' | 'week' | 'day'>('month');
   const [selectedTypes, setSelectedTypes] = useState<CalendarItemType[]>(['events', 'birthdays', 'appointments', 'classes']);
+
+  // Mock data for events - this will be replaced with real data fetching later
+  const mockEvents = useMemo(() => [
+    {
+      id: 1,
+      title: "Sunday Service",
+      date: new Date(),
+      startTime: "10:00",
+      endTime: "12:00",
+      time: "10:00 AM",
+      location: "Main Hall",
+      description: "Weekly Sunday service",
+      attendees: 120,
+      maxAttendees: 200,
+      price: 0,
+      visibility: "public" as const,
+      status: "confirmed" as const,
+      createdBy: "Pastor John",
+      hasCheckin: true,
+      registeredUsers: [],
+      responsibleMembers: ["Pastor John", "Deacon Smith"]
+    },
+    {
+      id: 2,
+      title: "Youth Group",
+      date: new Date(new Date().setDate(new Date().getDate() + 2)),
+      startTime: "18:00",
+      endTime: "20:00",
+      time: "6:00 PM",
+      location: "Youth Room",
+      description: "Weekly youth group meeting",
+      attendees: 30,
+      maxAttendees: 50,
+      price: 0,
+      visibility: "public" as const,
+      status: "confirmed" as const,
+      createdBy: "Youth Pastor",
+      hasCheckin: true,
+      registeredUsers: [],
+      responsibleMembers: ["Youth Pastor", "Volunteer A"]
+    },
+    {
+      id: 3,
+      title: "Prayer Meeting",
+      date: new Date(new Date().setDate(new Date().getDate() + 1)),
+      startTime: "19:00",
+      endTime: "20:30",
+      time: "7:00 PM",
+      location: "Prayer Room",
+      description: "Weekly prayer meeting",
+      attendees: 15,
+      maxAttendees: 30,
+      price: 0,
+      visibility: "public" as const,
+      status: "confirmed" as const,
+      createdBy: "Prayer Leader",
+      hasCheckin: false,
+      registeredUsers: [],
+      responsibleMembers: ["Prayer Leader"]
+    }
+  ], []);
+
+  // Filter events based on selected types
+  const filteredEvents = useMemo(() => {
+    // In a real implementation, you would categorize events and filter based on type
+    // For now, we'll just return all mock events if 'events' is selected
+    return selectedTypes.includes('events') ? mockEvents : [];
+  }, [mockEvents, selectedTypes]);
 
   const handleTypeToggle = (type: CalendarItemType) => {
     setSelectedTypes(prev => 
@@ -173,7 +242,7 @@ const Calendar = () => {
 
               {calendarViewMode === 'month' && (
                 <MonthCalendarView 
-                  events={events}
+                  events={filteredEvents}
                   selectedDate={selectedDate || new Date()} 
                   onSelectDate={setSelectedDate}
                   onAddEvent={() => {}}
@@ -182,7 +251,7 @@ const Calendar = () => {
               
               {calendarViewMode === 'week' && (
                 <WeekCalendarView 
-                  events={events}
+                  events={filteredEvents}
                   selectedDate={selectedDate || new Date()}
                   onSelectEvent={() => {}}
                   onAddEvent={() => {}}
@@ -191,7 +260,7 @@ const Calendar = () => {
               
               {calendarViewMode === 'day' && (
                 <DayCalendarView 
-                  events={events}
+                  events={filteredEvents}
                   selectedDate={selectedDate || new Date()}
                   onSelectEvent={() => {}}
                   onAddEvent={() => {}}
