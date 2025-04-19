@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Filter } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,23 +11,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MonthCalendarView } from '@/components/events/MonthCalendarView';
 import { WeekCalendarView } from '@/components/events/WeekCalendarView';
 import { DayCalendarView } from '@/components/events/DayCalendarView';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { Event } from '@/types/event';
 
 type CalendarItemType = 'events' | 'birthdays' | 'appointments' | 'classes';
 
-// Create a bridge interface that extends the Event type
 interface CalendarEvent extends Event {
   type: CalendarItemType;
 }
@@ -37,7 +26,7 @@ const Calendar = () => {
   const [calendarViewMode, setCalendarViewMode] = useState<'month' | 'week' | 'day'>('month');
   const [selectedTypes, setSelectedTypes] = useState<CalendarItemType[]>(['events', 'birthdays', 'appointments', 'classes']);
 
-  // Mock events data - in a real app, this would come from an API
+  // Reduced sample events data
   const allEvents: CalendarEvent[] = [
     { 
       id: 1, 
@@ -61,46 +50,6 @@ const Calendar = () => {
     },
     { 
       id: 2, 
-      title: "John's Birthday", 
-      date: new Date(), 
-      type: "birthdays",
-      startTime: "15:00",
-      endTime: "17:00",
-      time: "3:00 PM - 5:00 PM",
-      location: "Fellowship Hall",
-      description: "Birthday celebration for John",
-      attendees: 25,
-      maxAttendees: 50,
-      price: 0,
-      visibility: "private",
-      status: "confirmed",
-      createdBy: "Mary Smith",
-      hasCheckin: false,
-      registeredUsers: [],
-      responsibleMembers: ["Mary Smith"]
-    },
-    { 
-      id: 3, 
-      title: "Pastoral Meeting", 
-      date: new Date(), 
-      type: "appointments",
-      startTime: "13:00",
-      endTime: "14:00",
-      time: "1:00 PM - 2:00 PM",
-      location: "Pastor's Office",
-      description: "Weekly pastoral team meeting",
-      attendees: 5,
-      maxAttendees: 10,
-      price: 0,
-      visibility: "private",
-      status: "confirmed",
-      createdBy: "Pastor Johnson",
-      hasCheckin: false,
-      registeredUsers: [],
-      responsibleMembers: ["Pastor Johnson", "Associate Pastors"]
-    },
-    { 
-      id: 4, 
       title: "Bible Study", 
       date: new Date(), 
       type: "classes",
@@ -126,17 +75,17 @@ const Calendar = () => {
     allEvents.filter(event => selectedTypes.includes(event.type)),
     [selectedTypes]
   );
-  
+
   const getTypeColor = (type: CalendarItemType) => {
     switch(type) {
       case 'events':
-        return "bg-church-accent text-white"; // Bright sky blue
+        return "bg-church-accent text-white";
       case 'birthdays':
-        return "bg-[#D946EF] text-white"; // Magenta pink
+        return "bg-[#D946EF] text-white";
       case 'appointments':
-        return "bg-[#F97316] text-white"; // Bright orange
+        return "bg-[#F97316] text-white";
       case 'classes':
-        return "bg-[#0EA5E9] text-white"; // Ocean blue
+        return "bg-[#0EA5E9] text-white";
       default:
         return "bg-muted";
     }
@@ -148,6 +97,11 @@ const Calendar = () => {
         ? prev.filter(t => t !== type)
         : [...prev, type]
     );
+  };
+
+  const handleDayClick = (date: Date) => {
+    setSelectedDate(date);
+    setCalendarViewMode('day');
   };
 
   return (
@@ -168,7 +122,7 @@ const Calendar = () => {
               <CardTitle className="text-xl">Calendar View</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-4">
                   <Tabs
                     value={calendarViewMode}
@@ -199,61 +153,23 @@ const Calendar = () => {
                       />
                     </PopoverContent>
                   </Popover>
+                </div>
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="gap-2">
-                        <Filter className="h-4 w-4" />
-                        Filter Items
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem
-                        onClick={() => handleTypeToggle('events')}
-                        className={cn(
-                          "flex items-center gap-2",
-                          selectedTypes.includes('events') && "bg-accent"
-                        )}
-                      >
-                        <Badge variant="secondary" className={getTypeColor('events')}>
-                          Events
-                        </Badge>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleTypeToggle('birthdays')}
-                        className={cn(
-                          "flex items-center gap-2",
-                          selectedTypes.includes('birthdays') && "bg-accent"
-                        )}
-                      >
-                        <Badge variant="secondary" className={getTypeColor('birthdays')}>
-                          Birthdays
-                        </Badge>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleTypeToggle('appointments')}
-                        className={cn(
-                          "flex items-center gap-2",
-                          selectedTypes.includes('appointments') && "bg-accent"
-                        )}
-                      >
-                        <Badge variant="secondary" className={getTypeColor('appointments')}>
-                          Appointments
-                        </Badge>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleTypeToggle('classes')}
-                        className={cn(
-                          "flex items-center gap-2",
-                          selectedTypes.includes('classes') && "bg-accent"
-                        )}
-                      >
-                        <Badge variant="secondary" className={getTypeColor('classes')}>
-                          Classes
-                        </Badge>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                <div className="flex flex-wrap gap-2">
+                  {(['events', 'birthdays', 'appointments', 'classes'] as CalendarItemType[]).map((type) => (
+                    <Badge
+                      key={type}
+                      variant="secondary"
+                      className={cn(
+                        "cursor-pointer",
+                        getTypeColor(type),
+                        !selectedTypes.includes(type) && "opacity-50"
+                      )}
+                      onClick={() => handleTypeToggle(type)}
+                    >
+                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </Badge>
+                  ))}
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -300,32 +216,34 @@ const Calendar = () => {
                 </div>
               </div>
 
-              {calendarViewMode === 'month' && (
-                <MonthCalendarView 
-                  events={filteredEvents}
-                  selectedDate={selectedDate || new Date()} 
-                  onSelectDate={setSelectedDate}
-                  onAddEvent={() => {}}
-                />
-              )}
-              
-              {calendarViewMode === 'week' && (
-                <WeekCalendarView 
-                  events={filteredEvents}
-                  selectedDate={selectedDate || new Date()}
-                  onSelectEvent={() => {}}
-                  onAddEvent={() => {}}
-                />
-              )}
-              
-              {calendarViewMode === 'day' && (
-                <DayCalendarView 
-                  events={filteredEvents}
-                  selectedDate={selectedDate || new Date()}
-                  onSelectEvent={() => {}}
-                  onAddEvent={() => {}}
-                />
-              )}
+              <div className="mt-4">
+                {calendarViewMode === 'month' && (
+                  <MonthCalendarView 
+                    events={filteredEvents}
+                    selectedDate={selectedDate || new Date()} 
+                    onSelectDate={handleDayClick}
+                    onAddEvent={() => {}}
+                  />
+                )}
+                
+                {calendarViewMode === 'week' && (
+                  <WeekCalendarView 
+                    events={filteredEvents}
+                    selectedDate={selectedDate || new Date()}
+                    onSelectEvent={() => {}}
+                    onAddEvent={() => {}}
+                  />
+                )}
+                
+                {calendarViewMode === 'day' && (
+                  <DayCalendarView 
+                    events={filteredEvents}
+                    selectedDate={selectedDate || new Date()}
+                    onSelectEvent={() => {}}
+                    onAddEvent={() => {}}
+                  />
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>

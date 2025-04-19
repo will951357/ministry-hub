@@ -2,9 +2,6 @@
 import React from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday } from 'date-fns';
 import { cn } from "@/lib/utils";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Event } from '@/types/event';
 import {
   Tooltip,
@@ -20,15 +17,12 @@ interface MonthCalendarViewProps {
   onAddEvent: (date: Date) => void;
 }
 
-export function MonthCalendarView({ events, selectedDate, onSelectDate, onAddEvent }: MonthCalendarViewProps) {
+export function MonthCalendarView({ events, selectedDate, onSelectDate }: MonthCalendarViewProps) {
   const monthStart = startOfMonth(selectedDate);
   const monthEnd = endOfMonth(selectedDate);
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
-  
-  // Add days from the previous and next months to fill a complete grid
   const weekdaysLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   
-  // Get events for a specific date
   const getEventsForDate = (date: Date) => {
     return events.filter(event => isSameDay(new Date(event.date), date));
   };
@@ -50,7 +44,7 @@ export function MonthCalendarView({ events, selectedDate, onSelectDate, onAddEve
       </div>
       
       <div className="grid grid-cols-7 auto-rows-fr">
-        {daysInMonth.map((day, index) => {
+        {daysInMonth.map((day) => {
           const dayEvents = getEventsForDate(day);
           const isCurrentMonth = isSameMonth(day, selectedDate);
           
@@ -58,7 +52,7 @@ export function MonthCalendarView({ events, selectedDate, onSelectDate, onAddEve
             <div
               key={day.toString()}
               className={cn(
-                "min-h-24 p-1 border border-border relative group",
+                "min-h-24 p-1 border border-border cursor-pointer",
                 !isCurrentMonth && "bg-muted/20 text-muted-foreground",
                 isToday(day) && "bg-accent/20",
                 isSameDay(day, selectedDate) && "bg-primary/10"
@@ -72,21 +66,10 @@ export function MonthCalendarView({ events, selectedDate, onSelectDate, onAddEve
                 )}>
                   {format(day, 'd')}
                 </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onAddEvent(day);
-                  }}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
               </div>
               
-              <div className="mt-1 space-y-1 max-h-20 overflow-y-auto">
-                {dayEvents.map((event) => (
+              <div className="mt-1 space-y-1">
+                {dayEvents.slice(0, 2).map((event) => (
                   <TooltipProvider key={event.id}>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -111,9 +94,15 @@ export function MonthCalendarView({ events, selectedDate, onSelectDate, onAddEve
                   </TooltipProvider>
                 ))}
                 
-                {dayEvents.length > 3 && (
-                  <div className="text-xs text-muted-foreground text-center">
-                    +{dayEvents.length - 3} more
+                {dayEvents.length > 2 && (
+                  <div 
+                    className="text-xs text-primary font-medium cursor-pointer hover:underline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectDate(day);
+                    }}
+                  >
+                    +{dayEvents.length - 2} more events
                   </div>
                 )}
               </div>
