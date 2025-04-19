@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -30,12 +31,33 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Eye, Edit, Trash } from "lucide-react";
+import { Plus, Eye, Edit, Trash, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Course } from ".";
 import { Link, useNavigate } from "react-router-dom";
+
+// Define the Course type directly in this file instead of importing it from '.'
+interface Course {
+  id: string;
+  title: string;
+  description: string;
+  classes?: Class[];
+  status?: string;
+}
+
+// Define the Class type
+interface Class {
+  id: string;
+  name: string;
+  professor: string;
+  students: number;
+  averageGrade: number;
+  presenceRate: number;
+  startDate: string;
+  endDate: string;
+  status: string;
+}
 
 const formSchema = z.object({
   title: z.string().min(2, {
