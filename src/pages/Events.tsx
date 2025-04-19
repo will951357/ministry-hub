@@ -1,7 +1,6 @@
-
 import React, { useState, useMemo } from 'react';
-import { Calendar as CalendarIcon, MapPin, Users, DollarSign, Eye, EyeOff, CircleCheck, CircleX, CircleSlash, Download, Bell, Search, Plus, Filter, QrCode, Edit } from "lucide-react";
-import { format, isSameDay, startOfMonth, endOfMonth } from "date-fns";
+import { Calendar as CalendarIcon, MapPin, Users, DollarSign, Eye, EyeOff, CircleCheck, CircleX, CircleSlash, Download, Bell, Search, Plus, Filter, QrCode, Edit, List } from "lucide-react";
+import { format, isSameDay, startOfMonth, endOfMonth, addDays, startOfWeek, endOfWeek, setHours, setMinutes, addHours } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +20,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { EventCalendar } from '@/components/events/EventCalendar';
 import { EventStats } from '@/components/events/EventStats';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -29,6 +27,9 @@ import {
   EventVisibility,
   EventStatus,
 } from '@/types/event';
+import { MonthCalendarView } from '@/components/events/MonthCalendarView';
+import { WeekCalendarView } from '@/components/events/WeekCalendarView';
+import { DayCalendarView } from '@/components/events/DayCalendarView';
 
 const sampleEvents: Event[] = [
   {
@@ -198,6 +199,7 @@ const Events = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [showEventDetails, setShowEventDetails] = useState(false);
   const [showCheckinQR, setShowCheckinQR] = useState(false);
+  const [calendarViewMode, setCalendarViewMode] = useState<'month' | 'week' | 'day'>('month');
 
   const filteredEvents = useMemo(() => {
     return sampleEvents.filter(event => {
@@ -321,22 +323,129 @@ const Events = () => {
 
           <Tabs defaultValue="calendar" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="calendar">Calendar View</TabsTrigger>
-              <TabsTrigger value="agenda">Agenda View</TabsTrigger>
+              <TabsTrigger value="calendar" className="flex items-center gap-2">
+                <CalendarIcon className="h-4 w-4" />
+                Calendar View
+              </TabsTrigger>
+              <TabsTrigger value="list" className="flex items-center gap-2">
+                <List className="h-4 w-4" />
+                List View
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="calendar" className="mt-0">
-              <div className="w-full">
-                <EventCalendar
-                  events={sampleEvents}
-                  onAddEvent={handleAddEvent}
-                  onSelectDate={setSelectedDate}
-                  selectedDate={selectedDate}
-                />
-              </div>
+              <Card className="border-border mb-4">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xl">Calendar View</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between items-center mb-4">
+                    <Tabs
+                      value={calendarViewMode}
+                      onValueChange={(value) => setCalendarViewMode(value as 'month' | 'week' | 'day')}
+                      className="w-auto"
+                    >
+                      <TabsList>
+                        <TabsTrigger value="month">Month</TabsTrigger>
+                        <TabsTrigger value="week">Week</TabsTrigger>
+                        <TabsTrigger value="day">Day</TabsTrigger>
+                      </TabsList>
+                    </Tabs>
+                    
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          const newDate = new Date(selectedDate || new Date());
+                          if (calendarViewMode === 'month') {
+                            newDate.setMonth(newDate.getMonth() - 1);
+                          } else if (calendarViewMode === 'week') {
+                            newDate.setDate(newDate.getDate() - 7);
+                          } else {
+                            newDate.setDate(newDate.getDate() - 1);
+                          }
+                          setSelectedDate(newDate);
+                        }}
+                      >
+                        Previous
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        onClick={() => setSelectedDate(new Date())}
+                      >
+                        Today
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const newDate = new Date(selectedDate || newDate());
+                          if (calendarViewMode === 'month') {
+                            newDate.setMonth(newDate.getMonth() + 1);
+                          } else if (calendarViewMode === 'week') {
+                            newDate.setDate(newDate.getDate() + 7);
+                          } else {
+                            newDate.setDate(newDate.getDate() + 1);
+                          }
+                          setSelectedDate(newDate);
+                        }}
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {calendarViewMode === 'month' && (
+                    <MonthCalendarView 
+                      events={sampleEvents} 
+                      selectedDate={selectedDate || new Date()} 
+                      onSelectDate={(date) => {
+                        setSelectedDate(date);
+                        setCalendarViewMode('day');
+                      }}
+                      onAddEvent={handleAddEvent}
+                    />
+                  )}
+                  
+                  {calendarViewMode === 'week' && (
+                    <WeekCalendarView 
+                      events={sampleEvents} 
+                      selectedDate={selectedDate || new Date()} 
+                      onSelectEvent={(event) => {
+                        setSelectedEvent(event);
+                        setShowEventDetails(true);
+                      }}
+                      onAddEvent={(date, hour) => {
+                        const newDate = new Date(date);
+                        newDate.setHours(hour);
+                        setSelectedAddDate(newDate);
+                        setShowAddEventModal(true);
+                      }}
+                    />
+                  )}
+                  
+                  {calendarViewMode === 'day' && (
+                    <DayCalendarView 
+                      events={sampleEvents} 
+                      selectedDate={selectedDate || new Date()} 
+                      onSelectEvent={(event) => {
+                        setSelectedEvent(event);
+                        setShowEventDetails(true);
+                      }}
+                      onAddEvent={(date, hour) => {
+                        const newDate = new Date(date);
+                        newDate.setHours(hour);
+                        setSelectedAddDate(newDate);
+                        setShowAddEventModal(true);
+                      }}
+                    />
+                  )}
+                </CardContent>
+              </Card>
             </TabsContent>
             
-            <TabsContent value="agenda" className="mt-0">
+            <TabsContent value="list" className="mt-0">
               <div className="space-y-4">
                 <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
                   <div className="relative flex-grow">
