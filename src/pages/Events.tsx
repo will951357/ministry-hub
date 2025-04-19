@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Calendar as CalendarIcon, MapPin, Users, DollarSign, Eye, EyeOff, CircleCheck, CircleX, CircleSlash, Download, Bell, Search, Plus, Filter, QrCode, Edit, List } from "lucide-react";
 import { format, isSameDay, startOfMonth, endOfMonth, addDays, startOfWeek, endOfWeek, setHours, setMinutes, addHours } from "date-fns";
@@ -30,7 +31,7 @@ import {
 import { MonthCalendarView } from '@/components/events/MonthCalendarView';
 import { WeekCalendarView } from '@/components/events/WeekCalendarView';
 import { DayCalendarView } from '@/components/events/DayCalendarView';
-import { Calendar } from 'react-day-picker';
+import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 
 const sampleEvents: Event[] = [
