@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { format, isSameDay } from "date-fns";
 import { Calendar as CalendarIcon, Filter } from "lucide-react";
@@ -11,11 +10,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MonthCalendarView } from '@/components/events/MonthCalendarView';
 import { WeekCalendarView } from '@/components/events/WeekCalendarView';
 import { DayCalendarView } from '@/components/events/DayCalendarView';
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
   Popover,
@@ -25,14 +26,18 @@ import {
 
 type CalendarItemType = 'events' | 'birthdays' | 'appointments' | 'classes';
 
+const typeColors: Record<CalendarItemType, { bg: string, text: string }> = {
+  events: { bg: "bg-[#9b87f5]", text: "text-white" },
+  birthdays: { bg: "bg-[#FEC6A1]", text: "text-gray-900" },
+  appointments: { bg: "bg-[#0EA5E9]", text: "text-white" },
+  classes: { bg: "bg-[#F2FCE2]", text: "text-gray-900" }
+};
+
 const Calendar = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [calendarViewMode, setCalendarViewMode] = useState<'month' | 'week' | 'day'>('month');
   const [selectedTypes, setSelectedTypes] = useState<CalendarItemType[]>(['events', 'birthdays', 'appointments', 'classes']);
 
-  // TODO: Fetch real data from respective sources
-  const events = []; // Will be fetched based on selectedTypes
-  
   const handleTypeToggle = (type: CalendarItemType) => {
     setSelectedTypes(prev => 
       prev.includes(type) 
@@ -96,33 +101,28 @@ const Calendar = () => {
                       <Button variant="outline" className="gap-2">
                         <Filter className="h-4 w-4" />
                         Filter Items
+                        {selectedTypes.length > 0 && (
+                          <Badge variant="secondary" className="ml-2">
+                            {selectedTypes.length}
+                          </Badge>
+                        )}
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      <DropdownMenuItem
-                        onClick={() => handleTypeToggle('events')}
-                        className={cn(selectedTypes.includes('events') && "bg-accent")}
-                      >
-                        Events
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleTypeToggle('birthdays')}
-                        className={cn(selectedTypes.includes('birthdays') && "bg-accent")}
-                      >
-                        Birthdays
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleTypeToggle('appointments')}
-                        className={cn(selectedTypes.includes('appointments') && "bg-accent")}
-                      >
-                        Appointments
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleTypeToggle('classes')}
-                        className={cn(selectedTypes.includes('classes') && "bg-accent")}
-                      >
-                        Classes
-                      </DropdownMenuItem>
+                      {(Object.entries(typeColors) as [CalendarItemType, typeof typeColors[keyof typeof typeColors]][]).map(([type, colors]) => (
+                        <DropdownMenuItem
+                          key={type}
+                          onClick={() => handleTypeToggle(type)}
+                          className={cn(
+                            "flex items-center gap-2 capitalize",
+                            selectedTypes.includes(type) && colors.bg,
+                            selectedTypes.includes(type) && colors.text
+                          )}
+                        >
+                          <div className={cn("w-3 h-3 rounded-full", colors.bg)} />
+                          {type}
+                        </DropdownMenuItem>
+                      ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
