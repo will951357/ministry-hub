@@ -98,7 +98,14 @@ const LearningPage = () => {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    setCourses([...courses, { ...values, id: Math.random().toString() }]);
+    // Fix: ensure that the new course has both required fields set
+    const newCourse: Course = { 
+      id: Math.random().toString(),
+      title: values.title, 
+      description: values.description
+    };
+    
+    setCourses([...courses, newCourse]);
     setOpen(false);
   }
 
