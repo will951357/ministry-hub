@@ -119,7 +119,7 @@ const membersData: Member[] = [
   }
 ];
 
-const coursesData: Course[] = [
+export const coursesData: Course[] = [
   {
     id: 1,
     name: "Bible Study Foundations",
@@ -1206,7 +1206,7 @@ export default function Learning() {
                             className={cn("p-3 pointer-events-auto")}
                           />
                         </PopoverContent>
-                      </FormItem>
+                      </Popover>
                     </FormItem>
                   )}
                 />
