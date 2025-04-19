@@ -30,6 +30,8 @@ import {
 import { MonthCalendarView } from '@/components/events/MonthCalendarView';
 import { WeekCalendarView } from '@/components/events/WeekCalendarView';
 import { DayCalendarView } from '@/components/events/DayCalendarView';
+import { Calendar } from 'react-day-picker';
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 
 const sampleEvents: Event[] = [
   {
@@ -200,6 +202,7 @@ const Events = () => {
   const [showEventDetails, setShowEventDetails] = useState(false);
   const [showCheckinQR, setShowCheckinQR] = useState(false);
   const [calendarViewMode, setCalendarViewMode] = useState<'month' | 'week' | 'day'>('month');
+  const [listViewMode, setListViewMode] = useState<'month' | 'week' | 'year'>('month');
 
   const filteredEvents = useMemo(() => {
     return sampleEvents.filter(event => {
@@ -340,18 +343,38 @@ const Events = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="flex justify-between items-center mb-4">
-                    <Tabs
-                      value={calendarViewMode}
-                      onValueChange={(value) => setCalendarViewMode(value as 'month' | 'week' | 'day')}
-                      className="w-auto"
-                    >
-                      <TabsList>
-                        <TabsTrigger value="month">Month</TabsTrigger>
-                        <TabsTrigger value="week">Week</TabsTrigger>
-                        <TabsTrigger value="day">Day</TabsTrigger>
-                      </TabsList>
-                    </Tabs>
-                    
+                    <div className="flex items-center gap-4">
+                      <Tabs
+                        value={calendarViewMode}
+                        onValueChange={(value) => setCalendarViewMode(value as 'month' | 'week' | 'day')}
+                        className="w-auto"
+                      >
+                        <TabsList>
+                          <TabsTrigger value="month">Month</TabsTrigger>
+                          <TabsTrigger value="week">Week</TabsTrigger>
+                          <TabsTrigger value="day">Day</TabsTrigger>
+                        </TabsList>
+                      </Tabs>
+
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="gap-2">
+                            <CalendarIcon className="h-4 w-4" />
+                            {selectedDate ? format(selectedDate, 'PPP') : 'Pick a date'}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={selectedDate}
+                            onSelect={setSelectedDate}
+                            initialFocus
+                            className="pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
                     <div className="flex items-center gap-2">
                       <Button 
                         variant="outline" 
@@ -448,7 +471,39 @@ const Events = () => {
             <TabsContent value="list" className="mt-0">
               <div className="space-y-4">
                 <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
-                  <div className="relative flex-grow">
+                  <div className="flex items-center gap-3">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="gap-2">
+                          <CalendarIcon className="h-4 w-4" />
+                          {selectedDate ? format(selectedDate, 'PPP') : 'Pick a date'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={setSelectedDate}
+                          initialFocus
+                          className="pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+
+                    <Tabs
+                      value={listViewMode}
+                      onValueChange={(value) => setListViewMode(value as 'month' | 'week' | 'year')}
+                      className="w-auto"
+                    >
+                      <TabsList>
+                        <TabsTrigger value="month">Month</TabsTrigger>
+                        <TabsTrigger value="week">Week</TabsTrigger>
+                        <TabsTrigger value="year">Year</TabsTrigger>
+                      </TabsList>
+                    </Tabs>
+                  </div>
+
+                  <div className="flex items-center gap-2">
                     <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                       placeholder="Search events..."
