@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import * as React from "react"; // Added explicit React import to resolve UMD global errors
 import { MainLayout } from "@/components/layout/MainLayout";
@@ -434,9 +433,7 @@ export default function Learning() {
   };
 
   const handleClassClick = (courseId: number, classItem: Class) => {
-    setSelectedCourse(coursesData.find(c => c.id === courseId) || null);
-    setSelectedClass(classItem);
-    setIsClassDetailsOpen(true);
+    navigate(`/groups/learning/class/${courseId}/${classItem.id}`);
   };
 
   const toggleCourseSelection = (courseId: number) => {
@@ -1209,7 +1206,7 @@ export default function Learning() {
                             className={cn("p-3 pointer-events-auto")}
                           />
                         </PopoverContent>
-                      </Popover>
+                      </FormItem>
                     </FormItem>
                   )}
                 />
@@ -1271,7 +1268,7 @@ export default function Learning() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Date</p>
-                    <p>{formatDate(selectedClass.startDate)}</p> {/* Changed from date to startDate */}
+                    <p>{formatDate(selectedClass.startDate)}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Teacher</p>
