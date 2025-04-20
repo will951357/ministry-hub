@@ -19,7 +19,7 @@ import {
   Search,
   Filter,
   Download,
-  FileExcel
+  FileText
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -522,7 +522,7 @@ export default function Journeys() {
             className="flex items-center gap-2"
             onClick={downloadAllJourneysData}
           >
-            <FileExcel className="h-4 w-4" />
+            <FileText className="h-4 w-4" />
             Export to Excel
           </Button>
           <Button 
