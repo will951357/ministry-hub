@@ -13,6 +13,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { StatsCard } from "@/components/dashboard/StatsCard";
+import { useNavigate } from "react-router-dom";
+
 const sampleParticipants = [{
   id: 1,
   name: "John Smith",
@@ -46,6 +48,7 @@ const sampleParticipants = [{
   name: "Emily Davis",
   avatar: "/placeholder.svg"
 }];
+
 const generateStepCompletions = (stepId: string) => {
   const completedCount = Math.floor(Math.random() * 6) + 1;
   const participants = [...sampleParticipants].sort(() => 0.5 - Math.random()).slice(0, completedCount);
@@ -56,6 +59,7 @@ const generateStepCompletions = (stepId: string) => {
     completedDate: new Date(2023, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1)
   }));
 };
+
 const sampleJourneys = [{
   id: 1,
   name: "New Believer Discipleship",
@@ -186,16 +190,19 @@ const sampleJourneys = [{
     completions: generateStepCompletions("step-5-2")
   }]
 }];
+
 type SubStep = {
   id: string;
   name: string;
 };
+
 type Completion = {
   participantId: number;
   participantName: string;
   participantAvatar: string;
   completedDate: Date;
 };
+
 type Step = {
   id: string;
   name: string;
@@ -203,6 +210,7 @@ type Step = {
   subSteps: SubStep[];
   completions?: Completion[];
 };
+
 type Journey = {
   id: number;
   name: string;
@@ -213,6 +221,7 @@ type Journey = {
   completedCount: number;
   steps?: Step[];
 };
+
 export default function Journeys() {
   const [journeys, setJourneys] = useState<Journey[]>(sampleJourneys);
   const [isAddJourneyOpen, setIsAddJourneyOpen] = useState(false);
@@ -230,6 +239,7 @@ export default function Journeys() {
   const {
     toast
   } = useToast();
+  const navigate = useNavigate();
   const activeJourneys = journeys.filter(journey => journey.status === "active").length;
   const totalEnrolled = journeys.reduce((total, journey) => total + journey.enrolledCount, 0);
   const totalCompleted = journeys.reduce((total, journey) => total + journey.completedCount, 0);
@@ -348,7 +358,7 @@ export default function Journeys() {
     });
   };
   const handleJourneyClick = (journey: Journey) => {
-    setSelectedJourney(journey);
+    navigate(`/people/journeys/${journey.id}`);
   };
   const generateJourneyExport = (journey: Journey): string => {
     if (!journey) return '';
