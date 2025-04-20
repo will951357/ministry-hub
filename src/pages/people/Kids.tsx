@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { PlusCircle, Search, Filter, Baby, Eye, Trash, Download } from "lucide-react";
+import { PlusCircle, Search, Filter, Eye, Trash, Download, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { StatsCard } from "@/components/dashboard/StatsCard";
+
 interface Kid {
   id: string;
   name: string;
@@ -19,8 +19,8 @@ interface Kid {
   identificationPassword: string;
   addedDate: string;
 }
+
 export default function Kids() {
-  // Mock data for kids
   const [kids, setKids] = useState<Kid[]>([{
     id: "1",
     name: "John Smith Jr.",
@@ -60,21 +60,17 @@ export default function Kids() {
     toast
   } = useToast();
 
-  // Calculate metrics
   const totalKids = kids.length;
 
-  // Get last month's date range
   const today = new Date();
   const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
   const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
 
-  // Calculate new kids registered last month
   const kidsLastMonth = kids.filter(kid => {
     const addedDate = new Date(kid.addedDate);
     return addedDate >= lastMonth && addedDate <= lastMonthEnd;
   }).length;
 
-  // Calculate trend percentage
   const previousMonth = new Date(today.getFullYear(), today.getMonth() - 2, 1);
   const previousMonthEnd = new Date(today.getFullYear(), today.getMonth() - 1, 0);
   const kidsPreviousMonth = kids.filter(kid => {
@@ -82,23 +78,26 @@ export default function Kids() {
     return addedDate >= previousMonth && addedDate <= previousMonthEnd;
   }).length;
 
-  // Calculate trend percentage (avoid division by zero)
   let trendPercentage = 0;
   if (kidsPreviousMonth > 0) {
     trendPercentage = Math.round((kidsLastMonth - kidsPreviousMonth) / kidsPreviousMonth * 100);
   } else if (kidsLastMonth > 0) {
-    trendPercentage = 100; // If previous month had 0 but current month has some, that's a 100% increase
+    trendPercentage = 100;
   }
   const isTrendPositive = trendPercentage >= 0;
+
   const filteredKids = kids.filter(kid => kid.name.toLowerCase().includes(searchQuery.toLowerCase()) || kid.parent.toLowerCase().includes(searchQuery.toLowerCase()));
+
   const handleViewKid = (kid: Kid) => {
     setSelectedKid(kid);
     setIsViewOpen(true);
   };
+
   const handleDeletePrompt = (kid: Kid) => {
     setSelectedKid(kid);
     setIsDeleteOpen(true);
   };
+
   const handleDeleteKid = () => {
     if (selectedKid) {
       setKids(kids.filter(k => k.id !== selectedKid.id));
@@ -109,18 +108,20 @@ export default function Kids() {
       });
     }
   };
+
   const handleSendNotification = () => {
     toast({
       title: "Notification Sent",
       description: `Push notification sent to parent of ${selectedKid?.name}.`
     });
   };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString();
   };
+
   const handleExportData = () => {
-    // Generate CSV content
     const headers = "ID,Name,Parent,Birth Date,Contact,Dietary Restrictions,Special Needs,ID Password,Added Date\n";
     const rows = filteredKids.map(kid => `${kid.id},"${kid.name}","${kid.parent}","${formatDate(kid.birthDate)}","${kid.contactOption}","${kid.alimentaryRestriction}","${kid.specialNecessities}","${kid.identificationPassword}","${formatDate(kid.addedDate)}"`).join("\n");
     const csvContent = headers + rows;
@@ -129,14 +130,12 @@ export default function Kids() {
     });
     const url = URL.createObjectURL(blob);
 
-    // Create download link and trigger click
     const a = document.createElement('a');
     a.href = url;
     a.download = "kids_registry.csv";
     document.body.appendChild(a);
     a.click();
 
-    // Clean up
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     toast({
@@ -144,6 +143,7 @@ export default function Kids() {
       description: "Kids registry data has been exported to CSV"
     });
   };
+
   return <div className="container mx-auto py-6">
       <div className="flex flex-col space-y-6">
         <div>
@@ -153,42 +153,26 @@ export default function Kids() {
           </p>
         </div>
 
-        {/* Stats cards and Search row */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Stats card - takes 1/4 of the row on desktop */}
-          <div className="md:col-span-1">
-            <StatsCard title="Total Kids" value={totalKids.toString()} description={`${kidsLastMonth} new registration${kidsLastMonth !== 1 ? 's' : ''} last month`} trend={trendPercentage !== 0 ? {
-            value: Math.abs(trendPercentage),
-            isPositive: isTrendPositive
-          } : undefined} icon={<Baby />} className="h-full" />
+        <div className="flex flex-col gap-3">
+          <div className="relative">
+            <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 mx-px" />
+            <Input placeholder="Search by name or parent..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 my-0 px-[24px] mx-0" />
           </div>
           
-          {/* Search and filters - takes 3/4 of the row on desktop */}
-          <div className="md:col-span-3">
-            <div className="flex flex-col gap-3 h-full">
-              {/* Search row */}
-              <div className="relative">
-                <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 mx-px" />
-                <Input placeholder="Search by name or parent..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 my-0 px-[24px] mx-0" />
-              </div>
-              
-              {/* Buttons row */}
-              <div className="flex gap-2">
-                <Button variant="outline" size="icon">
-                  <Filter className="h-4 w-4" />
-                  <span className="sr-only">Filter</span>
-                </Button>
-                <Button variant="outline" className="flex items-center gap-1" onClick={handleExportData}>
-                  <Download className="h-4 w-4" />
-                  <span className="hidden sm:inline">Export</span>
-                </Button>
-              </div>
-            </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="icon">
+              <Filter className="h-4 w-4" />
+              <span className="sr-only">Filter</span>
+            </Button>
+            <Button variant="outline" className="flex items-center gap-1" onClick={handleExportData}>
+              <Download className="h-4 w-4" />
+              <span className="hidden sm:inline">Export</span>
+            </Button>
           </div>
         </div>
 
-        {/* Kids list */}
-        {kids.length === 0 ? <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center animate-in fade-in-50">
+        {kids.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center animate-in fade-in-50">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
               <Baby className="h-10 w-10 text-primary" />
             </div>
@@ -196,23 +180,31 @@ export default function Kids() {
             <p className="mb-8 mt-2 text-center text-sm text-muted-foreground max-w-sm">
               Children will be added when parents register them through the app.
             </p>
-          </div> : <Card className="border-border">
+          </div>
+        ) : (
+          <Card className="border-border">
             <Table>
               <TableHeader className="bg-muted/50">
                 <TableRow className="hover:bg-muted/50">
                   <TableHead>Name</TableHead>
                   <TableHead>Parent</TableHead>
                   <TableHead>Birthday</TableHead>
-                  <TableHead>ID Password</TableHead>
+                  <TableHead>QR Code</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredKids.map(kid => <TableRow key={kid.id} className="border-t border-border">
+                {filteredKids.map(kid => (
+                  <TableRow key={kid.id} className="border-t border-border">
                     <TableCell className="font-medium">{kid.name}</TableCell>
                     <TableCell>{kid.parent}</TableCell>
                     <TableCell>{formatDate(kid.birthDate)}</TableCell>
-                    <TableCell>{kid.identificationPassword}</TableCell>
+                    <TableCell>
+                      <Button variant="ghost" size="icon">
+                        <QrCode className="h-4 w-4" />
+                        <span className="sr-only">View QR Code</span>
+                      </Button>
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button variant="ghost" size="icon" onClick={() => handleViewKid(kid)}>
@@ -225,18 +217,21 @@ export default function Kids() {
                         </Button>
                       </div>
                     </TableCell>
-                  </TableRow>)}
-                {filteredKids.length === 0 && <TableRow>
+                  </TableRow>
+                ))}
+                {filteredKids.length === 0 && (
+                  <TableRow>
                     <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                       No children found matching your search criteria.
                     </TableCell>
-                  </TableRow>}
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
-          </Card>}
+          </Card>
+        )}
       </div>
 
-      {/* View Kid Dialog */}
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -287,7 +282,6 @@ export default function Kids() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Alert Dialog */}
       <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
