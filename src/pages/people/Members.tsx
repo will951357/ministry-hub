@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, User, UserPlus, Search, Download, Bell, CheckSquare, Square, Pencil, Trash2 } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { 
   Popover,
   PopoverContent, 
   PopoverTrigger 
 } from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Table,
