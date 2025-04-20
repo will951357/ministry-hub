@@ -18,7 +18,8 @@ import {
   TrendingDown,
   Search,
   Filter,
-  Download
+  Download,
+  FileExcel
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -474,6 +475,38 @@ export default function Journeys() {
     journey.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const journeyStats = (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <StatsCard
+        title="Active Journeys"
+        value={activeJourneys.toString()}
+        icon={<Sparkles className="h-5 w-5" />}
+        className="bg-white"
+        description="Create journeys and engage your community"
+      />
+      
+      <StatsCard
+        title="People Enrolled"
+        value={totalEnrolled.toString()}
+        description={`${totalCompleted} people completed their journeys`}
+        icon={<Users className="h-5 w-5" />}
+        className="bg-white"
+      />
+      
+      <StatsCard 
+        title="Completed Journeys"
+        value={totalCompleted.toString()}
+        icon={<CheckCircle className="h-5 w-5" />}
+        trend={{ 
+          value: Math.abs(completedChangePercent), 
+          isPositive: isPositiveTrend 
+        }}
+        className="bg-white"
+        description="Compared to last month"
+      />
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -483,48 +516,26 @@ export default function Journeys() {
             Track and support the spiritual journeys of your congregation members.
           </p>
         </div>
-        <Button 
-          className="bg-church-accent hover:bg-church-accent/90"
-          onClick={() => setIsAddJourneyOpen(true)}
-        >
-          <PlusCircle className="mr-2 h-4 w-4" />
-          New Journey
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={downloadAllJourneysData}
+          >
+            <FileExcel className="h-4 w-4" />
+            Export to Excel
+          </Button>
+          <Button 
+            className="bg-church-accent hover:bg-church-accent/90 flex items-center gap-2"
+            onClick={() => setIsAddJourneyOpen(true)}
+          >
+            <PlusCircle className="h-4 w-4" />
+            New Journey
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Active Journeys</CardDescription>
-            <CardTitle className="text-3xl flex items-center">
-              <Sparkles className="mr-2 h-5 w-5 text-church-accent" />
-              {activeJourneys}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>People Enrolled</CardDescription>
-            <CardTitle className="text-3xl flex items-center">
-              <Users className="mr-2 h-5 w-5 text-church-accent" />
-              {totalEnrolled}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        
-        <StatsCard 
-          title="Completed Journeys"
-          value={totalCompleted.toString()}
-          icon={<CheckCircle className="h-5 w-5" />}
-          trend={{ 
-            value: Math.abs(completedChangePercent), 
-            isPositive: isPositiveTrend 
-          }}
-          className="bg-white"
-          description="Compared to last month"
-        />
-      </div>
+      {journeyStats}
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h2 className="text-xl font-medium text-church-primary">All Journeys</h2>
