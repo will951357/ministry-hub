@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
@@ -12,6 +13,7 @@ import { WeekCalendarView } from '@/components/events/WeekCalendarView';
 import { DayCalendarView } from '@/components/events/DayCalendarView';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
+import { Event } from "@/types/event";
 
 type CalendarItemType = 'events' | 'birthdays' | 'appointments' | 'classes';
 
@@ -252,7 +254,7 @@ const Calendar = () => {
           <div className="p-6">
             {calendarViewMode === 'month' && (
               <MonthCalendarView 
-                events={filteredEvents}
+                events={filteredEvents as Event[]}
                 selectedDate={selectedDate || new Date()} 
                 onSelectDate={handleDayClick}
                 onAddEvent={() => {}}
@@ -261,7 +263,7 @@ const Calendar = () => {
             
             {calendarViewMode === 'week' && (
               <WeekCalendarView 
-                events={filteredEvents}
+                events={filteredEvents as Event[]}
                 selectedDate={selectedDate || new Date()}
                 onSelectEvent={() => {}}
                 onAddEvent={() => {}}
@@ -270,7 +272,7 @@ const Calendar = () => {
             
             {calendarViewMode === 'day' && (
               <DayCalendarView 
-                events={filteredEvents}
+                events={filteredEvents as Event[]}
                 selectedDate={selectedDate || new Date()}
                 onSelectEvent={() => {}}
                 onAddEvent={() => {}}
