@@ -21,7 +21,8 @@ import {
   Smartphone,
   Building,
   CheckSquare,
-  Square
+  Square,
+  Bell
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
@@ -209,6 +210,27 @@ export default function Visitors() {
     });
   };
 
+  const handleSendNotifications = () => {
+    if (selectedVisitors.length === 0) {
+      toast({
+        title: "No visitors selected",
+        description: "Please select at least one visitor to send notifications.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const selectedNames = visitors
+      .filter(v => selectedVisitors.includes(v.id))
+      .map(v => v.name)
+      .join(", ");
+
+    toast({
+      title: "Notifications queued",
+      description: `Preparing to send notifications to ${selectedVisitors.length} visitor(s): ${selectedNames}`,
+    });
+  };
+
   const handleAddVisitor = (data: VisitorFormValues) => {
     const newVisitor: Visitor = {
       id: (visitors.length + 1).toString(),
@@ -233,6 +255,9 @@ export default function Visitors() {
 
   const areAllSelected = filteredVisitors.length > 0 && 
     selectedVisitors.length === filteredVisitors.length;
+
+  const totalConversions = 8;
+  const visitorsInEvents = 15;
 
   return (
     <div className="space-y-6">
@@ -375,7 +400,7 @@ export default function Visitors() {
         </Dialog>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-4">
         <StatsCard
           title="Visitors (Last 30 Days)"
           value={visitorsLast30Days.toString()}
@@ -397,6 +422,20 @@ export default function Visitors() {
               <span>Click here to see requests</span>
             </div>
           }
+        />
+        <StatsCard
+          title="Visitor Conversions"
+          value={totalConversions.toString()}
+          icon={<Users size={24} />}
+          description="Visitors who became members"
+          className="bg-white p-6 rounded-lg border border-church-border shadow-sm"
+        />
+        <StatsCard
+          title="Event Registrations"
+          value={visitorsInEvents.toString()}
+          icon={<Calendar size={24} />}
+          description="Visitors registered for events"
+          className="bg-white p-6 rounded-lg border border-church-border shadow-sm"
         />
       </div>
 
@@ -458,11 +497,11 @@ export default function Visitors() {
           </Collapsible>
           
           <Button 
-            onClick={handleSendEmail}
+            onClick={handleSendNotifications}
             disabled={selectedVisitors.length === 0}
           >
-            <Mail size={16} className="mr-2" />
-            Email Selected
+            <Bell size={16} className="mr-2" />
+            Send Notifications
           </Button>
         </div>
       </div>
