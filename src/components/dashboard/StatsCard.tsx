@@ -1,8 +1,6 @@
-
 import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-
 interface StatsCardProps {
   title: string;
   value: string;
@@ -16,7 +14,6 @@ interface StatsCardProps {
   onClick?: () => void;
   footer?: ReactNode;
 }
-
 export function StatsCard({
   title,
   value,
@@ -27,52 +24,33 @@ export function StatsCard({
   onClick,
   footer
 }: StatsCardProps) {
-  return (
-    <Card 
-      className={cn("relative overflow-hidden", 
-        onClick ? "cursor-pointer hover:shadow-md transition-shadow" : "",
-        className
-      )}
-      onClick={onClick}
-    >
-      <CardContent className="p-6">
+  return <Card onClick={onClick} className="">
+      <CardContent className="p-6 h-full\n">
         <div className="flex justify-between items-start">
           <div>
             <p className="text-sm font-medium text-muted-foreground mb-1">{title}</p>
             <h3 className="text-2xl font-bold">{value}</h3>
             
-            {description && (
-              <p className="text-sm text-muted-foreground mt-1">
+            {description && <p className="text-sm text-muted-foreground mt-1">
                 {description}
-              </p>
-            )}
+              </p>}
             
-            {trend && (
-              <div className={cn(
-                "flex items-center text-xs mt-2",
-                trend.isPositive ? "text-green-600" : "text-red-600"
-              )}>
+            {trend && <div className={cn("flex items-center text-xs mt-2", trend.isPositive ? "text-green-600" : "text-red-600")}>
                 <span>
                   {trend.isPositive ? "+" : "-"}{Math.abs(trend.value)}%
                 </span>
                 <span className="ml-1">from last period</span>
-              </div>
-            )}
+              </div>}
           </div>
           
-          {icon && (
-            <div className="p-2 rounded-full bg-primary/10 text-primary">
+          {icon && <div className="p-2 rounded-full bg-primary/10 text-primary">
               {icon}
-            </div>
-          )}
+            </div>}
         </div>
       </CardContent>
       
-      {footer && (
-        <CardFooter className="p-0 pt-0">
+      {footer && <CardFooter className="p-0 pt-0">
           {footer}
-        </CardFooter>
-      )}
-    </Card>
-  );
+        </CardFooter>}
+    </Card>;
 }
