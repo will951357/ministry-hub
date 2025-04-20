@@ -1,38 +1,13 @@
-
 import { useState } from "react";
 import { PlusCircle, Search, Filter, Baby, Eye, Trash, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { StatsCard } from "@/components/dashboard/StatsCard";
-
 interface Kid {
   id: string;
   name: string;
@@ -44,59 +19,55 @@ interface Kid {
   identificationPassword: string;
   addedDate: string;
 }
-
 export default function Kids() {
   // Mock data for kids
-  const [kids, setKids] = useState<Kid[]>([
-    {
-      id: "1",
-      name: "John Smith Jr.",
-      parent: "John Smith",
-      birthDate: "2018-05-15",
-      contactOption: "555-1234",
-      alimentaryRestriction: "Peanut allergy",
-      specialNecessities: "None",
-      identificationPassword: "JOHN2018",
-      addedDate: "2023-01-10",
-    },
-    {
-      id: "2",
-      name: "Sarah Johnson",
-      parent: "Michael Johnson",
-      birthDate: "2019-08-22",
-      contactOption: "555-5678",
-      alimentaryRestriction: "Lactose intolerant",
-      specialNecessities: "Asthma, needs inhaler",
-      identificationPassword: "SARAH2019",
-      addedDate: "2023-02-15",
-    },
-    {
-      id: "3",
-      name: "Emma Williams",
-      parent: "David Williams",
-      birthDate: "2020-03-10",
-      contactOption: "555-9012",
-      alimentaryRestriction: "None",
-      specialNecessities: "None",
-      identificationPassword: "EMMA2020",
-      addedDate: "2024-03-20",
-    },
-  ]);
-
+  const [kids, setKids] = useState<Kid[]>([{
+    id: "1",
+    name: "John Smith Jr.",
+    parent: "John Smith",
+    birthDate: "2018-05-15",
+    contactOption: "555-1234",
+    alimentaryRestriction: "Peanut allergy",
+    specialNecessities: "None",
+    identificationPassword: "JOHN2018",
+    addedDate: "2023-01-10"
+  }, {
+    id: "2",
+    name: "Sarah Johnson",
+    parent: "Michael Johnson",
+    birthDate: "2019-08-22",
+    contactOption: "555-5678",
+    alimentaryRestriction: "Lactose intolerant",
+    specialNecessities: "Asthma, needs inhaler",
+    identificationPassword: "SARAH2019",
+    addedDate: "2023-02-15"
+  }, {
+    id: "3",
+    name: "Emma Williams",
+    parent: "David Williams",
+    birthDate: "2020-03-10",
+    contactOption: "555-9012",
+    alimentaryRestriction: "None",
+    specialNecessities: "None",
+    identificationPassword: "EMMA2020",
+    addedDate: "2024-03-20"
+  }]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedKid, setSelectedKid] = useState<Kid | null>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
 
   // Calculate metrics
   const totalKids = kids.length;
-  
+
   // Get last month's date range
   const today = new Date();
   const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
   const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
-  
+
   // Calculate new kids registered last month
   const kidsLastMonth = kids.filter(kid => {
     const addedDate = new Date(kid.addedDate);
@@ -106,91 +77,74 @@ export default function Kids() {
   // Calculate trend percentage
   const previousMonth = new Date(today.getFullYear(), today.getMonth() - 2, 1);
   const previousMonthEnd = new Date(today.getFullYear(), today.getMonth() - 1, 0);
-  
   const kidsPreviousMonth = kids.filter(kid => {
     const addedDate = new Date(kid.addedDate);
     return addedDate >= previousMonth && addedDate <= previousMonthEnd;
   }).length;
-  
+
   // Calculate trend percentage (avoid division by zero)
   let trendPercentage = 0;
   if (kidsPreviousMonth > 0) {
-    trendPercentage = Math.round(((kidsLastMonth - kidsPreviousMonth) / kidsPreviousMonth) * 100);
+    trendPercentage = Math.round((kidsLastMonth - kidsPreviousMonth) / kidsPreviousMonth * 100);
   } else if (kidsLastMonth > 0) {
     trendPercentage = 100; // If previous month had 0 but current month has some, that's a 100% increase
   }
-  
   const isTrendPositive = trendPercentage >= 0;
-
-  const filteredKids = kids.filter(kid => 
-    kid.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    kid.parent.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
+  const filteredKids = kids.filter(kid => kid.name.toLowerCase().includes(searchQuery.toLowerCase()) || kid.parent.toLowerCase().includes(searchQuery.toLowerCase()));
   const handleViewKid = (kid: Kid) => {
     setSelectedKid(kid);
     setIsViewOpen(true);
   };
-
   const handleDeletePrompt = (kid: Kid) => {
     setSelectedKid(kid);
     setIsDeleteOpen(true);
   };
-
   const handleDeleteKid = () => {
     if (selectedKid) {
       setKids(kids.filter(k => k.id !== selectedKid.id));
       setIsDeleteOpen(false);
-      
       toast({
         title: "Success!",
-        description: `${selectedKid.name} has been removed from the registry.`,
+        description: `${selectedKid.name} has been removed from the registry.`
       });
     }
   };
-
   const handleSendNotification = () => {
     toast({
       title: "Notification Sent",
-      description: `Push notification sent to parent of ${selectedKid?.name}.`,
+      description: `Push notification sent to parent of ${selectedKid?.name}.`
     });
   };
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString();
   };
-
   const handleExportData = () => {
     // Generate CSV content
     const headers = "ID,Name,Parent,Birth Date,Contact,Dietary Restrictions,Special Needs,ID Password,Added Date\n";
-    const rows = filteredKids.map(kid => 
-      `${kid.id},"${kid.name}","${kid.parent}","${formatDate(kid.birthDate)}","${kid.contactOption}","${kid.alimentaryRestriction}","${kid.specialNecessities}","${kid.identificationPassword}","${formatDate(kid.addedDate)}"`
-    ).join("\n");
-    
+    const rows = filteredKids.map(kid => `${kid.id},"${kid.name}","${kid.parent}","${formatDate(kid.birthDate)}","${kid.contactOption}","${kid.alimentaryRestriction}","${kid.specialNecessities}","${kid.identificationPassword}","${formatDate(kid.addedDate)}"`).join("\n");
     const csvContent = headers + rows;
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob([csvContent], {
+      type: 'text/csv'
+    });
     const url = URL.createObjectURL(blob);
-    
+
     // Create download link and trigger click
     const a = document.createElement('a');
     a.href = url;
     a.download = "kids_registry.csv";
     document.body.appendChild(a);
     a.click();
-    
+
     // Clean up
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
     toast({
       title: "Export Successful",
-      description: "Kids registry data has been exported to CSV",
+      description: "Kids registry data has been exported to CSV"
     });
   };
-
-  return (
-    <div className="container mx-auto py-6">
+  return <div className="container mx-auto py-6">
       <div className="flex flex-col space-y-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Kids Registry</h1>
@@ -203,17 +157,10 @@ export default function Kids() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Stats card - takes 1/4 of the row on desktop */}
           <div className="md:col-span-1">
-            <StatsCard
-              title="Total Kids"
-              value={totalKids.toString()}
-              description={`${kidsLastMonth} new registration${kidsLastMonth !== 1 ? 's' : ''} last month`}
-              trend={trendPercentage !== 0 ? {
-                value: Math.abs(trendPercentage),
-                isPositive: isTrendPositive
-              } : undefined}
-              icon={<Baby />}
-              className="h-full"
-            />
+            <StatsCard title="Total Kids" value={totalKids.toString()} description={`${kidsLastMonth} new registration${kidsLastMonth !== 1 ? 's' : ''} last month`} trend={trendPercentage !== 0 ? {
+            value: Math.abs(trendPercentage),
+            isPositive: isTrendPositive
+          } : undefined} icon={<Baby />} className="h-full" />
           </div>
           
           {/* Search and filters - takes 3/4 of the row on desktop */}
@@ -221,13 +168,8 @@ export default function Kids() {
             <div className="flex flex-col gap-3 h-full">
               {/* Search row */}
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                <Input
-                  placeholder="Search by name or parent..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
+                <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 mx-px" />
+                <Input placeholder="Search by name or parent..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 my-0 px-[24px] mx-0" />
               </div>
               
               {/* Buttons row */}
@@ -236,11 +178,7 @@ export default function Kids() {
                   <Filter className="h-4 w-4" />
                   <span className="sr-only">Filter</span>
                 </Button>
-                <Button 
-                  variant="outline" 
-                  className="flex items-center gap-1"
-                  onClick={handleExportData}
-                >
+                <Button variant="outline" className="flex items-center gap-1" onClick={handleExportData}>
                   <Download className="h-4 w-4" />
                   <span className="hidden sm:inline">Export</span>
                 </Button>
@@ -250,8 +188,7 @@ export default function Kids() {
         </div>
 
         {/* Kids list */}
-        {kids.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center animate-in fade-in-50">
+        {kids.length === 0 ? <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center animate-in fade-in-50">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
               <Baby className="h-10 w-10 text-primary" />
             </div>
@@ -259,9 +196,7 @@ export default function Kids() {
             <p className="mb-8 mt-2 text-center text-sm text-muted-foreground max-w-sm">
               Children will be added when parents register them through the app.
             </p>
-          </div>
-        ) : (
-          <Card className="border-border">
+          </div> : <Card className="border-border">
             <Table>
               <TableHeader className="bg-muted/50">
                 <TableRow className="hover:bg-muted/50">
@@ -273,46 +208,32 @@ export default function Kids() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredKids.map((kid) => (
-                  <TableRow key={kid.id} className="border-t border-border">
+                {filteredKids.map(kid => <TableRow key={kid.id} className="border-t border-border">
                     <TableCell className="font-medium">{kid.name}</TableCell>
                     <TableCell>{kid.parent}</TableCell>
                     <TableCell>{formatDate(kid.birthDate)}</TableCell>
                     <TableCell>{kid.identificationPassword}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => handleViewKid(kid)}
-                        >
+                        <Button variant="ghost" size="icon" onClick={() => handleViewKid(kid)}>
                           <Eye className="h-4 w-4" />
                           <span className="sr-only">View</span>
                         </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => handleDeletePrompt(kid)}
-                          className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
-                        >
+                        <Button variant="ghost" size="icon" onClick={() => handleDeletePrompt(kid)} className="text-destructive hover:text-destructive/90 hover:bg-destructive/10">
                           <Trash className="h-4 w-4" />
                           <span className="sr-only">Delete</span>
                         </Button>
                       </div>
                     </TableCell>
-                  </TableRow>
-                ))}
-                {filteredKids.length === 0 && (
-                  <TableRow>
+                  </TableRow>)}
+                {filteredKids.length === 0 && <TableRow>
                     <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                       No children found matching your search criteria.
                     </TableCell>
-                  </TableRow>
-                )}
+                  </TableRow>}
               </TableBody>
             </Table>
-          </Card>
-        )}
+          </Card>}
       </div>
 
       {/* View Kid Dialog */}
@@ -321,8 +242,7 @@ export default function Kids() {
           <DialogHeader>
             <DialogTitle>Child Information</DialogTitle>
           </DialogHeader>
-          {selectedKid && (
-            <div className="space-y-4 py-2">
+          {selectedKid && <div className="space-y-4 py-2">
               <div className="grid grid-cols-1 gap-1">
                 <div className="font-medium">Full Name</div>
                 <div>{selectedKid.name}</div>
@@ -355,14 +275,9 @@ export default function Kids() {
                 <div className="font-medium">Added Date</div>
                 <div>{formatDate(selectedKid.addedDate)}</div>
               </div>
-            </div>
-          )}
+            </div>}
           <DialogFooter className="sm:justify-between">
-            <Button
-              type="button"
-              onClick={handleSendNotification}
-              variant="outline"
-            >
+            <Button type="button" onClick={handleSendNotification} variant="outline">
               Send Notification
             </Button>
             <DialogClose asChild>
@@ -390,6 +305,5 @@ export default function Kids() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
-  );
+    </div>;
 }
