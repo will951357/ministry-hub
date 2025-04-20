@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Plus, User, UserPlus, Search, Download, Bell, CheckSquare, Square, Pencil, Trash2 } from "lucide-react";
+import { Plus, User, UserPlus, Search, Download, Bell, CheckSquare, Square, Pencil, Trash2, Filter } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { 
   Popover,
