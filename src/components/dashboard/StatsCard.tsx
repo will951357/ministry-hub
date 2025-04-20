@@ -29,18 +29,18 @@ export function StatsCard({
 }: StatsCardProps) {
   return (
     <Card onClick={onClick} className={cn("relative", className)}>
-      <CardContent className="p-6">
-        <div className="flex justify-between items-center mb-4">
+      <CardContent className="p-4">
+        <div className="flex justify-between items-center mb-2">
           <p className="text-sm font-medium text-muted-foreground">{title}</p>
           {icon && (
-            <div className="p-2 rounded-full bg-primary/10 text-primary">
+            <div className="p-1.5 rounded-full bg-primary/10 text-primary">
               {icon}
             </div>
           )}
         </div>
         
         <div>
-          <h3 className="text-2xl font-bold">{value}</h3>
+          <h3 className="text-xl font-bold">{value}</h3>
           
           {description && (
             <p className="text-sm text-muted-foreground mt-1">
@@ -63,7 +63,7 @@ export function StatsCard({
       </CardContent>
       
       {footer && (
-        <CardFooter className="pt-0">
+        <CardFooter className="pt-0 pb-3 px-4">
           {footer}
         </CardFooter>
       )}

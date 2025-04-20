@@ -404,21 +404,21 @@ export default function Visitors() {
         <StatsCard
           title="Visitors (Last 30 Days)"
           value={visitorsLast30Days.toString()}
-          icon={<UserPlus size={24} />}
+          icon={<UserPlus size={20} />}
           trend={{
             value: parseFloat(variationPercentage.toFixed(1)),
             isPositive: variationPercentage > 0
           }}
-          className="bg-white p-6 rounded-lg border border-church-border shadow-sm"
+          className="bg-white rounded-lg border border-church-border shadow-sm"
         />
         <StatsCard
           title="Follow-up Pending"
           value="12"
-          icon={<UserCheck size={24} />}
-          className="bg-white p-6 rounded-lg border border-church-border shadow-sm cursor-pointer"
+          icon={<UserCheck size={20} />}
+          className="bg-white rounded-lg border border-church-border shadow-sm cursor-pointer"
           onClick={() => window.location.href = "/people/members"}
           footer={
-            <div className="text-sm text-blue-600 mt-2 flex items-center">
+            <div className="text-sm text-blue-600 flex items-center">
               <span>Click here to see requests</span>
             </div>
           }
@@ -426,12 +426,12 @@ export default function Visitors() {
         <StatsCard
           title="Visitor Conversions"
           value={totalConversions.toString()}
-          icon={<Users size={24} />}
-          description="Visitors who became members"
-          className="bg-white p-6 rounded-lg border border-church-border shadow-sm cursor-pointer"
+          icon={<Users size={20} />}
+          description="Visitors who became members in the last 30 days"
+          className="bg-white rounded-lg border border-church-border shadow-sm cursor-pointer"
           onClick={() => window.location.href = "/people/members"}
           footer={
-            <div className="text-sm text-blue-600 mt-2 flex items-center">
+            <div className="text-sm text-blue-600 flex items-center">
               <span>See all new members</span>
             </div>
           }
@@ -439,12 +439,12 @@ export default function Visitors() {
         <StatsCard
           title="Event Registrations"
           value={visitorsInEvents.toString()}
-          icon={<Calendar size={24} />}
+          icon={<Calendar size={20} />}
           description="Visitors registered for events"
-          className="bg-white p-6 rounded-lg border border-church-border shadow-sm cursor-pointer"
+          className="bg-white rounded-lg border border-church-border shadow-sm cursor-pointer"
           onClick={() => window.location.href = "/events"}
           footer={
-            <div className="text-sm text-blue-600 mt-2 flex items-center">
+            <div className="text-sm text-blue-600 flex items-center">
               <span>See all registrations</span>
             </div>
           }
