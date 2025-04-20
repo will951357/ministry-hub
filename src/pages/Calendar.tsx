@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,7 +12,6 @@ import { WeekCalendarView } from '@/components/events/WeekCalendarView';
 import { DayCalendarView } from '@/components/events/DayCalendarView';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { Event } from '@/types/event';
 
 type CalendarItemType = 'events' | 'birthdays' | 'appointments' | 'classes';
 
@@ -144,146 +143,141 @@ const Calendar = () => {
   return (
     <MainLayout>
       <div className="container mx-auto py-6">
-        <div className="flex flex-col space-y-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold">Calendar</h1>
-              <p className="text-muted-foreground mt-1">
-                View and manage all church activities
-              </p>
+        <Card className="border-border">
+          <div className="p-6 border-b">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h1 className="text-3xl font-bold">Calendar</h1>
+                <p className="text-muted-foreground mt-1">
+                  View and manage all church activities
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {(['events', 'birthdays', 'appointments', 'classes'] as CalendarItemType[]).map((type) => (
+                <Badge
+                  key={type}
+                  variant="secondary"
+                  className={cn(
+                    "cursor-pointer",
+                    getTypeColor(type),
+                    !selectedTypes.includes(type) && "opacity-50"
+                  )}
+                  onClick={() => handleTypeToggle(type)}
+                >
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </Badge>
+              ))}
             </div>
           </div>
 
-          <Card className="border-border">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xl">Calendar View</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-4">
-                  <Tabs
-                    value={calendarViewMode}
-                    onValueChange={(value) => setCalendarViewMode(value as 'month' | 'week' | 'day')}
-                    className="w-auto"
-                  >
-                    <TabsList>
-                      <TabsTrigger value="month">Month</TabsTrigger>
-                      <TabsTrigger value="week">Week</TabsTrigger>
-                      <TabsTrigger value="day">Day</TabsTrigger>
-                    </TabsList>
-                  </Tabs>
+          <div className="px-6 py-4 border-b flex items-center justify-between">
+            <Tabs
+              value={calendarViewMode}
+              onValueChange={(value) => setCalendarViewMode(value as 'month' | 'week' | 'day')}
+              className="w-auto"
+            >
+              <TabsList>
+                <TabsTrigger value="month">Month</TabsTrigger>
+                <TabsTrigger value="week">Week</TabsTrigger>
+                <TabsTrigger value="day">Day</TabsTrigger>
+              </TabsList>
+            </Tabs>
 
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="gap-2">
-                        <CalendarIcon className="h-4 w-4" />
-                        {selectedDate ? format(selectedDate, 'PPP') : 'Pick a date'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <CalendarComponent
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={setSelectedDate}
-                        initialFocus
-                        className="pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  const newDate = new Date(selectedDate || new Date());
+                  if (calendarViewMode === 'month') {
+                    newDate.setMonth(newDate.getMonth() - 1);
+                  } else if (calendarViewMode === 'week') {
+                    newDate.setDate(newDate.getDate() - 7);
+                  } else {
+                    newDate.setDate(newDate.getDate() - 1);
+                  }
+                  setSelectedDate(newDate);
+                }}
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Previous
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => setSelectedDate(new Date())}
+              >
+                Today
+              </Button>
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const newDate = new Date(selectedDate || new Date());
+                  if (calendarViewMode === 'month') {
+                    newDate.setMonth(newDate.getMonth() + 1);
+                  } else if (calendarViewMode === 'week') {
+                    newDate.setDate(newDate.getDate() + 7);
+                  } else {
+                    newDate.setDate(newDate.getDate() + 1);
+                  }
+                  setSelectedDate(newDate);
+                }}
+              >
+                Next
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
 
-                <div className="flex flex-wrap gap-2">
-                  {(['events', 'birthdays', 'appointments', 'classes'] as CalendarItemType[]).map((type) => (
-                    <Badge
-                      key={type}
-                      variant="secondary"
-                      className={cn(
-                        "cursor-pointer",
-                        getTypeColor(type),
-                        !selectedTypes.includes(type) && "opacity-50"
-                      )}
-                      onClick={() => handleTypeToggle(type)}
-                    >
-                      {type.charAt(0).toUpperCase() + type.slice(1)}
-                    </Badge>
-                  ))}
-                </div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <CalendarIcon className="h-4 w-4" />
+                  {selectedDate ? format(selectedDate, 'PPP') : 'Pick a date'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <CalendarComponent
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  initialFocus
+                  className="pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
 
-                <div className="flex items-center gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => {
-                      const newDate = new Date(selectedDate || new Date());
-                      if (calendarViewMode === 'month') {
-                        newDate.setMonth(newDate.getMonth() - 1);
-                      } else if (calendarViewMode === 'week') {
-                        newDate.setDate(newDate.getDate() - 7);
-                      } else {
-                        newDate.setDate(newDate.getDate() - 1);
-                      }
-                      setSelectedDate(newDate);
-                    }}
-                  >
-                    Previous
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    onClick={() => setSelectedDate(new Date())}
-                  >
-                    Today
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      const newDate = new Date(selectedDate || new Date());
-                      if (calendarViewMode === 'month') {
-                        newDate.setMonth(newDate.getMonth() + 1);
-                      } else if (calendarViewMode === 'week') {
-                        newDate.setDate(newDate.getDate() + 7);
-                      } else {
-                        newDate.setDate(newDate.getDate() + 1);
-                      }
-                      setSelectedDate(newDate);
-                    }}
-                  >
-                    Next
-                  </Button>
-                </div>
-              </div>
-
-              <div className="mt-4">
-                {calendarViewMode === 'month' && (
-                  <MonthCalendarView 
-                    events={filteredEvents}
-                    selectedDate={selectedDate || new Date()} 
-                    onSelectDate={handleDayClick}
-                    onAddEvent={() => {}}
-                  />
-                )}
-                
-                {calendarViewMode === 'week' && (
-                  <WeekCalendarView 
-                    events={filteredEvents}
-                    selectedDate={selectedDate || new Date()}
-                    onSelectEvent={() => {}}
-                    onAddEvent={() => {}}
-                  />
-                )}
-                
-                {calendarViewMode === 'day' && (
-                  <DayCalendarView 
-                    events={filteredEvents}
-                    selectedDate={selectedDate || new Date()}
-                    onSelectEvent={() => {}}
-                    onAddEvent={() => {}}
-                  />
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+          <div className="p-6">
+            {calendarViewMode === 'month' && (
+              <MonthCalendarView 
+                events={filteredEvents}
+                selectedDate={selectedDate || new Date()} 
+                onSelectDate={handleDayClick}
+                onAddEvent={() => {}}
+              />
+            )}
+            
+            {calendarViewMode === 'week' && (
+              <WeekCalendarView 
+                events={filteredEvents}
+                selectedDate={selectedDate || new Date()}
+                onSelectEvent={() => {}}
+                onAddEvent={() => {}}
+              />
+            )}
+            
+            {calendarViewMode === 'day' && (
+              <DayCalendarView 
+                events={filteredEvents}
+                selectedDate={selectedDate || new Date()}
+                onSelectEvent={() => {}}
+                onAddEvent={() => {}}
+              />
+            )}
+          </div>
+        </Card>
       </div>
     </MainLayout>
   );
