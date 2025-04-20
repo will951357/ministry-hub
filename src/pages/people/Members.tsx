@@ -1,10 +1,7 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Filter, Plus, Search, Pencil, Trash2, Bell, Download, Calendar as CalendarIcon, Phone, Mail, User, Camera, CheckSquare, Square, TrendingUp, TrendingDown, UserPlus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { 
   Popover,
   PopoverContent, 
@@ -47,14 +44,12 @@ export default function Members() {
   const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
   const { toast } = useToast();
 
-  // Mock data - in a real app this would come from an API
   const memberStats = {
     total: 247,
     capacity: 500,
-    change: 5.2 // Percentage change from last month
+    change: 5.2
   };
 
-  // Mock members data
   const members = [
     {
       id: 1,
@@ -98,13 +93,12 @@ export default function Members() {
     },
   ];
 
-  // Mock membership requests data
   const membershipRequests = [
     {
       id: 101,
       name: "Sarah Johnson",
       email: "sarah.j@example.com",
-      requestDate: new Date(2025, 3, 10), // April 10, 2025
+      requestDate: new Date(2025, 3, 10),
       avatar: "SJ",
       image: "",
     },
@@ -112,7 +106,7 @@ export default function Members() {
       id: 102,
       name: "Michael Brown",
       email: "michael.b@example.com",
-      requestDate: new Date(2025, 3, 12), // April 12, 2025
+      requestDate: new Date(2025, 3, 12),
       avatar: "MB",
       image: "",
     },
@@ -120,13 +114,12 @@ export default function Members() {
       id: 103,
       name: "Emily Davis",
       email: "emily.d@example.com",
-      requestDate: new Date(2025, 3, 15), // April 15, 2025
+      requestDate: new Date(2025, 3, 15),
       avatar: "ED",
       image: "",
     },
   ];
 
-  // Filter members based on search
   const filteredMembers = members.filter(member => 
     member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     member.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -139,14 +132,11 @@ export default function Members() {
   };
 
   const confirmDeleteMember = () => {
-    // In a real app, this would call an API to delete the member
     console.log(`Delete member with ID: ${memberToDelete}`);
-    
     toast({
       title: "Member Deleted",
       description: "The member has been successfully removed.",
     });
-    
     setShowDeleteDialog(false);
     setMemberToDelete(null);
   };
@@ -156,7 +146,6 @@ export default function Members() {
   };
 
   const handleSendNotification = () => {
-    // In a real app, this would send the notification to members via an API
     console.log(`Sending notification: ${notificationMessage}`);
     toast({
       title: "Notification Sent",
@@ -167,7 +156,6 @@ export default function Members() {
   };
 
   const handleDownloadMemberList = () => {
-    // In a real app, this would generate a CSV from actual data
     const csvContent = [
       ["Name", "Email", "Phone"],
       ...members.map(member => [member.name, member.email, member.phone])
@@ -190,7 +178,6 @@ export default function Members() {
   };
 
   const handleApproveRequest = (id: number) => {
-    // In a real app, this would call an API to approve the membership request
     console.log(`Approving membership request with ID: ${id}`);
     toast({
       title: "Request Approved",
@@ -199,7 +186,6 @@ export default function Members() {
   };
 
   const handleRejectRequest = (id: number) => {
-    // In a real app, this would call an API to reject the membership request
     console.log(`Rejecting membership request with ID: ${id}`);
     toast({
       title: "Request Rejected",
@@ -207,7 +193,6 @@ export default function Members() {
     });
   };
 
-  // Toggle selection of a single member
   const toggleMemberSelection = (id: number) => {
     if (selectedMembers.includes(id)) {
       setSelectedMembers(selectedMembers.filter(memberId => memberId !== id));
@@ -216,18 +201,14 @@ export default function Members() {
     }
   };
 
-  // Toggle selection of all filtered members
   const toggleAllMembers = () => {
     if (selectedMembers.length === filteredMembers.length) {
-      // If all are selected, deselect all
       setSelectedMembers([]);
     } else {
-      // Otherwise, select all
       setSelectedMembers(filteredMembers.map(member => member.id));
     }
   };
 
-  // Check if all filtered members are selected
   const areAllSelected = filteredMembers.length > 0 && 
     selectedMembers.length === filteredMembers.length;
 
@@ -241,8 +222,13 @@ export default function Members() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-        <h1 className="text-2xl font-semibold text-church-primary mb-2">Members</h1>
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-church-primary mb-2">Members</h1>
+          <p className="text-church-secondary">
+            Manage your church membership - view, add, and update member information.
+          </p>
+        </div>
         <Button 
           className="bg-church-primary hover:bg-church-accent text-white md:self-start"
           onClick={() => setShowAddMemberDialog(true)}
@@ -251,9 +237,6 @@ export default function Members() {
           Add a new member
         </Button>
       </div>
-      <p className="text-church-secondary mb-6">
-        Manage your church membership - view, add, and update member information.
-      </p>
 
       {/* Membership Requests Section */}
       {membershipRequests.length > 0 && (
@@ -434,7 +417,6 @@ export default function Members() {
         </div>
       </div>
 
-      {/* Select All control */}
       <div className="flex justify-between items-center bg-gray-50 p-3 rounded-md">
         <Button 
           variant="ghost" 
@@ -454,7 +436,6 @@ export default function Members() {
         </div>
       </div>
 
-      {/* Member list table */}
       <Card className="bg-white border-church-border">
         <div className="overflow-x-auto">
           <Table>
@@ -537,7 +518,6 @@ export default function Members() {
         </div>
       </Card>
 
-      {/* Send Notification Dialog */}
       <Dialog open={showNotificationDialog} onOpenChange={setShowNotificationDialog}>
         <DialogContent>
           <DialogHeader>
@@ -565,7 +545,6 @@ export default function Members() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Member Confirmation Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>
@@ -596,7 +575,6 @@ export default function Members() {
         </DialogContent>
       </Dialog>
 
-      {/* Add New Member Dialog */}
       <Dialog open={showAddMemberDialog} onOpenChange={setShowAddMemberDialog}>
         <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
