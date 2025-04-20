@@ -29,15 +29,17 @@ export function StatsCard({
 }: StatsCardProps) {
   return (
     <Card onClick={onClick} className={cn("relative", className)}>
-      {icon && (
-        <div className="absolute top-4 right-4 p-2 rounded-full bg-primary/10 text-primary">
-          {icon}
-        </div>
-      )}
-      
       <CardContent className="p-6">
+        <div className="flex justify-between items-center mb-4">
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          {icon && (
+            <div className="p-2 rounded-full bg-primary/10 text-primary">
+              {icon}
+            </div>
+          )}
+        </div>
+        
         <div>
-          <p className="text-sm font-medium text-muted-foreground mb-1">{title}</p>
           <h3 className="text-2xl font-bold">{value}</h3>
           
           {description && (

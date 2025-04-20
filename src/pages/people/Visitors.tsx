@@ -428,14 +428,26 @@ export default function Visitors() {
           value={totalConversions.toString()}
           icon={<Users size={24} />}
           description="Visitors who became members"
-          className="bg-white p-6 rounded-lg border border-church-border shadow-sm"
+          className="bg-white p-6 rounded-lg border border-church-border shadow-sm cursor-pointer"
+          onClick={() => window.location.href = "/people/members"}
+          footer={
+            <div className="text-sm text-blue-600 mt-2 flex items-center">
+              <span>See all new members</span>
+            </div>
+          }
         />
         <StatsCard
           title="Event Registrations"
           value={visitorsInEvents.toString()}
           icon={<Calendar size={24} />}
           description="Visitors registered for events"
-          className="bg-white p-6 rounded-lg border border-church-border shadow-sm"
+          className="bg-white p-6 rounded-lg border border-church-border shadow-sm cursor-pointer"
+          onClick={() => window.location.href = "/events"}
+          footer={
+            <div className="text-sm text-blue-600 mt-2 flex items-center">
+              <span>See all registrations</span>
+            </div>
+          }
         />
       </div>
 
