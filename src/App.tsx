@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +10,7 @@ import Members from "./pages/people/Members";
 import EditMember from "./pages/people/EditMember";
 import Visitors from "./pages/people/Visitors";
 import Journeys from "./pages/people/Journeys";
+import JourneyDetails from "./pages/people/JourneyDetails";
 import Appointments from "./pages/people/Appointments";
 import CreateAppointment from "./pages/people/CreateAppointment";
 import Birthdays from "./pages/people/Birthdays";

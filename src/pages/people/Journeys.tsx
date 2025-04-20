@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { PlusCircle, Users, Sparkles, CheckCircle, Calendar, X, Plus, Award, List, Trash2, ChevronRight, ArrowLeft, FileDown, TrendingUp, TrendingDown, Search, Filter, Download, FileText } from "lucide-react";
+import { PlusCircle, Users, Sparkles, CheckCircle, Calendar, X, Plus, Award, List, Trash2, ChevronRight, ArrowLeft, FileText, TrendingUp, TrendingDown, Search, Filter, Download } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { useNavigate } from "react-router-dom";
@@ -225,7 +224,6 @@ type Journey = {
 export default function Journeys() {
   const [journeys, setJourneys] = useState<Journey[]>(sampleJourneys);
   const [isAddJourneyOpen, setIsAddJourneyOpen] = useState(false);
-  const [selectedJourney, setSelectedJourney] = useState<Journey | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [newJourney, setNewJourney] = useState<{
     name: string;
@@ -526,109 +524,6 @@ export default function Journeys() {
           </Table>
         </CardContent>
       </Card>
-
-      <Sheet open={!!selectedJourney} onOpenChange={open => !open && setSelectedJourney(null)}>
-        <SheetContent className="sm:max-w-xl overflow-y-auto">
-          <SheetHeader className="pb-2">
-            <Button variant="ghost" size="sm" onClick={() => setSelectedJourney(null)} className="absolute left-4 top-4 p-0 w-8 h-8">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <SheetTitle className="text-xl pt-6">
-              {selectedJourney?.name}
-            </SheetTitle>
-            <SheetDescription>
-              {selectedJourney?.description}
-            </SheetDescription>
-            <div className="flex gap-2 mt-2">
-              <Badge variant={selectedJourney?.status === "active" ? "default" : "secondary"} className={selectedJourney?.status === "active" ? "bg-green-500 hover:bg-green-600" : "bg-gray-500 hover:bg-gray-600"}>
-                {selectedJourney?.status === "active" ? "Active" : "Completed"}
-              </Badge>
-              <Badge variant="outline" className="flex gap-1">
-                <Calendar className="h-3 w-3" />
-                {selectedJourney?.createdAt ? format(selectedJourney.createdAt, "MMM d, yyyy") : ""}
-              </Badge>
-            </div>
-          </SheetHeader>
-
-          <div className="py-6">
-            <div className="mb-4 flex justify-between">
-              <h3 className="text-lg font-medium">Journey Steps</h3>
-              <div className="flex items-center gap-3">
-                <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={() => selectedJourney && downloadJourneyData(selectedJourney)}>
-                  <FileDown className="h-4 w-4" />
-                  <span>Download</span>
-                </Button>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Users className="mr-1 h-3 w-3" />
-                  <span>{selectedJourney?.enrolledCount} enrolled</span>
-                  <span className="mx-1">•</span>
-                  <CheckCircle className="mr-1 h-3 w-3" />
-                  <span>{selectedJourney?.completedCount} completed</span>
-                </div>
-              </div>
-            </div>
-
-            <Accordion type="single" collapsible className="w-full">
-              {selectedJourney?.steps?.map((step, index) => <AccordionItem value={step.id} key={step.id}>
-                  <AccordionTrigger className="hover:no-underline">
-                    <div className="flex flex-1 items-center justify-between pr-4">
-                      <div className="flex items-center">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-church-accent/10 text-church-accent mr-2">
-                          {index + 1}
-                        </div>
-                        <span>{step.name}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Badge className="mr-2 bg-church-accent/80">
-                          <Award className="mr-1 h-3 w-3" />
-                          {step.points} pts
-                        </Badge>
-                        <Badge variant="outline">
-                          <Users className="mr-1 h-3 w-3" />
-                          {step.completions?.length || 0}
-                        </Badge>
-                      </div>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <div className="pl-10 space-y-3">
-                      {step.subSteps.length > 0 && <div className="mb-3">
-                          <h4 className="text-sm font-medium mb-2">Sub-steps:</h4>
-                          <ul className="space-y-1 text-sm ml-2">
-                            {step.subSteps.map(subStep => <li key={subStep.id} className="flex items-center">
-                                <ChevronRight className="h-3 w-3 mr-1 text-church-accent" />
-                                {subStep.name}
-                              </li>)}
-                          </ul>
-                        </div>}
-
-                      {step.completions && step.completions.length > 0 ? <div>
-                          <h4 className="text-sm font-medium mb-2">Completed by:</h4>
-                          <ul className="space-y-2">
-                            {step.completions.map(completion => <li key={completion.participantId} className="flex items-center justify-between bg-gray-50 p-2 rounded text-sm">
-                                <div className="flex items-center">
-                                  <div className="h-6 w-6 rounded-full bg-gray-200 mr-2 overflow-hidden">
-                                    <img src={completion.participantAvatar} alt={completion.participantName} className="h-full w-full object-cover" />
-                                  </div>
-                                  <span>{completion.participantName}</span>
-                                </div>
-                                <span className="text-xs text-gray-500">
-                                  {format(completion.completedDate, "MMM d, yyyy")}
-                                </span>
-                              </li>)}
-                          </ul>
-                        </div> : <p className="text-sm text-gray-500 italic">No completions yet</p>}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>)}
-            </Accordion>
-
-            {selectedJourney?.steps?.length === 0 && <div className="text-center py-8 text-muted-foreground">
-                No steps defined for this journey.
-              </div>}
-          </div>
-        </SheetContent>
-      </Sheet>
 
       <Dialog open={isAddJourneyOpen} onOpenChange={setIsAddJourneyOpen}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">

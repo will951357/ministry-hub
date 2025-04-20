@@ -2,20 +2,230 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { format } from 'date-fns';
-import { ArrowLeft, Award, Users, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Award, Users, ChevronRight, Calendar, FileText, Download } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useToast } from '@/hooks/use-toast';
 
+// Define the types for data
+type SubStep = {
+  id: string;
+  name: string;
+};
+
+type Completion = {
+  participantId: number;
+  participantName: string;
+  participantAvatar: string;
+  completedDate: Date;
+};
+
+type Step = {
+  id: string;
+  name: string;
+  points: number;
+  subSteps: SubStep[];
+  completions?: Completion[];
+};
+
+type Journey = {
+  id: number;
+  name: string;
+  description: string;
+  createdAt: Date;
+  status: string;
+  enrolledCount: number;
+  completedCount: number;
+  steps?: Step[];
+};
+
+// Sample participants data
+const sampleParticipants = [{
+  id: 1,
+  name: "John Smith",
+  avatar: "/placeholder.svg"
+}, {
+  id: 2,
+  name: "Maria Garcia",
+  avatar: "/placeholder.svg"
+}, {
+  id: 3,
+  name: "David Lee",
+  avatar: "/placeholder.svg"
+}, {
+  id: 4,
+  name: "Sarah Johnson",
+  avatar: "/placeholder.svg"
+}, {
+  id: 5,
+  name: "Michael Brown",
+  avatar: "/placeholder.svg"
+}, {
+  id: 6,
+  name: "Lisa Chen",
+  avatar: "/placeholder.svg"
+}, {
+  id: 7,
+  name: "James Wilson",
+  avatar: "/placeholder.svg"
+}, {
+  id: 8,
+  name: "Emily Davis",
+  avatar: "/placeholder.svg"
+}];
+
+// Function to generate random step completions
+const generateStepCompletions = (stepId: string) => {
+  const completedCount = Math.floor(Math.random() * 6) + 1;
+  const participants = [...sampleParticipants].sort(() => 0.5 - Math.random()).slice(0, completedCount);
+  return participants.map(participant => ({
+    participantId: participant.id,
+    participantName: participant.name,
+    participantAvatar: participant.avatar,
+    completedDate: new Date(2023, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1)
+  }));
+};
+
+// Sample journeys data
+const sampleJourneys: Journey[] = [{
+  id: 1,
+  name: "New Believer Discipleship",
+  description: "A 12-week journey for new believers to establish a strong foundation in faith.",
+  createdAt: new Date(2023, 0, 15),
+  status: "active",
+  enrolledCount: 24,
+  completedCount: 8,
+  steps: [{
+    id: "step-1-1",
+    name: "Complete Foundations Course",
+    points: 50,
+    subSteps: [{
+      id: "sub-1-1",
+      name: "Attend all 4 sessions"
+    }, {
+      id: "sub-1-2",
+      name: "Complete workbook"
+    }],
+    completions: generateStepCompletions("step-1-1")
+  }, {
+    id: "step-1-2",
+    name: "Daily Bible Reading (30 days)",
+    points: 100,
+    subSteps: [{
+      id: "sub-2-1",
+      name: "Read Old Testament selections"
+    }, {
+      id: "sub-2-2",
+      name: "Read New Testament selections"
+    }],
+    completions: generateStepCompletions("step-1-2")
+  }, {
+    id: "step-1-3",
+    name: "Join a Small Group",
+    points: 75,
+    subSteps: [],
+    completions: generateStepCompletions("step-1-3")
+  }]
+}, {
+  id: 2,
+  name: "Baptism Preparation",
+  description: "A 4-week journey preparing members for baptism and understanding its significance.",
+  createdAt: new Date(2023, 2, 10),
+  status: "active",
+  enrolledCount: 12,
+  completedCount: 5,
+  steps: [{
+    id: "step-2-1",
+    name: "Study the Meaning of Baptism",
+    points: 30,
+    subSteps: [],
+    completions: generateStepCompletions("step-2-1")
+  }, {
+    id: "step-2-2",
+    name: "Write Personal Testimony",
+    points: 50,
+    subSteps: [],
+    completions: generateStepCompletions("step-2-2")
+  }]
+}, {
+  id: 3,
+  name: "Leadership Development",
+  description: "A 6-month journey to equip and prepare potential leaders for ministry roles.",
+  createdAt: new Date(2022, 8, 5),
+  status: "completed",
+  enrolledCount: 18,
+  completedCount: 15,
+  steps: [{
+    id: "step-3-1",
+    name: "Leadership Training Sessions",
+    points: 200,
+    subSteps: [],
+    completions: generateStepCompletions("step-3-1")
+  }, {
+    id: "step-3-2",
+    name: "Serving in Ministry (weekly for 3 months)",
+    points: 300,
+    subSteps: [],
+    completions: generateStepCompletions("step-3-2")
+  }, {
+    id: "step-3-3",
+    name: "Complete Leadership Book Reading (3 books)",
+    points: 150,
+    subSteps: [],
+    completions: generateStepCompletions("step-3-3")
+  }]
+}, {
+  id: 4,
+  name: "Marriage Enrichment",
+  description: "An 8-week journey for couples to strengthen their marriage relationship.",
+  createdAt: new Date(2023, 5, 20),
+  status: "active",
+  enrolledCount: 14,
+  completedCount: 0,
+  steps: [{
+    id: "step-4-1",
+    name: "Attend Marriage Workshop Sessions",
+    points: 100,
+    subSteps: [],
+    completions: generateStepCompletions("step-4-1")
+  }, {
+    id: "step-4-2",
+    name: "Complete Marriage Devotional Together",
+    points: 75,
+    subSteps: [],
+    completions: generateStepCompletions("step-4-2")
+  }]
+}, {
+  id: 5,
+  name: "Prayer Warriors",
+  description: "A continuous journey focused on developing a deeper prayer life and intercession.",
+  createdAt: new Date(2022, 11, 1),
+  status: "active",
+  enrolledCount: 32,
+  completedCount: 18,
+  steps: [{
+    id: "step-5-1",
+    name: "Daily Prayer Challenge (21 days)",
+    points: 100,
+    subSteps: [],
+    completions: generateStepCompletions("step-5-1")
+  }, {
+    id: "step-5-2",
+    name: "Join Prayer Team (3 months)",
+    points: 250,
+    subSteps: [],
+    completions: generateStepCompletions("step-5-2")
+  }]
+}];
+
 export default function JourneyDetails() {
   const { journeyId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  // For now, we'll use the same sample data as in Journeys.tsx
-  // In a real application, this would be fetched from an API
+  // Find the journey by ID from our sample data
   const journey = sampleJourneys.find(j => j.id === Number(journeyId));
 
   if (!journey) {
@@ -30,6 +240,36 @@ export default function JourneyDetails() {
     );
   }
 
+  // Helper function to generate journey export content
+  const generateJourneyExport = (journey: Journey): string => {
+    let content = `Journey: ${journey.name}\n`;
+    content += `Description: ${journey.description}\n`;
+    content += `Created: ${format(journey.createdAt, "MMM d, yyyy")}\n`;
+    content += `Status: ${journey.status}\n`;
+    content += `Participants: ${journey.enrolledCount} enrolled, ${journey.completedCount} completed\n\n`;
+    content += "STEPS:\n";
+
+    journey.steps?.forEach((step, index) => {
+      content += `\n${index + 1}. ${step.name} (${step.points} points)\n`;
+      if (step.subSteps && step.subSteps.length > 0) {
+        content += "   Sub-steps:\n";
+        step.subSteps.forEach(subStep => {
+          content += `   - ${subStep.name}\n`;
+        });
+      }
+      content += "   Completed by:\n";
+      if (step.completions && step.completions.length > 0) {
+        step.completions.forEach(completion => {
+          content += `   - ${completion.participantName} (${format(completion.completedDate, "MMM d, yyyy")})\n`;
+        });
+      } else {
+        content += "   - No completions yet\n";
+      }
+    });
+    return content;
+  };
+
+  // Function to download journey data
   const downloadJourneyData = () => {
     const content = generateJourneyExport(journey);
     const blob = new Blob([content], { type: 'text/plain' });
@@ -64,6 +304,7 @@ export default function JourneyDetails() {
               {journey.status === "active" ? "Active" : "Completed"}
             </Badge>
             <Badge variant="outline" className="flex gap-1">
+              <Calendar className="h-3 w-3 mr-1" />
               Created {format(journey.createdAt, "MMM d, yyyy")}
             </Badge>
           </div>
@@ -100,8 +341,12 @@ export default function JourneyDetails() {
         </div>
 
         <div className="bg-white rounded-lg shadow">
-          <div className="p-6 border-b">
+          <div className="p-6 border-b flex justify-between items-center">
             <h2 className="text-xl font-medium">Journey Steps</h2>
+            <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={downloadJourneyData}>
+              <FileText className="h-4 w-4" />
+              <span>Download Data</span>
+            </Button>
           </div>
 
           <Accordion type="single" collapsible className="w-full">
@@ -173,38 +418,14 @@ export default function JourneyDetails() {
               </AccordionItem>
             ))}
           </Accordion>
+
+          {journey.steps?.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              No steps defined for this journey.
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
-
-// Helper function from the original Journeys page
-const generateJourneyExport = (journey) => {
-  let content = `Journey: ${journey.name}\n`;
-  content += `Description: ${journey.description}\n`;
-  content += `Created: ${format(journey.createdAt, "MMM d, yyyy")}\n`;
-  content += `Status: ${journey.status}\n`;
-  content += `Participants: ${journey.enrolledCount} enrolled, ${journey.completedCount} completed\n\n`;
-  content += "STEPS:\n";
-
-  journey.steps?.forEach((step, index) => {
-    content += `\n${index + 1}. ${step.name} (${step.points} points)\n`;
-    if (step.subSteps && step.subSteps.length > 0) {
-      content += "   Sub-steps:\n";
-      step.subSteps.forEach(subStep => {
-        content += `   - ${subStep.name}\n`;
-      });
-    }
-    content += "   Completed by:\n";
-    if (step.completions && step.completions.length > 0) {
-      step.completions.forEach(completion => {
-        content += `   - ${completion.participantName} (${format(completion.completedDate, "MMM d, yyyy")})\n`;
-      });
-    } else {
-      content += "   - No completions yet\n";
-    }
-  });
-  return content;
-};
-
