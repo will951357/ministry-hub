@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +12,7 @@ import Journeys from "./pages/people/Journeys";
 import JourneyDetails from "./pages/people/JourneyDetails";
 import Appointments from "./pages/people/Appointments";
 import CreateAppointment from "./pages/people/CreateAppointment";
+import AppointmentDetails from "./pages/people/AppointmentDetails";
 import Birthdays from "./pages/people/Birthdays";
 import Kids from "./pages/people/Kids";
 import Ministries from "./pages/Ministries";
@@ -56,6 +56,7 @@ const App = () => (
             <Route path="journeys" element={<Journeys />} />
             <Route path="journeys/:journeyId" element={<JourneyDetails />} />
             <Route path="appointments" element={<Appointments />} />
+            <Route path="appointments/:id" element={<AppointmentDetails />} />
             <Route path="appointments/create" element={<CreateAppointment />} />
             <Route path="birthdays" element={<Birthdays />} />
             <Route path="kids" element={<Kids />} />

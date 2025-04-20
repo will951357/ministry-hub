@@ -1,4 +1,3 @@
-
 import { ReactNode } from "react";
 
 export interface Appointment {
@@ -10,6 +9,9 @@ export interface Appointment {
   status: "confirmed" | "pending" | "cancelled";
   memberName?: string;
   completed?: boolean;
+  assignedMember?: string;
+  isVolunteerWork?: boolean;
+  observation?: string;
 }
 
 export type AppointmentType = "visit" | "prayer" | "worship" | "social";
@@ -31,4 +33,3 @@ export const appointmentStatusColors = {
   pending: "pending",
   cancelled: "destructive"
 };
-

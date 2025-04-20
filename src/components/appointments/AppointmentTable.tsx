@@ -1,4 +1,3 @@
-
 import { format } from "date-fns";
 import { Appointment, AppointmentType, appointmentTypes } from "@/types/appointment";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Plus, CheckCircle, User } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { useNavigate } from "react-router-dom";
 
 interface AppointmentTableProps {
   appointments: Appointment[];
@@ -20,6 +20,7 @@ interface AppointmentTableProps {
 }
 
 export function AppointmentTable({ appointments, filterType }: AppointmentTableProps) {
+  const navigate = useNavigate();
   const filtered = filterType && filterType !== "all"
     ? appointments.filter(app => app.type === filterType)
     : appointments;
@@ -27,6 +28,10 @@ export function AppointmentTable({ appointments, filterType }: AppointmentTableP
   const handleCompletedToggle = (id: number, isCompleted: boolean) => {
     console.log(`Appointment ${id} marked as ${isCompleted ? 'completed' : 'not completed'}`);
     // In a real app, you would call an API to update the appointment status
+  };
+  
+  const handleRowClick = (id: number) => {
+    navigate(`/people/appointments/${id}`);
   };
   
   if (filtered.length === 0) {
@@ -60,7 +65,11 @@ export function AppointmentTable({ appointments, filterType }: AppointmentTableP
       </TableHeader>
       <TableBody>
         {filtered.map((appointment) => (
-          <TableRow key={appointment.id}>
+          <TableRow 
+            key={appointment.id}
+            className="cursor-pointer"
+            onClick={() => handleRowClick(appointment.id)}
+          >
             <TableCell className="font-medium">{format(appointment.date, 'h:mm a')}</TableCell>
             <TableCell>{appointment.title}</TableCell>
             <TableCell>

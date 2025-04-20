@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Download } from "lucide-react";
 import { appointments } from "@/data/appointments";
 import { appointmentTypes } from "@/types/appointment";
 import { AppointmentTable } from "@/components/appointments/AppointmentTable";
@@ -16,15 +15,37 @@ export default function Appointments() {
   const [view, setView] = useState<string>("all");
   const navigate = useNavigate();
 
-  // Filter appointments based on selected month
   const filteredAppointments = appointments.filter(appointment => 
     (view === "all" || appointment.type === view)
   );
 
-  // Get pending appointments
   const pendingAppointments = appointments.filter(appointment => appointment.status === "pending");
 
-  // Handle creating a new appointment
+  const handleDownloadAppointments = () => {
+    const appointmentsData = filteredAppointments.map(apt => ({
+      title: apt.title,
+      type: appointmentTypes[apt.type].label,
+      date: apt.date.toLocaleDateString(),
+      time: apt.date.toLocaleTimeString(),
+      location: apt.location,
+      status: apt.status,
+      memberName: apt.memberName || 'Unassigned',
+      completed: apt.completed ? 'Yes' : 'No'
+    }));
+
+    const csvContent = "data:text/csv;charset=utf-8," + 
+      Object.keys(appointmentsData[0]).join(",") + "\n" +
+      appointmentsData.map(row => Object.values(row).join(",")).join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "church_appointments.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handleCreateAppointment = () => {
     navigate("/people/appointments/create");
   };
@@ -38,7 +59,11 @@ export default function Appointments() {
             Schedule and manage pastoral appointments and meetings.
           </p>
         </div>
-        <div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleDownloadAppointments}>
+            <Download className="h-4 w-4 mr-2" />
+            Download List
+          </Button>
           <Button onClick={handleCreateAppointment}>
             <Plus className="h-4 w-4 mr-2" />
             New Appointment
@@ -46,7 +71,6 @@ export default function Appointments() {
         </div>
       </div>
       
-      {/* Pending Appointments Section */}
       {pendingAppointments.length > 0 && (
         <Card className="mb-6 border-church-border shadow-sm">
           <CardHeader className="pb-2">
@@ -61,7 +85,6 @@ export default function Appointments() {
         </Card>
       )}
       
-      {/* Main content area */}
       <Card className="border-church-border shadow-sm">
         <CardHeader className="pb-2">
           <AppointmentHeader date={date} appointmentCount={filteredAppointments.length} onDateSelect={setDate} viewMode="month" showMonthNavigation={true} />
