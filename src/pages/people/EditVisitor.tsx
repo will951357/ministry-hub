@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
@@ -9,6 +10,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { visitorSchema } from "@/pages/people/Visitors";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -137,8 +139,9 @@ export default function EditVisitor() {
                         </SelectItem>
                       ))}
                     </SelectContent>
-                    <FormMessage />
-                  </FormItem>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
               )}
             />
             
