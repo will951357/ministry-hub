@@ -7,6 +7,7 @@ import { Index, NotFound } from "./pages";
 import People from "./pages/People";
 import Members from "./pages/people/Members";
 import EditMember from "./pages/people/EditMember";
+import EditVisitor from "./pages/people/EditVisitor";
 import Visitors from "./pages/people/Visitors";
 import Journeys from "./pages/people/Journeys";
 import JourneyDetails from "./pages/people/JourneyDetails";
@@ -54,6 +55,7 @@ const App = () => (
             <Route path="members/new" element={<EditMember />} />
             <Route path="members/:id" element={<EditMember />} />
             <Route path="visitors" element={<Visitors />} />
+            <Route path="visitors/new" element={<EditVisitor />} />
             <Route path="journeys" element={<Journeys />} />
             <Route path="journeys/:journeyId" element={<JourneyDetails />} />
             <Route path="appointments" element={<Appointments />} />
