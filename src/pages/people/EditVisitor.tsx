@@ -9,7 +9,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { visitorSchema } from "@/pages/people/Visitors";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -20,6 +19,20 @@ import {
 } from "@/components/ui/select";
 import { Building, Smartphone } from "lucide-react";
 
+// Define the visitor schema here to ensure type consistency
+const visitorSchema = z.object({
+  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  phone: z.string().min(5, { message: "Please enter a valid phone number." }),
+  email: z.string().email({ message: "Please enter a valid email address." }),
+  cellGroup: z.string().min(1, { message: "Please select a cell group." }),
+  visitMethod: z.enum(["in-person", "app"], { 
+    required_error: "Please select how the visitor attended." 
+  })
+});
+
+// Define the type for our form values
+type VisitorFormValues = z.infer<typeof visitorSchema>;
+
 export default function EditVisitor() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -27,18 +40,18 @@ export default function EditVisitor() {
   const [loading, setLoading] = useState(true);
   const isNewVisitor = !id;
 
-  const form = useForm({
+  const form = useForm<VisitorFormValues>({
     resolver: zodResolver(visitorSchema),
     defaultValues: {
       name: "",
       phone: "",
       email: "",
       cellGroup: "",
-      visitMethod: "in-person"
+      visitMethod: "in-person" as const
     },
   });
 
-  const onSubmit = (data: z.infer<typeof visitorSchema>) => {
+  const onSubmit = (data: VisitorFormValues) => {
     // In a real app, this would send data to your backend
     console.log(data);
     
