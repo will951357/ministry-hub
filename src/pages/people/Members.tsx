@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,9 @@ export default function Members() {
   const [showNotificationDialog, setShowNotificationDialog] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
+  // Add the missing state variables here
+  const [memberToDelete, setMemberToDelete] = useState<number | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const { toast } = useToast();
 
   const memberStats = {
