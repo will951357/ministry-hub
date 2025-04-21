@@ -1,3 +1,4 @@
+
 import { format } from "date-fns";
 import { Appointment, AppointmentType, appointmentTypes } from "@/types/appointment";
 import { Badge } from "@/components/ui/badge";
@@ -10,8 +11,7 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Plus, CheckCircle, User } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
+import { Eye, Plus, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface AppointmentTableProps {
@@ -21,14 +21,10 @@ interface AppointmentTableProps {
 
 export function AppointmentTable({ appointments, filterType }: AppointmentTableProps) {
   const navigate = useNavigate();
+  
   const filtered = filterType && filterType !== "all"
     ? appointments.filter(app => app.type === filterType)
     : appointments;
-  
-  const handleCompletedToggle = (id: number, isCompleted: boolean) => {
-    console.log(`Appointment ${id} marked as ${isCompleted ? 'completed' : 'not completed'}`);
-    // In a real app, you would call an API to update the appointment status
-  };
   
   const handleRowClick = (id: number) => {
     navigate(`/people/appointments/${id}`);
@@ -60,22 +56,18 @@ export function AppointmentTable({ appointments, filterType }: AppointmentTableP
           <TableHead>Member</TableHead>
           <TableHead>Location</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead>Completed</TableHead>
+          <TableHead className="w-[80px]">View</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {filtered.map((appointment) => (
-          <TableRow 
-            key={appointment.id}
-            className="cursor-pointer"
-            onClick={() => handleRowClick(appointment.id)}
-          >
+          <TableRow key={appointment.id}>
             <TableCell className="font-medium">{format(appointment.date, 'h:mm a')}</TableCell>
             <TableCell>{appointment.title}</TableCell>
             <TableCell>
               <Badge 
                 variant={appointmentTypes[appointment.type].color}
-                className="h-6 px-2 inline-flex items-center"
+                className="h-6 inline-flex items-center"
               >
                 {appointmentTypes[appointment.type].label}
               </Badge>
@@ -89,11 +81,13 @@ export function AppointmentTable({ appointments, filterType }: AppointmentTableP
             <TableCell>{appointment.location}</TableCell>
             <TableCell className="capitalize">{appointment.status}</TableCell>
             <TableCell>
-              <Switch 
-                checked={appointment.completed || false}
-                onCheckedChange={(checked) => handleCompletedToggle(appointment.id, checked)}
-                aria-label="Toggle appointment completion"
-              />
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => handleRowClick(appointment.id)}
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
             </TableCell>
           </TableRow>
         ))}
