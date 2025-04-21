@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { PlusCircle, Search, Filter, Eye, Trash, Download, QrCode, Baby } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Kid {
   id: string;
@@ -154,22 +153,26 @@ export default function Kids() {
           </p>
         </div>
 
-        <div className="flex flex-col gap-3">
-          <div className="relative">
+        <div className="flex items-center gap-3">
+          <div className="relative flex-grow">
             <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 mx-px" />
-            <Input placeholder="Search by name or parent..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 my-0 px-[24px] mx-0" />
+            <Input 
+              placeholder="Search by name or parent..." 
+              value={searchQuery} 
+              onChange={e => setSearchQuery(e.target.value)} 
+              className="pl-10" 
+            />
           </div>
           
-          <div className="flex gap-2">
-            <Button variant="outline" size="icon">
-              <Filter className="h-4 w-4" />
-              <span className="sr-only">Filter</span>
-            </Button>
-            <Button variant="outline" className="flex items-center gap-1" onClick={handleExportData}>
-              <Download className="h-4 w-4" />
-              <span className="hidden sm:inline">Export</span>
-            </Button>
-          </div>
+          <Button variant="outline" size="icon">
+            <Filter className="h-4 w-4" />
+            <span className="sr-only">Filter</span>
+          </Button>
+          
+          <Button variant="outline" className="flex items-center gap-1" onClick={handleExportData}>
+            <Download className="h-4 w-4" />
+            <span className="hidden sm:inline">Export</span>
+          </Button>
         </div>
 
         {kids.length === 0 ? (
