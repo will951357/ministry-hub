@@ -11,6 +11,7 @@ import EditVisitor from "./pages/people/EditVisitor";
 import Visitors from "./pages/people/Visitors";
 import Journeys from "./pages/people/Journeys";
 import JourneyDetails from "./pages/people/JourneyDetails";
+import CreateJourney from "./pages/people/CreateJourney";
 import Appointments from "./pages/people/Appointments";
 import CreateAppointment from "./pages/people/CreateAppointment";
 import AppointmentDetails from "./pages/people/AppointmentDetails";
@@ -57,6 +58,7 @@ const App = () => (
             <Route path="visitors" element={<Visitors />} />
             <Route path="visitors/new" element={<EditVisitor />} />
             <Route path="journeys" element={<Journeys />} />
+            <Route path="journeys/new" element={<CreateJourney />} />
             <Route path="journeys/:journeyId" element={<JourneyDetails />} />
             <Route path="appointments" element={<Appointments />} />
             <Route path="appointments/:id" element={<AppointmentDetails />} />
