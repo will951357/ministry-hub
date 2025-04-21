@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday } from 'date-fns';
 import { cn } from "@/lib/utils";
@@ -34,11 +33,12 @@ export function MonthCalendarView({ events, selectedDate, onSelectDate }: MonthC
           <div 
             key={day} 
             className={cn(
-              "py-3 text-center text-sm font-medium",
+              "py-2 md:py-3 text-center text-xs md:text-sm font-medium",
               index === 0 || index === 6 ? "text-muted-foreground" : ""
             )}
           >
-            {day}
+            <span className="hidden md:inline">{day}</span>
+            <span className="md:hidden">{day[0]}</span>
           </div>
         ))}
       </div>
@@ -52,7 +52,7 @@ export function MonthCalendarView({ events, selectedDate, onSelectDate }: MonthC
             <div
               key={day.toString()}
               className={cn(
-                "min-h-24 p-1 border border-border cursor-pointer",
+                "min-h-[80px] md:min-h-[120px] p-1 border border-border cursor-pointer",
                 !isCurrentMonth && "bg-muted/20 text-muted-foreground",
                 isToday(day) && "bg-accent/20",
                 isSameDay(day, selectedDate) && "bg-primary/10"
@@ -61,7 +61,7 @@ export function MonthCalendarView({ events, selectedDate, onSelectDate }: MonthC
             >
               <div className="flex justify-between items-start">
                 <span className={cn(
-                  "text-sm font-medium h-7 w-7 flex items-center justify-center",
+                  "text-xs md:text-sm font-medium h-6 w-6 md:h-7 md:w-7 flex items-center justify-center",
                   isToday(day) && "text-primary rounded-full bg-accent"
                 )}>
                   {format(day, 'd')}
@@ -69,19 +69,20 @@ export function MonthCalendarView({ events, selectedDate, onSelectDate }: MonthC
               </div>
               
               <div className="mt-1 space-y-1">
-                {dayEvents.slice(0, 2).map((event) => (
+                {dayEvents.slice(0, isMobile ? 1 : 2).map((event) => (
                   <TooltipProvider key={event.id}>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div
                           className={cn(
-                            "text-xs p-1 rounded truncate",
+                            "text-[10px] md:text-xs p-1 rounded truncate",
                             event.status === 'confirmed' ? "bg-primary/10 text-primary" :
                             event.status === 'canceled' ? "bg-destructive/10 text-destructive" :
                             "bg-amber-500/10 text-amber-700"
                           )}
                         >
-                          {format(new Date(event.date), 'HH:mm')} {event.title}
+                          <span className="hidden md:inline">{format(new Date(event.date), 'HH:mm')} </span>
+                          {event.title}
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -94,15 +95,15 @@ export function MonthCalendarView({ events, selectedDate, onSelectDate }: MonthC
                   </TooltipProvider>
                 ))}
                 
-                {dayEvents.length > 2 && (
+                {dayEvents.length > (isMobile ? 1 : 2) && (
                   <div 
-                    className="text-xs text-primary font-medium cursor-pointer hover:underline"
+                    className="text-[10px] md:text-xs text-primary font-medium cursor-pointer hover:underline"
                     onClick={(e) => {
                       e.stopPropagation();
                       onSelectDate(day);
                     }}
                   >
-                    +{dayEvents.length - 2} more events
+                    +{dayEvents.length - (isMobile ? 1 : 2)} more
                   </div>
                 )}
               </div>

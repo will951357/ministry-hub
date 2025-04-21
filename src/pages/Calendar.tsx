@@ -1,5 +1,4 @@
-
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -14,6 +13,7 @@ import { DayCalendarView } from '@/components/events/DayCalendarView';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { Event } from "@/types/event";
+import { useIsMobile } from "@/lib/hooks";
 
 type CalendarItemType = 'events' | 'birthdays' | 'appointments' | 'classes';
 
@@ -108,6 +108,7 @@ const Calendar = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [calendarViewMode, setCalendarViewMode] = useState<'month' | 'week' | 'day'>('month');
   const [selectedTypes, setSelectedTypes] = useState<CalendarItemType[]>(['events', 'birthdays', 'appointments', 'classes']);
+  const [defaultView, setDefaultView] = useState<'month' | 'week' | 'day'>(useIsMobile() ? 'day' : 'month');
 
   const filteredEvents = useMemo(() => 
     sampleEvents.filter(event => selectedTypes.includes(event.type)),
@@ -142,14 +143,18 @@ const Calendar = () => {
     setCalendarViewMode('day');
   };
 
+  useEffect(() => {
+    setCalendarViewMode(isMobile ? 'day' : defaultView);
+  }, [isMobile, defaultView]);
+
   return (
     <MainLayout>
       <div className="container mx-auto py-6">
         <Card className="border-border">
-          <div className="p-6 border-b">
-            <div className="flex justify-between items-start mb-4">
+          <div className="p-4 md:p-6 border-b">
+            <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-4">
               <div>
-                <h1 className="text-3xl font-bold">Calendar</h1>
+                <h1 className="text-2xl md:text-3xl font-bold">Calendar</h1>
                 <p className="text-muted-foreground mt-1">
                   View and manage all church activities
                 </p>
@@ -162,7 +167,7 @@ const Calendar = () => {
                   key={type}
                   variant="secondary"
                   className={cn(
-                    "cursor-pointer",
+                    "cursor-pointer text-xs md:text-sm",
                     getTypeColor(type),
                     !selectedTypes.includes(type) && "opacity-50"
                   )}
@@ -174,23 +179,24 @@ const Calendar = () => {
             </div>
           </div>
 
-          <div className="px-6 py-4 border-b flex items-center justify-between">
+          <div className="p-4 md:px-6 py-4 border-b flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <Tabs
               value={calendarViewMode}
               onValueChange={(value) => setCalendarViewMode(value as 'month' | 'week' | 'day')}
-              className="w-auto"
+              className="w-full md:w-auto"
             >
-              <TabsList>
+              <TabsList className="w-full md:w-auto grid grid-cols-3 md:flex">
                 <TabsTrigger value="month">Month</TabsTrigger>
                 <TabsTrigger value="week">Week</TabsTrigger>
                 <TabsTrigger value="day">Day</TabsTrigger>
               </TabsList>
             </Tabs>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full md:w-auto">
               <Button 
                 variant="outline" 
                 size="sm"
+                className="flex-1 md:flex-none justify-center"
                 onClick={() => {
                   const newDate = new Date(selectedDate || new Date());
                   if (calendarViewMode === 'month') {
@@ -208,6 +214,7 @@ const Calendar = () => {
               </Button>
               <Button 
                 variant="outline"
+                className="flex-1 md:flex-none justify-center"
                 onClick={() => setSelectedDate(new Date())}
               >
                 Today
@@ -215,6 +222,7 @@ const Calendar = () => {
               <Button 
                 variant="outline"
                 size="sm"
+                className="flex-1 md:flex-none justify-center"
                 onClick={() => {
                   const newDate = new Date(selectedDate || new Date());
                   if (calendarViewMode === 'month') {
@@ -234,13 +242,17 @@ const Calendar = () => {
 
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="gap-2">
+                <Button 
+                  variant="outline" 
+                  className="w-full md:w-auto gap-2 justify-center"
+                >
                   <CalendarIcon className="h-4 w-4" />
-                  {selectedDate ? format(selectedDate, 'PPP') : 'Pick a date'}
+                  <span className="hidden md:inline">{selectedDate ? format(selectedDate, 'PPP') : 'Pick a date'}</span>
+                  <span className="md:hidden">{selectedDate ? format(selectedDate, 'MMM d') : 'Date'}</span>
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="end">
-                <CalendarComponent
+                <Calendar
                   mode="single"
                   selected={selectedDate}
                   onSelect={setSelectedDate}
@@ -251,7 +263,7 @@ const Calendar = () => {
             </Popover>
           </div>
 
-          <div className="p-6">
+          <div className="p-4 md:p-6">
             {calendarViewMode === 'month' && (
               <MonthCalendarView 
                 events={filteredEvents as Event[]}
