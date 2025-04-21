@@ -1,5 +1,5 @@
 
-import { Bell, Menu } from 'lucide-react';
+import { Bell, Menu, Calendar, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
