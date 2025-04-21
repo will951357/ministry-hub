@@ -1,13 +1,5 @@
-import { Bell, Calendar, BookOpen, Menu } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+
+import { Bell, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -32,8 +24,11 @@ export function TopNav({ toggleSidebar, showMenuButton }: TopNavProps) {
             </Button>
           )}
           <div className="flex flex-col items-start justify-center">
-            <h2 className="text-xl font-semibold text-church-primary">Grace Community Church</h2>
-            <p className="text-xs text-church-secondary italic">"For by grace you have been saved through faith." — Ephesians 2:8</p>
+            <h2 className="text-xl font-semibold text-church-primary truncate">
+              <span className="md:hidden">GCC</span>
+              <span className="hidden md:inline">Grace Community Church</span>
+            </h2>
+            <p className="text-xs text-church-secondary italic hidden md:block">"For by grace you have been saved through faith." — Ephesians 2:8</p>
           </div>
         </div>
 
@@ -51,27 +46,29 @@ export function TopNav({ toggleSidebar, showMenuButton }: TopNavProps) {
               </TooltipContent>
             </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-church-primary hover:bg-church-muted hover:text-church-accent">
-                  <Calendar size={20} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Calendar</p>
-              </TooltipContent>
-            </Tooltip>
+            <div className="hidden md:flex">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="text-church-primary hover:bg-church-muted hover:text-church-accent">
+                    <Calendar size={20} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Calendar</p>
+                </TooltipContent>
+              </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-church-primary hover:bg-church-muted hover:text-church-accent">
-                  <BookOpen size={20} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Scripture</p>
-              </TooltipContent>
-            </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="text-church-primary hover:bg-church-muted hover:text-church-accent">
+                    <BookOpen size={20} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Scripture</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
           </TooltipProvider>
         </div>
       </div>
