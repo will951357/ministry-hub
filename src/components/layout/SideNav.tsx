@@ -1,3 +1,4 @@
+
 import { useLocation } from 'react-router-dom';
 import { 
   Sidebar, 
@@ -44,6 +45,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger
+} from '@/components/ui/collapsible';
 
 export function SideNav() {
   const location = useLocation();
@@ -72,62 +78,69 @@ export function SideNav() {
               </SidebarMenuItem>
 
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="People">
-                  <Link to="/people" className={location.pathname.startsWith('/people') ? 'bg-sidebar-accent' : ''}>
-                    <Users size={20} />
-                    <span>People</span>
-                  </Link>
-                </SidebarMenuButton>
-                <SidebarMenuSub>
-                  <SidebarMenuItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link to="/people/members">
-                        <UserCheck size={18} />
-                        <span>Members</span>
+                <Collapsible>
+                  <CollapsibleTrigger className="w-full">
+                    <SidebarMenuButton asChild tooltip="People">
+                      <Link to="/people" className={location.pathname.startsWith('/people') ? 'bg-sidebar-accent' : ''}>
+                        <Users size={20} />
+                        <span>People</span>
+                        <ChevronRight size={16} className="ml-auto transition-transform collapsible-icon" />
                       </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link to="/people/visitors">
-                        <UserPlus size={18} />
-                        <span>Visitors</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link to="/people/journeys">
-                        <Map size={18} />
-                        <span>Journeys</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link to="/people/appointments">
-                        <CalendarClock size={18} />
-                        <span>Appointments</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link to="/people/birthdays">
-                        <Cake size={18} />
-                        <span>Birthdays</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link to="/people/kids">
-                        <Baby size={18} />
-                        <span>Kids</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuItem>
-                </SidebarMenuSub>
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      <SidebarMenuItem>
+                        <SidebarMenuSubButton asChild>
+                          <Link to="/people/members">
+                            <UserCheck size={18} />
+                            <span>Members</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuSubButton asChild>
+                          <Link to="/people/visitors">
+                            <UserPlus size={18} />
+                            <span>Visitors</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuSubButton asChild>
+                          <Link to="/people/journeys">
+                            <Map size={18} />
+                            <span>Journeys</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuSubButton asChild>
+                          <Link to="/people/appointments">
+                            <CalendarClock size={18} />
+                            <span>Appointments</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuSubButton asChild>
+                          <Link to="/people/birthdays">
+                            <Cake size={18} />
+                            <span>Birthdays</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuSubButton asChild>
+                          <Link to="/people/kids">
+                            <Baby size={18} />
+                            <span>Kids</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuItem>
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </Collapsible>
               </SidebarMenuItem>
 
               <SidebarMenuItem>
@@ -140,73 +153,87 @@ export function SideNav() {
               </SidebarMenuItem>
 
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Finance">
-                  <Link to="/finance" className={location.pathname.startsWith('/finance') ? 'bg-sidebar-accent' : ''}>
-                    <BadgeDollarSign size={20} />
-                    <span>Finance</span>
-                  </Link>
-                </SidebarMenuButton>
-                <SidebarMenuSub>
-                  <SidebarMenuItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link to="/finance/donations">
-                        <BadgeDollarSign size={18} />
-                        <span>Donations</span>
+                <Collapsible>
+                  <CollapsibleTrigger className="w-full">
+                    <SidebarMenuButton asChild tooltip="Finance">
+                      <Link to="/finance" className={location.pathname.startsWith('/finance') ? 'bg-sidebar-accent' : ''}>
+                        <BadgeDollarSign size={20} />
+                        <span>Finance</span>
+                        <ChevronRight size={16} className="ml-auto transition-transform collapsible-icon" />
                       </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link to="/finance/tithes">
-                        <Receipt size={18} />
-                        <span>Tithes</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link to="/finance/funds">
-                        <PiggyBank size={18} />
-                        <span>Funds</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link to="/finance/accounting">
-                        <Calculator size={18} />
-                        <span>Accounting</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuItem>
-                </SidebarMenuSub>
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      <SidebarMenuItem>
+                        <SidebarMenuSubButton asChild>
+                          <Link to="/finance/donations">
+                            <BadgeDollarSign size={18} />
+                            <span>Donations</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuSubButton asChild>
+                          <Link to="/finance/tithes">
+                            <Receipt size={18} />
+                            <span>Tithes</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuSubButton asChild>
+                          <Link to="/finance/funds">
+                            <PiggyBank size={18} />
+                            <span>Funds</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuSubButton asChild>
+                          <Link to="/finance/accounting">
+                            <Calculator size={18} />
+                            <span>Accounting</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuItem>
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </Collapsible>
               </SidebarMenuItem>
 
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="App Member">
-                  <Link to="/app-member" className={location.pathname.startsWith('/app-member') ? 'bg-sidebar-accent' : ''}>
-                    <Calculator size={20} />
-                    <span>App Member</span>
-                  </Link>
-                </SidebarMenuButton>
-                <SidebarMenuSub>
-                  <SidebarMenuItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link to="/app-member/blog">
-                        <FileText size={18} />
-                        <span>Blog</span>
+                <Collapsible>
+                  <CollapsibleTrigger className="w-full">
+                    <SidebarMenuButton asChild tooltip="App Member">
+                      <Link to="/app-member" className={location.pathname.startsWith('/app-member') ? 'bg-sidebar-accent' : ''}>
+                        <Calculator size={20} />
+                        <span>App Member</span>
+                        <ChevronRight size={16} className="ml-auto transition-transform collapsible-icon" />
                       </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link to="/app-member/app-manager">
-                        <LayoutGrid size={18} />
-                        <span>App Manager</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuItem>
-                </SidebarMenuSub>
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      <SidebarMenuItem>
+                        <SidebarMenuSubButton asChild>
+                          <Link to="/app-member/blog">
+                            <FileText size={18} />
+                            <span>Blog</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuSubButton asChild>
+                          <Link to="/app-member/app-manager">
+                            <LayoutGrid size={18} />
+                            <span>App Manager</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuItem>
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </Collapsible>
               </SidebarMenuItem>
 
               <SidebarMenuItem>
@@ -219,30 +246,37 @@ export function SideNav() {
               </SidebarMenuItem>
 
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Groups">
-                  <Link to="/groups" className={location.pathname.startsWith('/groups') ? 'bg-sidebar-accent' : ''}>
-                    <Users size={20} />
-                    <span>Groups</span>
-                  </Link>
-                </SidebarMenuButton>
-                <SidebarMenuSub>
-                  <SidebarMenuItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link to="/groups">
-                        <Users size={18} />
-                        <span>Church Groups</span>
+                <Collapsible>
+                  <CollapsibleTrigger className="w-full">
+                    <SidebarMenuButton asChild tooltip="Groups">
+                      <Link to="/groups" className={location.pathname.startsWith('/groups') ? 'bg-sidebar-accent' : ''}>
+                        <Users size={20} />
+                        <span>Groups</span>
+                        <ChevronRight size={16} className="ml-auto transition-transform collapsible-icon" />
                       </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link to="/groups/learning">
-                        <GraduationCap size={18} />
-                        <span>Learning</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuItem>
-                </SidebarMenuSub>
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      <SidebarMenuItem>
+                        <SidebarMenuSubButton asChild>
+                          <Link to="/groups">
+                            <Users size={18} />
+                            <span>Church Groups</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuSubButton asChild>
+                          <Link to="/groups/learning">
+                            <GraduationCap size={18} />
+                            <span>Learning</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuItem>
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </Collapsible>
               </SidebarMenuItem>
 
               <SidebarMenuItem>
