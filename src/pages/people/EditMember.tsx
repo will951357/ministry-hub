@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
@@ -142,6 +143,9 @@ export default function EditMember() {
   }, [id, navigate, toast]);
 
   const handleSendNotification = () => {
+    // Only call this function if member is not null
+    if (!member) return;
+    
     console.log(`Sending notification to ${member.fullName}: ${notificationMessage}`);
     
     toast({
@@ -155,8 +159,10 @@ export default function EditMember() {
 
   const handleUpdateSuccess = () => {
     toast({
-      title: "Member Updated",
-      description: "The member has been successfully updated.",
+      title: isNewMember ? "Member Added" : "Member Updated",
+      description: isNewMember 
+        ? "The new member has been successfully added." 
+        : "The member has been successfully updated.",
     });
     navigate("/people/members");
   };
@@ -186,7 +192,7 @@ export default function EditMember() {
       </div>
 
       <Card className="p-6">
-        {!isNewMember && (
+        {!isNewMember && member && (
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-8">
             <Avatar className="h-24 w-24">
               <AvatarImage src={member?.image} alt={member?.fullName} />
@@ -214,32 +220,34 @@ export default function EditMember() {
         />
       </Card>
 
-      <Dialog open={showNotificationDialog} onOpenChange={setShowNotificationDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Send Notification to {member.fullName}</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <label className="text-sm text-church-secondary block mb-2">Notification Message</label>
-            <textarea 
-              className="w-full rounded-md border border-church-border p-2 text-church-primary h-32" 
-              placeholder="Enter notification message..."
-              value={notificationMessage}
-              onChange={(e) => setNotificationMessage(e.target.value)}
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowNotificationDialog(false)}>Cancel</Button>
-            <Button 
-              onClick={handleSendNotification} 
-              className="bg-church-primary hover:bg-church-accent text-white"
-              disabled={!notificationMessage.trim()}
-            >
-              Send Notification
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {member && (
+        <Dialog open={showNotificationDialog} onOpenChange={setShowNotificationDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Send Notification to {member.fullName}</DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <label className="text-sm text-church-secondary block mb-2">Notification Message</label>
+              <textarea 
+                className="w-full rounded-md border border-church-border p-2 text-church-primary h-32" 
+                placeholder="Enter notification message..."
+                value={notificationMessage}
+                onChange={(e) => setNotificationMessage(e.target.value)}
+              />
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowNotificationDialog(false)}>Cancel</Button>
+              <Button 
+                onClick={handleSendNotification} 
+                className="bg-church-primary hover:bg-church-accent text-white"
+                disabled={!notificationMessage.trim()}
+              >
+                Send Notification
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
