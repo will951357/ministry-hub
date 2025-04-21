@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -72,6 +73,13 @@ export function SideNav({ isOpen, setIsOpen, isMobileView }: SideNavProps) {
   };
   
   const [membershipRequestsCount, setMembershipRequestsCount] = useState(4);
+  
+  // Function to handle menu item clicks, will close the sidebar on mobile
+  const handleMenuItemClick = () => {
+    if (isMobileView) {
+      setIsOpen(false);
+    }
+  };
   
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <Home size={20} />, href: '/' },
@@ -210,7 +218,10 @@ export function SideNav({ isOpen, setIsOpen, isMobileView }: SideNavProps) {
                             ? "bg-sidebar-accent/30 text-white" 
                             : "text-sidebar-foreground/90 hover:bg-sidebar-accent/10 hover:text-sidebar-foreground"
                         )}
-                        onClick={() => setActiveItem(item.id)}
+                        onClick={() => {
+                          setActiveItem(item.id);
+                          handleMenuItemClick(); // Close sidebar on mobile when submenu item is clicked
+                        }}
                       >
                         <span className="mr-3">{subItem.icon}</span>
                         <span className="flex-1">{subItem.label}</span>
@@ -235,7 +246,10 @@ export function SideNav({ isOpen, setIsOpen, isMobileView }: SideNavProps) {
                     : "text-sidebar-foreground hover:bg-sidebar-accent/20",
                   !isOpen && "justify-center"
                 )}
-                onClick={() => setActiveItem(item.id)}
+                onClick={() => {
+                  setActiveItem(item.id);
+                  handleMenuItemClick(); // Close sidebar on mobile when menu item is clicked
+                }}
               >
                 <span className={cn("mr-3", !isOpen && "mr-0")}>{item.icon}</span>
                 {isOpen && <span>{item.label}</span>}
