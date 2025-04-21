@@ -1,6 +1,6 @@
 
 import { format, addMonths, subMonths } from "date-fns";
-import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarIcon, ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
   Popover, 
@@ -69,23 +69,29 @@ export function AppointmentHeader({
         </CardDescription>
       </div>
       
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="outline" size="sm">
-            <CalendarIcon className="h-4 w-4 mr-2" />
-            {format(date, viewMode === "day" ? 'MMM d, yyyy' : 'MMM yyyy')}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="end">
-          <Calendar
-            mode="single"
-            selected={date}
-            onSelect={(newDate) => newDate && onDateSelect(newDate)}
-            initialFocus
-            className="pointer-events-auto"
-          />
-        </PopoverContent>
-      </Popover>
+      <div className="flex gap-2 items-center">
+        <Button variant="outline" size="sm" onClick={() => window.print()}>
+          <Download className="h-4 w-4 mr-2" />
+          Download List
+        </Button>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm">
+              <CalendarIcon className="h-4 w-4 mr-2" />
+              {format(date, viewMode === "day" ? 'MMM d, yyyy' : 'MMM yyyy')}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="end">
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={(newDate) => newDate && onDateSelect(newDate)}
+              initialFocus
+              className="pointer-events-auto"
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
     </div>
   );
 }

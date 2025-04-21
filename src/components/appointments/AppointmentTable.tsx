@@ -56,7 +56,7 @@ export function AppointmentTable({ appointments, filterType }: AppointmentTableP
         <TableRow>
           <TableHead>Time</TableHead>
           <TableHead>Title</TableHead>
-          <TableHead>Type</TableHead>
+          <TableHead className="w-[120px]">Type</TableHead>
           <TableHead>Member</TableHead>
           <TableHead>Location</TableHead>
           <TableHead>Status</TableHead>
@@ -75,6 +75,7 @@ export function AppointmentTable({ appointments, filterType }: AppointmentTableP
             <TableCell>
               <Badge 
                 variant={appointmentTypes[appointment.type].color}
+                className="h-6 px-2 inline-flex items-center"
               >
                 {appointmentTypes[appointment.type].label}
               </Badge>
