@@ -1,5 +1,4 @@
-
-import { Bell, Calendar, BookOpen } from 'lucide-react';
+import { Bell, Calendar, BookOpen, Menu } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -14,15 +13,28 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 interface TopNavProps {
   toggleSidebar: () => void;
+  showMenuButton: boolean;
 }
 
-export function TopNav({ toggleSidebar }: TopNavProps) {
+export function TopNav({ toggleSidebar, showMenuButton }: TopNavProps) {
   return (
     <header className="sticky top-0 z-10 h-16 border-b border-church-border bg-white shadow-sm">
       <div className="flex h-full items-center justify-between px-4">
-        <div className="flex flex-col items-start justify-center">
-          <h2 className="text-xl font-semibold text-church-primary">Grace Community Church</h2>
-          <p className="text-xs text-church-secondary italic">"For by grace you have been saved through faith." — Ephesians 2:8</p>
+        <div className="flex items-center gap-4">
+          {showMenuButton && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={toggleSidebar}
+              className="md:hidden text-church-primary hover:bg-church-muted hover:text-church-accent"
+            >
+              <Menu size={24} />
+            </Button>
+          )}
+          <div className="flex flex-col items-start justify-center">
+            <h2 className="text-xl font-semibold text-church-primary">Grace Community Church</h2>
+            <p className="text-xs text-church-secondary italic">"For by grace you have been saved through faith." — Ephesians 2:8</p>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">

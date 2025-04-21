@@ -42,9 +42,10 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 interface SideNavProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  isMobileView: boolean;
 }
 
-export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
+export function SideNav({ isOpen, setIsOpen, isMobileView }: SideNavProps) {
   const location = useLocation();
   const [activeItem, setActiveItem] = useState(() => {
     const path = location.pathname;
@@ -136,7 +137,8 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
     <aside 
       className={cn(
         "fixed left-0 top-0 h-full bg-sidebar text-sidebar-foreground transition-all duration-300 ease-in-out z-20",
-        isOpen ? "w-64" : "w-16"
+        isOpen ? "w-64" : "w-0 md:w-16",
+        isMobileView && !isOpen && "transform -translate-x-full md:transform-none"
       )}
     >
       <div className="flex h-16 items-center px-4 border-b border-sidebar-border">
@@ -272,16 +274,18 @@ export function SideNav({ isOpen, setIsOpen }: SideNavProps) {
         </div>
       )}
       
-      <div className="absolute bottom-4 left-0 right-0 flex justify-center">
-        <Button
-          onClick={() => setIsOpen(!isOpen)}
-          className="p-2 rounded-full bg-sidebar-border/20 hover:bg-sidebar-border/30 transition-all text-sidebar-foreground"
-          variant="ghost"
-          size="icon"
-        >
-          {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-        </Button>
-      </div>
+      {!isMobileView && (
+        <div className="absolute bottom-4 left-0 right-0 flex justify-center">
+          <Button
+            onClick={() => setIsOpen(!isOpen)}
+            className="p-2 rounded-full bg-sidebar-border/20 hover:bg-sidebar-border/30 transition-all text-sidebar-foreground"
+            variant="ghost"
+            size="icon"
+          >
+            {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+          </Button>
+        </div>
+      )}
     </aside>
   );
 }
