@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
@@ -15,16 +14,19 @@ export default function EditMember() {
   const { toast } = useToast();
   const [member, setMember] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const isNewMember = !id;
   const [showNotificationDialog, setShowNotificationDialog] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
 
   useEffect(() => {
-    // In a real app, this would be an API call to fetch the member data
-    // For now, we'll use mock data based on the ID
+    if (isNewMember) {
+      setLoading(false);
+      return;
+    }
+
     const getMemberData = () => {
       setLoading(true);
       
-      // Mock member data - in a real app this would come from an API
       const mockMembers = [
         {
           id: "1",
@@ -140,7 +142,6 @@ export default function EditMember() {
   }, [id, navigate, toast]);
 
   const handleSendNotification = () => {
-    // In a real app, this would send a notification to the specific member
     console.log(`Sending notification to ${member.fullName}: ${notificationMessage}`);
     
     toast({
@@ -160,7 +161,7 @@ export default function EditMember() {
     navigate("/people/members");
   };
 
-  if (loading) {
+  if (loading && !isNewMember) {
     return (
       <div className="flex justify-center items-center h-64">
         <p>Loading member information...</p>
@@ -179,37 +180,40 @@ export default function EditMember() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <h1 className="text-2xl font-semibold text-church-primary">Edit Member</h1>
+        <h1 className="text-2xl font-semibold text-church-primary">
+          {isNewMember ? "Add New Member" : "Edit Member"}
+        </h1>
       </div>
 
       <Card className="p-6">
-        <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-8">
-          <Avatar className="h-24 w-24">
-            <AvatarImage src={member.image} alt={member.fullName} />
-            <AvatarFallback className="text-2xl">{member.avatar}</AvatarFallback>
-          </Avatar>
-          <div>
-            <h2 className="text-2xl font-semibold text-center md:text-left">{member.fullName}</h2>
-            <p className="text-church-secondary text-center md:text-left mb-4 capitalize">{member.profile}</p>
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2"
-              onClick={() => setShowNotificationDialog(true)}
-            >
-              <Bell className="h-4 w-4" />
-              Send Notification
-            </Button>
+        {!isNewMember && (
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-8">
+            <Avatar className="h-24 w-24">
+              <AvatarImage src={member?.image} alt={member?.fullName} />
+              <AvatarFallback className="text-2xl">{member?.avatar}</AvatarFallback>
+            </Avatar>
+            <div>
+              <h2 className="text-2xl font-semibold text-center md:text-left">{member?.fullName}</h2>
+              <p className="text-church-secondary text-center md:text-left mb-4 capitalize">{member?.profile}</p>
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2"
+                onClick={() => setShowNotificationDialog(true)}
+              >
+                <Bell className="h-4 w-4" />
+                Send Notification
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
 
         <NewMemberForm 
           onSuccess={handleUpdateSuccess}
           initialData={member}
-          isEditing={true}
+          isEditing={!isNewMember}
         />
       </Card>
 
-      {/* Send Notification Dialog */}
       <Dialog open={showNotificationDialog} onOpenChange={setShowNotificationDialog}>
         <DialogContent>
           <DialogHeader>

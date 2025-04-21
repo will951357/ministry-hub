@@ -51,6 +51,7 @@ const App = () => (
           <Route path="/people" element={<People />}>
             <Route index element={<Members />} />
             <Route path="members" element={<Members />} />
+            <Route path="members/new" element={<EditMember />} />
             <Route path="members/:id" element={<EditMember />} />
             <Route path="visitors" element={<Visitors />} />
             <Route path="journeys" element={<Journeys />} />

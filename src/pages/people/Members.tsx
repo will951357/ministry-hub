@@ -27,7 +27,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { NewMemberForm } from "@/components/members/NewMemberForm";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 
 export default function Members() {
@@ -40,9 +39,6 @@ export default function Members() {
   });
   const [showNotificationDialog, setShowNotificationDialog] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
-  const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [memberToDelete, setMemberToDelete] = useState<number | null>(null);
   const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
   const { toast } = useToast();
 
@@ -233,7 +229,7 @@ export default function Members() {
         </div>
         <Button 
           className="bg-church-primary hover:bg-church-accent text-white md:self-start"
-          onClick={() => setShowAddMemberDialog(true)}
+          onClick={() => navigate("/people/members/new")}
         >
           <Plus className="mr-2 h-4 w-4" />
           Add a new member
@@ -574,21 +570,6 @@ export default function Members() {
               Delete
             </Button>
           </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showAddMemberDialog} onOpenChange={setShowAddMemberDialog}>
-        <DialogContent className="sm:max-w-[700px]">
-          <DialogHeader>
-            <DialogTitle>Add New Member</DialogTitle>
-          </DialogHeader>
-          <NewMemberForm onSuccess={() => {
-            setShowAddMemberDialog(false);
-            toast({
-              title: "Member Added",
-              description: "The new member has been successfully added.",
-            });
-          }} />
         </DialogContent>
       </Dialog>
     </div>
