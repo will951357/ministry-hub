@@ -433,38 +433,48 @@ export default function Journeys() {
       isPositive: isPositiveTrend
     }} className="bg-white" description="Compared to last month" />
     </div>;
-  return <div className="space-y-6">
-      <div className="flex justify-between items-center">
+
+  return <div className="space-y-6 px-4 md:px-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-church-primary mb-2">Faith Journeys</h1>
           <p className="text-church-secondary">
             Track and support the spiritual journeys of your congregation members.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          
-          <Button className="bg-church-accent hover:bg-church-accent/90 flex items-center gap-2" onClick={() => setIsAddJourneyOpen(true)}>
-            <PlusCircle className="h-4 w-4" />
-            New Journey
-          </Button>
-        </div>
+        <Button 
+          className="bg-primary text-primary-foreground hover:bg-primary/90 w-full md:w-auto" 
+          onClick={() => setIsAddJourneyOpen(true)}
+        >
+          <PlusCircle className="h-4 w-4 mr-2" />
+          New Journey
+        </Button>
       </div>
 
       {journeyStats}
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center justify-between">
         <h2 className="text-xl font-medium text-church-primary">All Journeys</h2>
         
-        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-[600px]">
           <div className="relative flex-grow">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-            <Input placeholder="Search journeys..." className="pl-10" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+            <Input 
+              placeholder="Search journeys..." 
+              className="pl-10 w-full" 
+              value={searchTerm} 
+              onChange={e => setSearchTerm(e.target.value)} 
+            />
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="icon">
+          <div className="flex gap-2 justify-end sm:justify-start">
+            <Button variant="outline" size="icon" className="shrink-0">
               <Filter size={18} />
             </Button>
-            <Button variant="outline" className="flex items-center gap-1" onClick={downloadAllJourneysData}>
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-1 shrink-0" 
+              onClick={downloadAllJourneysData}
+            >
               <Download size={18} />
               <span className="hidden sm:inline">Download All</span>
             </Button>
