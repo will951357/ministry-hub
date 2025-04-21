@@ -9,18 +9,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
-
 export default function Appointments() {
   const [date, setDate] = useState<Date>(new Date());
   const [view, setView] = useState<string>("all");
   const navigate = useNavigate();
-
-  const filteredAppointments = appointments.filter(appointment => 
-    (view === "all" || appointment.type === view)
-  );
-
+  const filteredAppointments = appointments.filter(appointment => view === "all" || appointment.type === view);
   const pendingAppointments = appointments.filter(appointment => appointment.status === "pending");
-
   const handleDownloadAppointments = () => {
     const appointmentsData = filteredAppointments.map(apt => ({
       title: apt.title,
@@ -32,11 +26,7 @@ export default function Appointments() {
       memberName: apt.memberName || 'Unassigned',
       completed: apt.completed ? 'Yes' : 'No'
     }));
-
-    const csvContent = "data:text/csv;charset=utf-8," + 
-      Object.keys(appointmentsData[0]).join(",") + "\n" +
-      appointmentsData.map(row => Object.values(row).join(",")).join("\n");
-
+    const csvContent = "data:text/csv;charset=utf-8," + Object.keys(appointmentsData[0]).join(",") + "\n" + appointmentsData.map(row => Object.values(row).join(",")).join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -45,13 +35,10 @@ export default function Appointments() {
     link.click();
     document.body.removeChild(link);
   };
-
   const handleCreateAppointment = () => {
     navigate("/people/appointments/create");
   };
-
-  return (
-    <div>
+  return <div>
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-semibold text-church-primary">Appointments</h1>
@@ -60,10 +47,7 @@ export default function Appointments() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleDownloadAppointments}>
-            <Download className="h-4 w-4 mr-2" />
-            Download List
-          </Button>
+          
           <Button onClick={handleCreateAppointment}>
             <Plus className="h-4 w-4 mr-2" />
             New Appointment
@@ -71,8 +55,7 @@ export default function Appointments() {
         </div>
       </div>
       
-      {pendingAppointments.length > 0 && (
-        <Card className="mb-6 border-church-border shadow-sm">
+      {pendingAppointments.length > 0 && <Card className="mb-6 border-church-border shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg font-medium">Waiting for Approval</CardTitle>
             <CardDescription>
@@ -82,8 +65,7 @@ export default function Appointments() {
           <CardContent>
             <PendingAppointments appointments={pendingAppointments} />
           </CardContent>
-        </Card>
-      )}
+        </Card>}
       
       <Card className="border-church-border shadow-sm">
         <CardHeader className="pb-2">
@@ -100,11 +82,9 @@ export default function Appointments() {
               <TabsTrigger value="social">Social</TabsTrigger>
             </TabsList>
             
-            {Object.keys(appointmentTypes).map(type => (
-              <TabsContent key={type} value={type}>
+            {Object.keys(appointmentTypes).map(type => <TabsContent key={type} value={type}>
                 <AppointmentTable appointments={filteredAppointments} filterType={type} />
-              </TabsContent>
-            ))}
+              </TabsContent>)}
             
             <TabsContent value="all">
               <AppointmentTable appointments={filteredAppointments} />
@@ -112,6 +92,5 @@ export default function Appointments() {
           </Tabs>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 }
