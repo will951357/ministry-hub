@@ -186,6 +186,11 @@ export function SideNav({ isOpen, setIsOpen, isMobileView }: SideNavProps) {
                         toggleSubmenu(item.id);
                       }
                       setActiveItem(item.id);
+                      // If it's a mobile view and we're clicking a parent menu item with a direct href,
+                      // close the sidebar only if it has a valid href (not just a submenu toggle)
+                      if (isMobileView && item.href && item.href !== '#') {
+                        handleMenuItemClick();
+                      }
                     }}
                   >
                     <span className={cn("mr-3", !isOpen && "mr-0")}>{item.icon}</span>
@@ -278,10 +283,10 @@ export function SideNav({ isOpen, setIsOpen, isMobileView }: SideNavProps) {
               <DropdownMenuContent align="start" className="bg-white border-church-border">
                 <DropdownMenuLabel className="text-church-primary">My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-church-border" />
-                <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted">Profile</DropdownMenuItem>
-                <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted">Switch Church</DropdownMenuItem>
+                <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted" onClick={handleMenuItemClick}>Profile</DropdownMenuItem>
+                <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted" onClick={handleMenuItemClick}>Switch Church</DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-church-border" />
-                <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted">Log out</DropdownMenuItem>
+                <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted" onClick={handleMenuItemClick}>Log out</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
