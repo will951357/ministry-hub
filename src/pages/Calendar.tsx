@@ -12,8 +12,7 @@ import { WeekCalendarView } from '@/components/events/WeekCalendarView';
 import { DayCalendarView } from '@/components/events/DayCalendarView';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { Event } from "@/types/event";
-import { useIsMobile } from "@/lib/hooks";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type CalendarItemType = 'events' | 'birthdays' | 'appointments' | 'classes';
 
@@ -108,7 +107,8 @@ const Calendar = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [calendarViewMode, setCalendarViewMode] = useState<'month' | 'week' | 'day'>('month');
   const [selectedTypes, setSelectedTypes] = useState<CalendarItemType[]>(['events', 'birthdays', 'appointments', 'classes']);
-  const [defaultView, setDefaultView] = useState<'month' | 'week' | 'day'>(useIsMobile() ? 'day' : 'month');
+  const isMobile = useIsMobile();
+  const [defaultView, setDefaultView] = useState<'month' | 'week' | 'day'>(isMobile ? 'day' : 'month');
 
   const filteredEvents = useMemo(() => 
     sampleEvents.filter(event => selectedTypes.includes(event.type)),
@@ -252,7 +252,7 @@ const Calendar = () => {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="end">
-                <Calendar
+                <CalendarComponent
                   mode="single"
                   selected={selectedDate}
                   onSelect={setSelectedDate}

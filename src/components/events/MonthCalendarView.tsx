@@ -1,7 +1,9 @@
+
 import React from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday } from 'date-fns';
 import { cn } from "@/lib/utils";
 import { Event } from '@/types/event';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Tooltip,
   TooltipContent,
@@ -16,11 +18,12 @@ interface MonthCalendarViewProps {
   onAddEvent: (date: Date) => void;
 }
 
-export function MonthCalendarView({ events, selectedDate, onSelectDate }: MonthCalendarViewProps) {
+export function MonthCalendarView({ events, selectedDate, onSelectDate, onAddEvent }: MonthCalendarViewProps) {
   const monthStart = startOfMonth(selectedDate);
   const monthEnd = endOfMonth(selectedDate);
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
   const weekdaysLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const isMobile = useIsMobile();
   
   const getEventsForDate = (date: Date) => {
     return events.filter(event => isSameDay(new Date(event.date), date));
