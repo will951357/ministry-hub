@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
@@ -13,11 +14,11 @@ import { DayCalendarView } from '@/components/events/DayCalendarView';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Event } from '@/types/event';
 
-type CalendarItemType = 'events' | 'birthdays' | 'appointments' | 'classes';
-
+// Extend the Event type with an additional 'type' property
 interface CalendarEvent extends Event {
-  type: CalendarItemType;
+  type: 'events' | 'birthdays' | 'appointments' | 'classes';
 }
 
 const sampleEvents: CalendarEvent[] = [
@@ -106,7 +107,7 @@ const sampleEvents: CalendarEvent[] = [
 const Calendar = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [calendarViewMode, setCalendarViewMode] = useState<'month' | 'week' | 'day'>('month');
-  const [selectedTypes, setSelectedTypes] = useState<CalendarItemType[]>(['events', 'birthdays', 'appointments', 'classes']);
+  const [selectedTypes, setSelectedTypes] = useState<('events' | 'birthdays' | 'appointments' | 'classes')[]>(['events', 'birthdays', 'appointments', 'classes']);
   const isMobile = useIsMobile();
   const [defaultView, setDefaultView] = useState<'month' | 'week' | 'day'>(isMobile ? 'day' : 'month');
 
@@ -115,7 +116,7 @@ const Calendar = () => {
     [selectedTypes]
   );
 
-  const getTypeColor = (type: CalendarItemType) => {
+  const getTypeColor = (type: 'events' | 'birthdays' | 'appointments' | 'classes') => {
     switch(type) {
       case 'events':
         return "bg-church-accent text-white";
@@ -130,7 +131,7 @@ const Calendar = () => {
     }
   };
 
-  const handleTypeToggle = (type: CalendarItemType) => {
+  const handleTypeToggle = (type: 'events' | 'birthdays' | 'appointments' | 'classes') => {
     setSelectedTypes(prev => 
       prev.includes(type) 
         ? prev.filter(t => t !== type)
@@ -162,7 +163,7 @@ const Calendar = () => {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {(['events', 'birthdays', 'appointments', 'classes'] as CalendarItemType[]).map((type) => (
+              {(['events', 'birthdays', 'appointments', 'classes'] as const).map((type) => (
                 <Badge
                   key={type}
                   variant="secondary"
@@ -266,7 +267,7 @@ const Calendar = () => {
           <div className="p-4 md:p-6">
             {calendarViewMode === 'month' && (
               <MonthCalendarView 
-                events={filteredEvents as Event[]}
+                events={filteredEvents}
                 selectedDate={selectedDate || new Date()} 
                 onSelectDate={handleDayClick}
                 onAddEvent={() => {}}
@@ -275,7 +276,7 @@ const Calendar = () => {
             
             {calendarViewMode === 'week' && (
               <WeekCalendarView 
-                events={filteredEvents as Event[]}
+                events={filteredEvents}
                 selectedDate={selectedDate || new Date()}
                 onSelectEvent={() => {}}
                 onAddEvent={() => {}}
@@ -284,7 +285,7 @@ const Calendar = () => {
             
             {calendarViewMode === 'day' && (
               <DayCalendarView 
-                events={filteredEvents as Event[]}
+                events={filteredEvents}
                 selectedDate={selectedDate || new Date()}
                 onSelectEvent={() => {}}
                 onAddEvent={() => {}}
