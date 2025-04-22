@@ -73,15 +73,7 @@ export function SideNav({ isOpen, setIsOpen, isMobileView }: SideNavProps) {
   
   const [membershipRequestsCount, setMembershipRequestsCount] = useState(4);
   
-  const handleMenuItemClick = (hasSubmenuOrEvent: boolean | MouseEvent) => {
-    if (typeof hasSubmenuOrEvent !== 'boolean') {
-      if (isMobileView) {
-        setIsOpen(false);
-      }
-      return;
-    }
-    
-    const hasSubmenu = hasSubmenuOrEvent;
+  const handleMenuItemClick = (hasSubmenu = false) => {
     if (isMobileView && !hasSubmenu) {
       setIsOpen(false);
     }
@@ -148,167 +140,178 @@ export function SideNav({ isOpen, setIsOpen, isMobileView }: SideNavProps) {
   ];
 
   return (
-    <aside 
-      className={cn(
-        "fixed left-0 top-0 h-full bg-sidebar text-sidebar-foreground transition-all duration-300 ease-in-out z-20",
-        isOpen ? "w-64" : "w-0 md:w-16",
-        isMobileView && !isOpen && "transform -translate-x-full md:transform-none"
+    <>
+      {/* Overlay for mobile sidebar - only show on small screens and when sidebar is open */}
+      {isMobileView && isOpen && (
+        <div
+          className="fixed inset-0 z-10 bg-[#1A1F2C] bg-opacity-80 transition-opacity"
+          aria-label="Sidebar overlay"
+          onClick={() => setIsOpen(false)}
+        />
       )}
-    >
-      <div className="flex h-16 items-center px-4 border-b border-sidebar-border">
-        {isOpen ? (
-          <div className="flex items-center space-x-2">
-            <PanelLeft className="h-6 w-6 text-church-accent" />
-            <span className="font-semibold text-xl text-white">ChurchHub</span>
-          </div>
-        ) : (
-          <PanelLeft className="h-6 w-6 mx-auto text-church-accent" />
+
+      <aside 
+        className={cn(
+          "fixed left-0 top-0 h-full bg-sidebar text-sidebar-foreground transition-all duration-300 ease-in-out z-20",
+          isOpen ? "w-64" : "w-0 md:w-16",
+          isMobileView && !isOpen && "transform -translate-x-full md:transform-none"
         )}
-      </div>
-      
-      <div className="py-4 overflow-y-auto h-[calc(100vh-4rem-6rem)]">
-        <nav className="space-y-1 px-2">
-          {navItems.map((item) => (
-            item.subItems ? (
-              <Collapsible 
-                key={item.id}
-                open={openSubmenu === item.id && isOpen}
-                className="w-full"
-              >
-                <CollapsibleTrigger asChild>
-                  <button
-                    className={cn(
-                      "flex items-center w-full rounded-md px-3 py-2 text-sm font-medium transition-all",
-                      activeItem === item.id 
-                        ? "bg-church-accent text-white" 
-                        : "text-sidebar-foreground hover:bg-sidebar-accent/20",
-                      !isOpen && "justify-center"
-                    )}
-                    onClick={() => {
-                      if (isOpen) {
-                        toggleSubmenu(item.id);
-                      } else {
-                        setIsOpen(true);
-                        toggleSubmenu(item.id);
-                      }
-                      setActiveItem(item.id);
-                      // We DON'T close the sidebar on mobile when clicking a parent menu item with submenu
-                    }}
-                  >
-                    <span className={cn("mr-3", !isOpen && "mr-0")}>{item.icon}</span>
-                    {isOpen && (
-                      <>
-                        <span className="flex-1 text-left">{item.label}</span>
-                        {item.badge && (
-                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white text-xs font-medium">
-                            {item.badge}
-                          </span>
-                        )}
-                        <ChevronRight 
-                          className={cn("h-4 w-4 transition-transform ml-2", 
-                            openSubmenu === item.id && "transform rotate-90"
-                          )} 
-                        />
-                      </>
-                    )}
+      >
+        <div className="flex h-16 items-center px-4 border-b border-sidebar-border">
+          {isOpen ? (
+            <div className="flex items-center space-x-2">
+              <PanelLeft className="h-6 w-6 text-church-accent" />
+              <span className="font-semibold text-xl text-white">ChurchHub</span>
+            </div>
+          ) : (
+            <PanelLeft className="h-6 w-6 mx-auto text-church-accent" />
+          )}
+        </div>
+        
+        <div className="py-4 overflow-y-auto h-[calc(100vh-4rem-6rem)]">
+          <nav className="space-y-1 px-2">
+            {navItems.map((item) => (
+              item.subItems ? (
+                <Collapsible 
+                  key={item.id}
+                  open={openSubmenu === item.id && isOpen}
+                  className="w-full"
+                >
+                  <CollapsibleTrigger asChild>
+                    <button
+                      className={cn(
+                        "flex items-center w-full rounded-md px-3 py-2 text-sm font-medium transition-all",
+                        activeItem === item.id 
+                          ? "bg-church-accent text-white" 
+                          : "text-sidebar-foreground hover:bg-sidebar-accent/20",
+                        !isOpen && "justify-center"
+                      )}
+                      onClick={() => {
+                        if (isOpen) {
+                          toggleSubmenu(item.id);
+                        } else {
+                          setIsOpen(true);
+                          toggleSubmenu(item.id);
+                        }
+                        setActiveItem(item.id);
+                        // Do NOT close sidebar when opening submenu, on any view
+                      }}
+                    >
+                      <span className={cn("mr-3", !isOpen && "mr-0")}>{item.icon}</span>
+                      {isOpen && (
+                        <>
+                          <span className="flex-1 text-left">{item.label}</span>
+                          {item.badge && (
+                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white text-xs font-medium">
+                              {item.badge}
+                            </span>
+                          )}
+                          <ChevronRight 
+                            className={cn("h-4 w-4 transition-transform ml-2", 
+                              openSubmenu === item.id && "transform rotate-90"
+                            )} 
+                          />
+                        </>
+                      )}
+                    </button>
+                  </CollapsibleTrigger>
+                  {isOpen && (
+                    <CollapsibleContent className="pl-9 pr-2 pt-1 space-y-1">
+                      {item.subItems.map((subItem) => (
+                        <Link
+                          key={subItem.id}
+                          to={subItem.href}
+                          className={cn(
+                            "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-all",
+                            location.pathname === subItem.href || (location.pathname === item.href && subItem.id === "members") || (location.pathname === item.href && subItem.id === "groups-main")
+                              ? "bg-sidebar-accent/30 text-white" 
+                              : "text-sidebar-foreground/90 hover:bg-sidebar-accent/10 hover:text-sidebar-foreground"
+                          )}
+                          onClick={() => {
+                            setActiveItem(item.id);
+                            // Now we close the sidebar when a submenu item is clicked
+                            handleMenuItemClick(false);
+                          }}
+                        >
+                          <span className="mr-3">{subItem.icon}</span>
+                          <span className="flex-1">{subItem.label}</span>
+                          {subItem.badge && (
+                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white text-xs font-medium">
+                              {subItem.badge}
+                            </span>
+                          )}
+                        </Link>
+                      ))}
+                    </CollapsibleContent>
+                  )}
+                </Collapsible>
+              ) : (
+                <Link
+                  key={item.id}
+                  to={item.href}
+                  className={cn(
+                    "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-all",
+                    activeItem === item.id 
+                      ? "bg-church-accent text-white" 
+                      : "text-sidebar-foreground hover:bg-sidebar-accent/20",
+                    !isOpen && "justify-center"
+                  )}
+                  onClick={() => {
+                    setActiveItem(item.id);
+                    // Close sidebar for main menu items without submenus
+                    handleMenuItemClick(false);
+                  }}
+                >
+                  <span className={cn("mr-3", !isOpen && "mr-0")}>{item.icon}</span>
+                  {isOpen && <span>{item.label}</span>}
+                </Link>
+              )
+            ))}
+          </nav>
+        </div>
+        
+        {isOpen && (
+          <div className="absolute bottom-16 left-0 right-0 px-4">
+            <div className="flex items-center space-x-3 py-3 border-t border-sidebar-border">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center space-x-3">
+                    <Avatar className="h-10 w-10 border border-church-border">
+                      <AvatarImage src="https://github.com/shadcn.png" alt="User" />
+                      <AvatarFallback className="bg-church-accent text-white">PJ</AvatarFallback>
+                    </Avatar>
+                    <div className="text-left">
+                      <p className="text-sm font-medium text-sidebar-foreground">Pastor John</p>
+                      <p className="text-xs text-sidebar-foreground/70">Admin</p>
+                    </div>
                   </button>
-                </CollapsibleTrigger>
-                {isOpen && (
-                  <CollapsibleContent className="pl-9 pr-2 pt-1 space-y-1">
-                    {item.subItems.map((subItem) => (
-                      <Link
-                        key={subItem.id}
-                        to={subItem.href}
-                        className={cn(
-                          "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-all",
-                          location.pathname === subItem.href || (location.pathname === item.href && subItem.id === "members") || (location.pathname === item.href && subItem.id === "groups-main")
-                            ? "bg-sidebar-accent/30 text-white" 
-                            : "text-sidebar-foreground/90 hover:bg-sidebar-accent/10 hover:text-sidebar-foreground"
-                        )}
-                        onClick={() => {
-                          setActiveItem(item.id);
-                          // Now we close the sidebar when a submenu item is clicked
-                          handleMenuItemClick(false);
-                        }}
-                      >
-                        <span className="mr-3">{subItem.icon}</span>
-                        <span className="flex-1">{subItem.label}</span>
-                        {subItem.badge && (
-                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white text-xs font-medium">
-                            {subItem.badge}
-                          </span>
-                        )}
-                      </Link>
-                    ))}
-                  </CollapsibleContent>
-                )}
-              </Collapsible>
-            ) : (
-              <Link
-                key={item.id}
-                to={item.href}
-                className={cn(
-                  "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-all",
-                  activeItem === item.id 
-                    ? "bg-church-accent text-white" 
-                    : "text-sidebar-foreground hover:bg-sidebar-accent/20",
-                  !isOpen && "justify-center"
-                )}
-                onClick={() => {
-                  setActiveItem(item.id);
-                  // Close sidebar for main menu items without submenus
-                  handleMenuItemClick(false);
-                }}
-              >
-                <span className={cn("mr-3", !isOpen && "mr-0")}>{item.icon}</span>
-                {isOpen && <span>{item.label}</span>}
-              </Link>
-            )
-          ))}
-        </nav>
-      </div>
-      
-      {isOpen && (
-        <div className="absolute bottom-16 left-0 right-0 px-4">
-          <div className="flex items-center space-x-3 py-3 border-t border-sidebar-border">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center space-x-3">
-                  <Avatar className="h-10 w-10 border border-church-border">
-                    <AvatarImage src="https://github.com/shadcn.png" alt="User" />
-                    <AvatarFallback className="bg-church-accent text-white">PJ</AvatarFallback>
-                  </Avatar>
-                  <div className="text-left">
-                    <p className="text-sm font-medium text-sidebar-foreground">Pastor John</p>
-                    <p className="text-xs text-sidebar-foreground/70">Admin</p>
-                  </div>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="bg-white border-church-border">
-                <DropdownMenuLabel className="text-church-primary">My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-church-border" />
-                <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted" onClick={handleMenuItemClick}>Profile</DropdownMenuItem>
-                <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted" onClick={handleMenuItemClick}>Switch Church</DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-church-border" />
-                <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted" onClick={handleMenuItemClick}>Log out</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="bg-white border-church-border">
+                  <DropdownMenuLabel className="text-church-primary">My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-church-border" />
+                  <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted" onClick={() => handleMenuItemClick(false)}>Profile</DropdownMenuItem>
+                  <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted" onClick={() => handleMenuItemClick(false)}>Switch Church</DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-church-border" />
+                  <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted" onClick={() => handleMenuItemClick(false)}>Log out</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
-        </div>
-      )}
-      
-      {!isMobileView && (
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center">
-          <Button
-            onClick={() => setIsOpen(!isOpen)}
-            className="p-2 rounded-full bg-sidebar-border/20 hover:bg-sidebar-border/30 transition-all text-sidebar-foreground"
-            variant="ghost"
-            size="icon"
-          >
-            {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-          </Button>
-        </div>
-      )}
-    </aside>
+        )}
+        
+        {!isMobileView && (
+          <div className="absolute bottom-4 left-0 right-0 flex justify-center">
+            <Button
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-2 rounded-full bg-sidebar-border/20 hover:bg-sidebar-border/30 transition-all text-sidebar-foreground"
+              variant="ghost"
+              size="icon"
+            >
+              {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+            </Button>
+          </div>
+        )}
+      </aside>
+    </>
   );
 }
