@@ -10,15 +10,19 @@ import { appointmentTypes } from "@/types/appointment";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import ChooseMemberDialog from "./ChooseMemberDialog";
 
 export default function AppointmentDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const appointment = appointments.find(a => a.id === Number(id));
-  const [observation, setObservation] = useState(appointment?.observation || "");
+  const appointmentData = appointments.find(a => a.id === Number(id));
+  // Local state for transient editing only
+  const [observation, setObservation] = useState(appointmentData?.observation || "");
+  const [assignedMember, setAssignedMember] = useState(appointmentData?.assignedMember || "");
+  const [openMemberDialog, setOpenMemberDialog] = useState(false);
 
-  if (!appointment) {
+  if (!appointmentData) {
     return (
       <div className="text-center py-8">
         <p>Appointment not found</p>
@@ -38,6 +42,16 @@ export default function AppointmentDetails() {
     });
   };
 
+  const handleChooseMember = (member: string) => {
+    setAssignedMember(member);
+    setOpenMemberDialog(false);
+    toast({
+      title: "Member assigned",
+      description: `${member} has been assigned to the appointment.`,
+    });
+    // In a real app, save API call here
+  };
+
   return (
     <div>
       <div className="flex items-center mb-6">
@@ -49,22 +63,21 @@ export default function AppointmentDetails() {
           <ChevronLeft className="h-5 w-5" />
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold text-church-primary">{appointment.title}</h1>
+          <h1 className="text-2xl font-semibold text-church-primary">{appointmentData.title}</h1>
           <p className="text-church-secondary">Appointment Details</p>
         </div>
       </div>
-
       <Card>
         <CardHeader>
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle>{format(appointment.date, "PPP")}</CardTitle>
+              <CardTitle>{format(appointmentData.date, "PPP")}</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                {format(appointment.date, "p")} at {appointment.location}
+                {format(appointmentData.date, "p")} at {appointmentData.location}
               </p>
             </div>
-            <Badge variant={appointmentTypes[appointment.type].color}>
-              {appointmentTypes[appointment.type].label}
+            <Badge variant={appointmentTypes[appointmentData.type].color}>
+              {appointmentTypes[appointmentData.type].label}
             </Badge>
           </div>
         </CardHeader>
@@ -72,23 +85,34 @@ export default function AppointmentDetails() {
           {/* Location Detail */}
           <div>
             <h3 className="font-semibold mb-1">Location</h3>
-            <p className="text-sm text-muted-foreground">{appointment.location}</p>
+            <p className="text-sm text-muted-foreground">{appointmentData.location}</p>
+          </div>
+
+          {/* Member Message */}
+          <div>
+            <h3 className="font-semibold mb-1">Member Message</h3>
+            <p className="text-sm text-muted-foreground">
+              {appointmentData.message
+                ? appointmentData.message
+                : <span className="italic text-muted-foreground">No message provided</span>
+              }
+            </p>
           </div>
 
           {/* Solicitation/Member info */}
           <div>
             <h3 className="font-semibold mb-1">Solicited By</h3>
             <p className="text-sm text-muted-foreground">
-              {appointment.memberName ? appointment.memberName : <span className="text-destructive">Not specified</span>}
+              {appointmentData.memberName ? appointmentData.memberName : <span className="text-destructive">Not specified</span>}
             </p>
           </div>
 
           <div>
             <h3 className="font-semibold mb-2">Assignment</h3>
             <p className="text-sm text-muted-foreground flex items-center gap-2">
-              {appointment.assignedMember ? (
+              {assignedMember ? (
                 <>
-                  Assigned to: {appointment.assignedMember}
+                  Assigned to: {assignedMember}
                 </>
               ) : (
                 <>
@@ -97,17 +121,19 @@ export default function AppointmentDetails() {
                     size="sm"
                     className="ml-2"
                     variant="outline"
-                    onClick={() => {
-                      // Future: open member selection modal/dialog here
-                      toast({ title: "Not yet implemented", description: "Member selection will be available soon." });
-                    }}
+                    onClick={() => setOpenMemberDialog(true)}
                   >
                     Choose Member
                   </Button>
+                  <ChooseMemberDialog
+                    open={openMemberDialog}
+                    onOpenChange={setOpenMemberDialog}
+                    onChoose={handleChooseMember}
+                  />
                 </>
               )}
             </p>
-            {appointment.isVolunteerWork && (
+            {appointmentData.isVolunteerWork && (
               <Badge variant="outline" className="mt-2">Volunteer Work</Badge>
             )}
           </div>
