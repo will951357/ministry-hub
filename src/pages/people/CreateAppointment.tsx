@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, CalendarIcon, Clock, MapPin } from "lucide-react";
+import { ChevronLeft, CalendarIcon, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -34,6 +34,8 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/components/ui/use-toast";
+import AssignedMemberChip from "./AssignedMemberChip";
+import ChooseMemberDialog from "./ChooseMemberDialog";
 
 const formSchema = z.object({
   title: z.string().min(3, { message: "Title must be at least 3 characters" }),
@@ -48,10 +50,20 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+interface AssignedMember {
+  name: string;
+  email: string;
+  photo: string;
+}
+
 export default function CreateAppointment() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [date, setDate] = useState<Date>(new Date());
+
+  // Assignment state
+  const [assignedMembers, setAssignedMembers] = useState<AssignedMember[]>([]);
+  const [openMemberDialog, setOpenMemberDialog] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -68,7 +80,6 @@ export default function CreateAppointment() {
   });
 
   const onSubmit = (data: FormData) => {
-    // Format time properly
     const [hours, minutes] = data.time.split(':').map(Number);
     const appointmentDate = new Date(data.date);
     appointmentDate.setHours(hours, minutes);
@@ -76,6 +87,7 @@ export default function CreateAppointment() {
     const newAppointment = {
       ...data,
       date: appointmentDate,
+      assignedMember: assignedMembers,
     };
 
     console.log("New appointment:", newAppointment);
@@ -84,8 +96,21 @@ export default function CreateAppointment() {
       description: "The appointment has been successfully created.",
     });
 
-    // In a real application, you would save this to your backend
     setTimeout(() => navigate("/people/appointments"), 1500);
+  };
+
+  const handleChooseMember = (member: AssignedMember) => {
+    if (!assignedMembers.some(m => m.email === member.email)) {
+      setAssignedMembers(prev => [...prev, member]);
+      toast({
+        title: "Member assigned",
+        description: `${member.name} has been assigned.`,
+      });
+    }
+  };
+
+  const handleRemoveMember = (email: string) => {
+    setAssignedMembers(prev => prev.filter(m => m.email !== email));
   };
 
   return (
@@ -185,6 +210,40 @@ export default function CreateAppointment() {
                       </FormItem>
                     )}
                   />
+
+                  {/* Assignment section */}
+                  <div>
+                    <Label className="block mb-1">Assignment</Label>
+                    <div className="flex flex-wrap gap-2 items-center mb-2">
+                      {assignedMembers.length > 0 ? (
+                        assignedMembers.map(member => (
+                          <AssignedMemberChip
+                            key={member.email}
+                            member={member}
+                            onRemove={() => handleRemoveMember(member.email)}
+                          />
+                        ))
+                      ) : (
+                        <span className="text-muted-foreground text-xs">No member assigned</span>
+                      )}
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="ml-1"
+                        variant="outline"
+                        onClick={() => setOpenMemberDialog(true)}
+                      >
+                        {assignedMembers.length > 0 ? "Add Member" : "Choose Member"}
+                      </Button>
+                    </div>
+                    <ChooseMemberDialog
+                      open={openMemberDialog}
+                      onOpenChange={setOpenMemberDialog}
+                      onChoose={handleChooseMember}
+                      alreadyChosenEmails={assignedMembers.map(m => m.email)}
+                      allowMultiple
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-4">
@@ -301,3 +360,4 @@ export default function CreateAppointment() {
     </div>
   );
 }
+
