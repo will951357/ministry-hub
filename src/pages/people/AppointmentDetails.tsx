@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
@@ -11,15 +10,19 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import ChooseMemberDialog from "./ChooseMemberDialog";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 export default function AppointmentDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const appointmentData = appointments.find(a => a.id === Number(id));
-  // Local state for transient editing only
   const [observation, setObservation] = useState(appointmentData?.observation || "");
-  const [assignedMember, setAssignedMember] = useState(appointmentData?.assignedMember || "");
+  const [assignedMember, setAssignedMember] = useState(
+    appointmentData?.assignedMember && typeof appointmentData.assignedMember === "object"
+      ? appointmentData.assignedMember
+      : undefined
+  );
   const [openMemberDialog, setOpenMemberDialog] = useState(false);
 
   if (!appointmentData) {
@@ -34,7 +37,6 @@ export default function AppointmentDetails() {
   }
 
   const handleSaveObservation = () => {
-    // In a real app, this would make an API call
     console.log("Saving observation:", observation);
     toast({
       title: "Observation saved",
@@ -42,14 +44,13 @@ export default function AppointmentDetails() {
     });
   };
 
-  const handleChooseMember = (member: string) => {
+  const handleChooseMember = (member: { name: string; email: string; photo: string }) => {
     setAssignedMember(member);
     setOpenMemberDialog(false);
     toast({
       title: "Member assigned",
-      description: `${member} has been assigned to the appointment.`,
+      description: `${member.name} has been assigned to the appointment.`,
     });
-    // In a real app, save API call here
   };
 
   return (
@@ -82,13 +83,11 @@ export default function AppointmentDetails() {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Location Detail */}
           <div>
             <h3 className="font-semibold mb-1">Location</h3>
             <p className="text-sm text-muted-foreground">{appointmentData.location}</p>
           </div>
 
-          {/* Member Message */}
           <div>
             <h3 className="font-semibold mb-1">Member Message</h3>
             <p className="text-sm text-muted-foreground">
@@ -99,7 +98,6 @@ export default function AppointmentDetails() {
             </p>
           </div>
 
-          {/* Solicitation/Member info */}
           <div>
             <h3 className="font-semibold mb-1">Solicited By</h3>
             <p className="text-sm text-muted-foreground">
@@ -109,10 +107,29 @@ export default function AppointmentDetails() {
 
           <div>
             <h3 className="font-semibold mb-2">Assignment</h3>
-            <p className="text-sm text-muted-foreground flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {assignedMember ? (
                 <>
-                  Assigned to: {assignedMember}
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={assignedMember.photo} alt={assignedMember.name} />
+                      <AvatarFallback>
+                        {assignedMember.name?.split(" ").map(n => n[0]).join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="font-medium">{assignedMember.name}</div>
+                      <div className="text-xs text-muted-foreground">{assignedMember.email}</div>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    className="ml-3"
+                    variant="outline"
+                    onClick={() => setOpenMemberDialog(true)}
+                  >
+                    Change Member
+                  </Button>
                 </>
               ) : (
                 <>
@@ -125,14 +142,14 @@ export default function AppointmentDetails() {
                   >
                     Choose Member
                   </Button>
-                  <ChooseMemberDialog
-                    open={openMemberDialog}
-                    onOpenChange={setOpenMemberDialog}
-                    onChoose={handleChooseMember}
-                  />
                 </>
               )}
-            </p>
+              <ChooseMemberDialog
+                open={openMemberDialog}
+                onOpenChange={setOpenMemberDialog}
+                onChoose={handleChooseMember}
+              />
+            </div>
             {appointmentData.isVolunteerWork && (
               <Badge variant="outline" className="mt-2">Volunteer Work</Badge>
             )}
