@@ -6,7 +6,6 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useState } from "react";
 import { Search } from "lucide-react";
 
-// Demo: enhanced static member list with avatar, name, email (sample images/emails)
 const MEMBERS = [
   {
     id: 1,
@@ -44,14 +43,23 @@ interface ChooseMemberDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onChoose: (member: { name: string; email: string; photo: string }) => void;
+  alreadyChosenEmails?: string[];
+  allowMultiple?: boolean;
 }
 
-export default function ChooseMemberDialog({ open, onOpenChange, onChoose }: ChooseMemberDialogProps) {
+export default function ChooseMemberDialog({
+  open,
+  onOpenChange,
+  onChoose,
+  alreadyChosenEmails = [],
+  allowMultiple = false,
+}: ChooseMemberDialogProps) {
   const [search, setSearch] = useState("");
 
   const filteredMembers = MEMBERS.filter(member =>
-    member.name.toLowerCase().includes(search.toLowerCase()) ||
-    member.email.toLowerCase().includes(search.toLowerCase())
+    (member.name.toLowerCase().includes(search.toLowerCase()) ||
+      member.email.toLowerCase().includes(search.toLowerCase())) &&
+    !alreadyChosenEmails.includes(member.email)
   );
 
   return (
@@ -80,7 +88,12 @@ export default function ChooseMemberDialog({ open, onOpenChange, onChoose }: Cho
               <Button
                 variant="secondary"
                 className="w-full flex items-center gap-3 justify-start py-2 px-3"
-                onClick={() => onChoose(member)}
+                onClick={() => {
+                  onChoose(member);
+                  if (!allowMultiple) {
+                    onOpenChange(false);
+                  }
+                }}
               >
                 <Avatar>
                   <AvatarImage src={member.photo} alt={member.name} />
@@ -97,7 +110,7 @@ export default function ChooseMemberDialog({ open, onOpenChange, onChoose }: Cho
           ))}
         </ul>
         <Button variant="outline" className="mt-4 w-full" onClick={() => onOpenChange(false)}>
-          Cancel
+          Close
         </Button>
       </DialogContent>
     </Dialog>
