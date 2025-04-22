@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-
 const BIRTHDAYS_DATA = [{
   id: 1,
   name: "John Smith",
@@ -53,13 +52,13 @@ const BIRTHDAYS_DATA = [{
   birthday: "1989-05-30",
   email: "sarah.m@example.com"
 }];
-
 export default function Birthdays() {
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   const [showCalendarView, setShowCalendarView] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const getUpcomingBirthdays = () => {
     const today = new Date();
     const upcomingBirthdays = BIRTHDAYS_DATA.map(person => {
@@ -78,26 +77,21 @@ export default function Birthdays() {
     }).filter(person => isFuture(person.nextBirthday)).sort((a, b) => a.nextBirthday.getTime() - b.nextBirthday.getTime()).slice(0, 3);
     return upcomingBirthdays;
   };
-
-  const monthBirthdays = BIRTHDAYS_DATA
-    .filter(person => {
-      const birthday = parseISO(person.birthday);
-      const matchesSearch = person.name.toLowerCase().includes(searchQuery.toLowerCase());
-      return birthday.getMonth() === selectedMonth.getMonth() && matchesSearch;
-    })
-    .sort((a, b) => {
-      const dateA = parseISO(a.birthday);
-      const dateB = parseISO(b.birthday);
-      return dateA.getDate() - dateB.getDate();
-    });
-
+  const monthBirthdays = BIRTHDAYS_DATA.filter(person => {
+    const birthday = parseISO(person.birthday);
+    const matchesSearch = person.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return birthday.getMonth() === selectedMonth.getMonth() && matchesSearch;
+  }).sort((a, b) => {
+    const dateA = parseISO(a.birthday);
+    const dateB = parseISO(b.birthday);
+    return dateA.getDate() - dateB.getDate();
+  });
   const handleSendNotification = (person: typeof BIRTHDAYS_DATA[0]) => {
     toast({
       title: "Birthday Notification Sent",
-      description: `Birthday wishes have been sent to ${person.name}!`,
+      description: `Birthday wishes have been sent to ${person.name}!`
     });
   };
-
   const sendAllNotifications = () => {
     monthBirthdays.forEach(person => {
       if (isThisMonth(parseISO(person.birthday))) {
@@ -105,11 +99,9 @@ export default function Birthdays() {
       }
     });
   };
-
   const formatDate = (date: Date) => {
     return format(date, "MMMM d");
   };
-
   const navigateMonth = (direction: 'prev' | 'next') => {
     const newMonth = new Date(selectedMonth);
     if (direction === 'prev') {
@@ -119,7 +111,6 @@ export default function Birthdays() {
     }
     setSelectedMonth(newMonth);
   };
-
   return <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-church-primary mb-2">Birthdays</h1>
@@ -131,12 +122,7 @@ export default function Birthdays() {
       <div className="flex items-center justify-between gap-4">
         <div className="relative flex-grow max-w-sm">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-          <Input
-            placeholder="Search by name..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
+          <Input placeholder="Search by name..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
         </div>
         <Button variant="outline" onClick={sendAllNotifications}>
           <Bell className="mr-2 h-4 w-4" />
@@ -194,19 +180,11 @@ export default function Birthdays() {
                   <TableCell>{person.email}</TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-2">
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={() => handleSendNotification(person)}
-                      >
+                      <Button variant="ghost" size="icon" onClick={() => handleSendNotification(person)}>
                         <Bell className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon">
-                        <Mail className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon">
-                        <Phone className="h-4 w-4" />
-                      </Button>
+                      
+                      
                     </div>
                   </TableCell>
                 </TableRow>)}
