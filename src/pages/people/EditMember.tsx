@@ -176,7 +176,7 @@ export default function EditMember() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-full">
       <div className="flex items-center gap-2">
         <Button 
           variant="outline" 
@@ -186,12 +186,12 @@ export default function EditMember() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <h1 className="text-2xl font-semibold text-church-primary">
+        <h1 className="text-2xl font-semibold text-church-primary truncate">
           {isNewMember ? "Add New Member" : "Edit Member"}
         </h1>
       </div>
 
-      <Card className="p-6">
+      <Card className="p-4 md:p-6">
         {!isNewMember && member && (
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-8">
             <Avatar className="h-24 w-24">

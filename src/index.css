@@ -89,6 +89,10 @@
     @apply border-border;
   }
 
+  html, body {
+    @apply overflow-x-hidden max-w-[100vw];
+  }
+
   body {
     @apply bg-church-background text-church-primary;
   }
@@ -117,5 +121,9 @@
   
   .dashboard-card {
     @apply rounded-lg border border-church-border bg-white p-5 shadow-sm;
+  }
+  
+  .responsive-table-container {
+    @apply w-full overflow-x-auto;
   }
 }

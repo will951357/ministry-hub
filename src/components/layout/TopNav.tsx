@@ -1,4 +1,3 @@
-
 import { Bell, Menu, Calendar, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -12,27 +11,29 @@ export function TopNav({ toggleSidebar, showMenuButton }: TopNavProps) {
   return (
     <header className="sticky top-0 z-10 h-16 border-b border-church-border bg-white shadow-sm">
       <div className="flex h-full items-center justify-between px-4">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 overflow-hidden">
           {showMenuButton && (
             <Button 
               variant="ghost" 
               size="icon" 
               onClick={toggleSidebar}
-              className="md:hidden text-church-primary hover:bg-church-muted hover:text-church-accent"
+              className="md:hidden text-church-primary hover:bg-church-muted hover:text-church-accent flex-shrink-0"
             >
               <Menu size={24} />
             </Button>
           )}
-          <div className="flex flex-col items-start justify-center">
-            <h2 className="text-xl font-semibold text-church-primary truncate">
+          <div className="flex flex-col items-start justify-center min-w-0">
+            <h2 className="text-xl font-semibold text-church-primary truncate w-full">
               <span className="md:hidden">GCC</span>
               <span className="hidden md:inline">Grace Community Church</span>
             </h2>
-            <p className="text-xs text-church-secondary italic hidden md:block">"For by grace you have been saved through faith." — Ephesians 2:8</p>
+            <p className="text-xs text-church-secondary italic hidden md:block truncate w-full">
+              "For by grace you have been saved through faith." — Ephesians 2:8
+            </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-shrink-0">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>

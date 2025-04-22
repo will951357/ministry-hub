@@ -24,7 +24,7 @@ export function MainLayout({ children }: PropsWithChildren) {
   }, []);
   
   return (
-    <div className="min-h-screen bg-church-background flex">
+    <div className="min-h-screen bg-church-background flex overflow-x-hidden">
       <SideNav 
         isOpen={isSidebarOpen} 
         setIsOpen={setIsSidebarOpen}
@@ -32,14 +32,14 @@ export function MainLayout({ children }: PropsWithChildren) {
       />
       
       <div className={cn(
-        "flex-1 transition-all duration-300 ease-in-out",
+        "flex-1 transition-all duration-300 ease-in-out w-full",
         !isMobileView && isSidebarOpen ? "ml-64" : "ml-0 md:ml-16"
       )}>
         <TopNav 
           toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
           showMenuButton={isMobileView} 
         />
-        <main className="p-6">
+        <main className="p-4 md:p-6 max-w-full overflow-x-hidden">
           {children}
         </main>
       </div>

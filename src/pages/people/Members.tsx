@@ -223,7 +223,7 @@ export default function Members() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-full">
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-church-primary mb-2">Members</h1>
@@ -242,10 +242,10 @@ export default function Members() {
 
       {/* Membership Requests Section */}
       {membershipRequests.length > 0 && (
-        <Card className="p-6 bg-white border-church-border mb-6">
+        <Card className="p-4 md:p-6 bg-white border-church-border mb-6 overflow-hidden">
           <div className="flex flex-col">
             <h2 className="text-lg font-medium text-church-primary mb-4">Membership Requests</h2>
-            <div className="overflow-hidden rounded-md border">
+            <div className="overflow-x-auto rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
