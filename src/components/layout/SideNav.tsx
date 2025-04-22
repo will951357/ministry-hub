@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, MouseEvent } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { 
@@ -74,9 +73,15 @@ export function SideNav({ isOpen, setIsOpen, isMobileView }: SideNavProps) {
   
   const [membershipRequestsCount, setMembershipRequestsCount] = useState(4);
   
-  // Function to handle menu item clicks, will close the sidebar on mobile
-  // but only for items without submenus or when clicking on submenu items
-  const handleMenuItemClick = (hasSubmenu = false) => {
+  const handleMenuItemClick = (hasSubmenuOrEvent: boolean | MouseEvent) => {
+    if (typeof hasSubmenuOrEvent !== 'boolean') {
+      if (isMobileView) {
+        setIsOpen(false);
+      }
+      return;
+    }
+    
+    const hasSubmenu = hasSubmenuOrEvent;
     if (isMobileView && !hasSubmenu) {
       setIsOpen(false);
     }
