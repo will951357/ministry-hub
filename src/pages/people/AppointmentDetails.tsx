@@ -9,7 +9,7 @@ import { appointments } from "@/data/appointments";
 import { appointmentTypes } from "@/types/appointment";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AppointmentDetails() {
   const { id } = useParams();
@@ -69,13 +69,42 @@ export default function AppointmentDetails() {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Location Detail */}
+          <div>
+            <h3 className="font-semibold mb-1">Location</h3>
+            <p className="text-sm text-muted-foreground">{appointment.location}</p>
+          </div>
+
+          {/* Solicitation/Member info */}
+          <div>
+            <h3 className="font-semibold mb-1">Solicited By</h3>
+            <p className="text-sm text-muted-foreground">
+              {appointment.memberName ? appointment.memberName : <span className="text-destructive">Not specified</span>}
+            </p>
+          </div>
+
           <div>
             <h3 className="font-semibold mb-2">Assignment</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground flex items-center gap-2">
               {appointment.assignedMember ? (
-                <>Assigned to: {appointment.assignedMember}</>
+                <>
+                  Assigned to: {appointment.assignedMember}
+                </>
               ) : (
-                "No member assigned"
+                <>
+                  <span>No member assigned</span>
+                  <Button
+                    size="sm"
+                    className="ml-2"
+                    variant="outline"
+                    onClick={() => {
+                      // Future: open member selection modal/dialog here
+                      toast({ title: "Not yet implemented", description: "Member selection will be available soon." });
+                    }}
+                  >
+                    Choose Member
+                  </Button>
+                </>
               )}
             </p>
             {appointment.isVolunteerWork && (
