@@ -143,19 +143,20 @@ export default function Blog() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Church Blog</h1>
           <p className="text-muted-foreground">
             Manage and publish blog posts for your church app
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        {/* Button Actions */}
+        <div className="flex gap-2 mt-2 md:mt-0 self-start md:self-center">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Filter className="h-4 w-4 mr-2" />
-                Filter
+              <Button variant="outline" size="sm" className="px-2">
+                <Filter className="h-4 w-4" />
+                <span className="hidden md:inline ml-2">Filter</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -166,9 +167,9 @@ export default function Blog() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button onClick={() => navigate("/app-member/blog/new")}>
+          <Button onClick={() => navigate("/app-member/blog/new")} className="px-2">
             <Plus className="h-4 w-4 mr-2" />
-            New Post
+            <span className="hidden sm:inline">New Post</span>
           </Button>
         </div>
       </div>
