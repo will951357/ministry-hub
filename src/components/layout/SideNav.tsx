@@ -75,8 +75,9 @@ export function SideNav({ isOpen, setIsOpen, isMobileView }: SideNavProps) {
   const [membershipRequestsCount, setMembershipRequestsCount] = useState(4);
   
   // Function to handle menu item clicks, will close the sidebar on mobile
-  const handleMenuItemClick = () => {
-    if (isMobileView) {
+  // but only for items without submenus or when clicking on submenu items
+  const handleMenuItemClick = (hasSubmenu = false) => {
+    if (isMobileView && !hasSubmenu) {
       setIsOpen(false);
     }
   };
@@ -186,11 +187,7 @@ export function SideNav({ isOpen, setIsOpen, isMobileView }: SideNavProps) {
                         toggleSubmenu(item.id);
                       }
                       setActiveItem(item.id);
-                      // If it's a mobile view and we're clicking a parent menu item with a direct href,
-                      // close the sidebar only if it has a valid href (not just a submenu toggle)
-                      if (isMobileView && item.href && item.href !== '#') {
-                        handleMenuItemClick();
-                      }
+                      // We DON'T close the sidebar on mobile when clicking a parent menu item with submenu
                     }}
                   >
                     <span className={cn("mr-3", !isOpen && "mr-0")}>{item.icon}</span>
@@ -225,7 +222,8 @@ export function SideNav({ isOpen, setIsOpen, isMobileView }: SideNavProps) {
                         )}
                         onClick={() => {
                           setActiveItem(item.id);
-                          handleMenuItemClick(); // Close sidebar on mobile when submenu item is clicked
+                          // Now we close the sidebar when a submenu item is clicked
+                          handleMenuItemClick(false);
                         }}
                       >
                         <span className="mr-3">{subItem.icon}</span>
@@ -253,7 +251,8 @@ export function SideNav({ isOpen, setIsOpen, isMobileView }: SideNavProps) {
                 )}
                 onClick={() => {
                   setActiveItem(item.id);
-                  handleMenuItemClick(); // Close sidebar on mobile when menu item is clicked
+                  // Close sidebar for main menu items without submenus
+                  handleMenuItemClick(false);
                 }}
               >
                 <span className={cn("mr-3", !isOpen && "mr-0")}>{item.icon}</span>
