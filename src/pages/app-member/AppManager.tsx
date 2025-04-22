@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
@@ -127,23 +128,8 @@ const upcomingEvents = [
 ];
 
 export default function AppManager() {
+  // Initialize ALL hooks first, before any conditional returns
   const isMobile = useIsMobile();
-
-  if (isMobile) {
-    return (
-      <div className="min-h-[50vh] flex items-center justify-center bg-church-background">
-        <div className="bg-white rounded-lg shadow p-8 text-center max-w-xs w-full">
-          <Smartphone size={36} className="mx-auto text-church-accent mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Desktop Only</h2>
-          <p className="text-muted-foreground">
-            This page is only available on desktop.<br />
-            Please access it from a larger screen to continue.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   const [rows, setRows] = useState<Row[]>([
     { id: "row-1", widgets: [] },
     { id: "row-2", widgets: [] },
@@ -158,6 +144,22 @@ export default function AppManager() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [currentEditWidget, setCurrentEditWidget] = useState<{rowId: string, widget: Widget} | null>(null);
   const [selectedPage, setSelectedPage] = useState("home");
+
+  // Now we can safely do conditional rendering
+  if (isMobile) {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center bg-church-background">
+        <div className="bg-white rounded-lg shadow p-8 text-center max-w-xs w-full">
+          <Smartphone size={36} className="mx-auto text-church-accent mb-4" />
+          <h2 className="text-xl font-semibold mb-2">Desktop Only</h2>
+          <p className="text-muted-foreground">
+            This page is only available on desktop.<br />
+            Please access it from a larger screen to continue.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const filteredWidgets = searchQuery 
     ? widgetTypes.filter(widget => 
