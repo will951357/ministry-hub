@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
@@ -12,15 +13,21 @@ import { useToast } from "@/hooks/use-toast";
 import ChooseMemberDialog from "./ChooseMemberDialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
+interface AssignedMember {
+  name: string;
+  email: string;
+  photo: string;
+}
+
 export default function AppointmentDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const appointmentData = appointments.find(a => a.id === Number(id));
   const [observation, setObservation] = useState(appointmentData?.observation || "");
-  const [assignedMember, setAssignedMember] = useState(
+  const [assignedMember, setAssignedMember] = useState<AssignedMember | undefined>(
     appointmentData?.assignedMember && typeof appointmentData.assignedMember === "object"
-      ? appointmentData.assignedMember
+      ? appointmentData.assignedMember as AssignedMember
       : undefined
   );
   const [openMemberDialog, setOpenMemberDialog] = useState(false);
@@ -114,7 +121,7 @@ export default function AppointmentDetails() {
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={assignedMember.photo} alt={assignedMember.name} />
                       <AvatarFallback>
-                        {assignedMember.name?.split(" ").map(n => n[0]).join("")}
+                        {assignedMember.name.split(" ").map(n => n[0]).join("")}
                       </AvatarFallback>
                     </Avatar>
                     <div>
