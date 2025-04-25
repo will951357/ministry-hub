@@ -245,10 +245,7 @@ const Events = () => {
   };
 
   const handleEditEvent = (eventId: number) => {
-    toast({
-      title: "Edit Event",
-      description: `Editing event with ID: ${eventId}`,
-    });
+    navigate(`/events/edit/${eventId}`);
   };
 
   const handleCancelEvent = (eventId: number) => {

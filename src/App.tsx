@@ -94,6 +94,7 @@ const App = () => (
           <Route path="/groups/learning/edit/:courseId" element={<CourseEdit />} />
           <Route path="/events" element={<Events />} />
           <Route path="/events/create" element={<CreateEvent />} />
+          <Route path="/events/edit/:eventId" element={<CreateEvent />} />
           
           {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />

@@ -1,7 +1,7 @@
 import React from 'react';
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft, DollarSign, Users, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -42,7 +42,6 @@ interface CreateEventProps {
   defaultDate?: Date | null;
 }
 
-// Define a consistent MemberType to use throughout the component
 interface MemberType {
   id: number;
   name: string;
@@ -52,6 +51,7 @@ interface MemberType {
 
 export function CreateEvent({ defaultDate }: CreateEventProps) {
   const navigate = useNavigate();
+  const { eventId } = useParams();
   const { toast } = useToast();
 
   const [name, setName] = useState('');
@@ -72,10 +72,30 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
   const [selectedMembers, setSelectedMembers] = useState<MemberType[]>([]);
 
   useEffect(() => {
-    if (defaultDate) {
-      setDate(defaultDate);
+    if (eventId) {
+      const eventToEdit = sampleEvents.find(event => event.id === Number(eventId));
+      if (eventToEdit) {
+        setName(eventToEdit.title);
+        setDescription(eventToEdit.description);
+        setDate(eventToEdit.date);
+        setStartTime(eventToEdit.startTime);
+        setEndTime(eventToEdit.endTime);
+        setLocation(eventToEdit.location);
+        setHasAttendeeLimit(!!eventToEdit.maxAttendees);
+        setMaxAttendees(eventToEdit.maxAttendees || 50);
+        setPrice(eventToEdit.price);
+        setHasCheckin(eventToEdit.hasCheckin);
+        setVisibility(eventToEdit.visibility);
+        setObservations('');
+        setSelectedMembers(eventToEdit.responsibleMembers.map((name, index) => ({
+          id: index,
+          name,
+          email: `${name.toLowerCase().replace(' ', '.')}@example.com`,
+          photo: undefined
+        })));
+      }
     }
-  }, [defaultDate]);
+  }, [eventId]);
 
   const resetForm = () => {
     setName('');
@@ -123,11 +143,19 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
     navigate('/events');
   };
 
+  const handleEventUpdated = (event: any) => {
+    toast({
+      title: "Event Updated",
+      description: `${event.title} has been successfully updated.`,
+    });
+    navigate('/events');
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const newEvent = {
-      id: Math.floor(Math.random() * 1000),
+    const updatedEvent = {
+      id: eventId ? Number(eventId) : Math.floor(Math.random() * 1000),
       title: name,
       description,
       date,
@@ -140,17 +168,21 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
       visibility,
       observations,
       responsibleMembers: selectedMembers.map(member => member.name),
-      attendees: 0,
+      attendees: eventId ? (sampleEvents.find(e => e.id === Number(eventId))?.attendees || 0) : 0,
       status: 'confirmed',
     };
     
-    setFormData(newEvent);
+    setFormData(updatedEvent);
     setShowConfirmDialog(true);
   };
 
   const handleConfirmCreate = () => {
     if (formData) {
-      handleEventAdded(formData);
+      if (eventId) {
+        handleEventUpdated(formData);
+      } else {
+        handleEventAdded(formData);
+      }
       resetForm();
       setShowConfirmDialog(false);
     }
@@ -177,17 +209,16 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
     <MainLayout>
       <div className="container mx-auto py-6">
         <div className="flex flex-col space-y-6">
-          
           <div className="flex items-center gap-1">
             <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={() => navigate('/events')}
-            className="h-8 w-8"
+              variant="outline" 
+              size="icon" 
+              onClick={() => navigate('/events')}
+              className="h-8 w-8"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h1 className="text-3xl font-bold">Create New Event</h1>
+            <h1 className="text-3xl font-bold">{eventId ? 'Edit Event' : 'Create New Event'}</h1>
           </div>
 
           <Card>
