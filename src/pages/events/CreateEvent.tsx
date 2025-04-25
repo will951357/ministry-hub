@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -157,9 +156,16 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
     }
   };
 
-  const handleAddMember = (member: MemberType) => {
-    if (!selectedMembers.some(m => m.id === member.id)) {
-      setSelectedMembers([...selectedMembers, member]);
+  const handleAddMember = (member: { name: string; email: string; photo: string; id?: number }) => {
+    const newMember: MemberType = {
+      id: member.id || Math.random(),
+      name: member.name,
+      email: member.email,
+      photo: member.photo
+    };
+    
+    if (!selectedMembers.some(m => m.id === newMember.id)) {
+      setSelectedMembers([...selectedMembers, newMember]);
     }
   };
 
