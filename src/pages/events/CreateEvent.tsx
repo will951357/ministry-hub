@@ -334,7 +334,6 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
                           <Input
                             id="price"
                             type="number"
-                            step="0.01"
                             placeholder="0.00"
                             value={price}
                             onChange={(e) => handlePriceChange(e.target.value)}
