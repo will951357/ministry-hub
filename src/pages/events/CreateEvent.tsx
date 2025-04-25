@@ -177,17 +177,17 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
     <MainLayout>
       <div className="container mx-auto py-6">
         <div className="flex flex-col space-y-6">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              className="gap-2"
-              onClick={() => navigate('/events')}
+          
+          <div className="flex items-center gap-1">
+            <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={() => navigate('/events')}
+            className="h-8 w-8"
             >
-              <ArrowLeft className="mr-2 h-4 w-4" />
+              <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div>
-              <h1 className="text-3xl font-bold">Create New Event</h1>
-            </div>
+            <h1 className="text-3xl font-bold">Create New Event</h1>
           </div>
 
           <Card>
