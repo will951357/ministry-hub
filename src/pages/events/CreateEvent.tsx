@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, DollarSign } from "lucide-react";
+import { ChevronLeft, DollarSign, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -26,7 +27,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
-import { CalendarIcon, Users } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -40,6 +41,14 @@ import AssignedMemberChip from "@/pages/people/AssignedMemberChip";
 
 interface CreateEventProps {
   defaultDate?: Date | null;
+}
+
+// Define a consistent MemberType to use throughout the component
+interface MemberType {
+  id: number;
+  name: string;
+  email: string;
+  photo?: string;
 }
 
 export function CreateEvent({ defaultDate }: CreateEventProps) {
@@ -61,7 +70,7 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [formData, setFormData] = useState<any>(null);
   const [showMemberDialog, setShowMemberDialog] = useState(false);
-  const [selectedMembers, setSelectedMembers] = useState<Array<{ id: number; name: string; email: string }>>([]);
+  const [selectedMembers, setSelectedMembers] = useState<MemberType[]>([]);
 
   useEffect(() => {
     if (defaultDate) {
@@ -148,7 +157,7 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
     }
   };
 
-  const handleAddMember = (member: { id: number; name: string; email: string }) => {
+  const handleAddMember = (member: MemberType) => {
     if (!selectedMembers.some(m => m.id === member.id)) {
       setSelectedMembers([...selectedMembers, member]);
     }
@@ -346,7 +355,11 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
                         {selectedMembers.map((member) => (
                           <AssignedMemberChip
                             key={member.id}
-                            member={member}
+                            member={{
+                              name: member.name,
+                              email: member.email,
+                              photo: member.photo || ""
+                            }}
                             onRemove={() => handleRemoveMember(member.id)}
                           />
                         ))}
