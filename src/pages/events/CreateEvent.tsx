@@ -2,7 +2,7 @@ import React from 'react';
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -35,8 +35,8 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
-import { ChooseMemberDialog } from "@/components/people/ChooseMemberDialog";
-import { AssignedMemberChip } from "@/components/people/AssignedMemberChip";
+import ChooseMemberDialog from "@/pages/people/ChooseMemberDialog";
+import AssignedMemberChip from "@/pages/people/AssignedMemberChip";
 
 interface CreateEventProps {
   defaultDate?: Date | null;
@@ -388,8 +388,8 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
       <ChooseMemberDialog
         open={showMemberDialog}
         onOpenChange={setShowMemberDialog}
-        onSelect={handleAddMember}
-        multiple={true}
+        onChoose={handleAddMember}
+        allowMultiple={true}
       />
     </MainLayout>
   );
