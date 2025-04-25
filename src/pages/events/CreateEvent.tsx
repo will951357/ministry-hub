@@ -36,6 +36,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
 import ChooseMemberDialog from "@/pages/people/ChooseMemberDialog";
 import AssignedMemberChip from "@/pages/people/AssignedMemberChip";
+import { formatToBRL, parseBRLString } from '@/utils/currency';
 
 interface CreateEventProps {
   defaultDate?: Date | null;
@@ -124,14 +125,8 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
   };
 
   const handlePriceChange = (value: string) => {
-    if (value === '') {
-      setPrice(0);
-    } else {
-      const parsedValue = parseFloat(value);
-      if (!isNaN(parsedValue)) {
-        setPrice(parsedValue);
-      }
-    }
+    const numericValue = parseBRLString(value);
+    setPrice(numericValue);
   };
 
   const handleEventAdded = (event: any) => {
@@ -330,14 +325,12 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
                       <div className="grid gap-2">
                         <Label htmlFor="price">Price</Label>
                         <div className="flex items-center space-x-2">
-                          <DollarSign className="text-muted-foreground" />
                           <Input
                             id="price"
-                            type="number"
-                            placeholder="0.00"
-                            value={price}
+                            type="text"
+                            placeholder="R$ 0,00"
+                            value={formatToBRL(price)}
                             onChange={(e) => handlePriceChange(e.target.value)}
-                            min={0}
                           />
                         </div>
                       </div>
