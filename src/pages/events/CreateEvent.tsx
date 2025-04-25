@@ -2,7 +2,7 @@ import React from 'react';
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, DollarSign, Users } from "lucide-react";
+import { ChevronLeft, DollarSign, Users, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -183,7 +183,7 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
               className="gap-2"
               onClick={() => navigate('/events')}
             >
-              <ChevronLeft className="h-4 w-4" />
+              <Plus className="mr-2 h-4 w-4" />
               Back to Events
             </Button>
             <div>
