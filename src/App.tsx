@@ -34,6 +34,7 @@ import AppManager from "./pages/app-member/AppManager";
 import ExpenseForm from "./pages/finance/ExpenseForm";
 import ClassDetails from "./pages/groups/ClassDetails";
 import Calendar from "./pages/Calendar";
+import { CreateEvent } from "./pages/events/CreateEvent";
 
 const queryClient = new QueryClient();
 
@@ -92,6 +93,7 @@ const App = () => (
           <Route path="/groups/learning/class/:courseId/:classId" element={<ClassDetails />} />
           <Route path="/groups/learning/edit/:courseId" element={<CourseEdit />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/events/create" element={<CreateEvent />} />
           
           {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />
