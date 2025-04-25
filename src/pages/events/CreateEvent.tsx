@@ -5,6 +5,16 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Card,
   CardContent,
   CardHeader,
@@ -16,7 +26,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
-import { CalendarIcon, Users, DollarSign } from "lucide-react";
+import { CalendarIcon, Users } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -25,6 +35,8 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
+import { ChooseMemberDialog } from "@/components/people/ChooseMemberDialog";
+import { AssignedMemberChip } from "@/components/people/AssignedMemberChip";
 
 interface CreateEventProps {
   defaultDate?: Date | null;
@@ -46,9 +58,11 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
   const [hasCheckin, setHasCheckin] = useState(false);
   const [visibility, setVisibility] = useState<'public' | 'private'>('public');
   const [observations, setObservations] = useState('');
-  const [responsibleMembers, setResponsibleMembers] = useState('');
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [formData, setFormData] = useState<any>(null);
+  const [showMemberDialog, setShowMemberDialog] = useState(false);
+  const [selectedMembers, setSelectedMembers] = useState<Array<{ id: number; name: string; email: string }>>([]);
 
-  // Set date when defaultDate changes
   useEffect(() => {
     if (defaultDate) {
       setDate(defaultDate);
@@ -68,7 +82,29 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
     setHasCheckin(false);
     setVisibility('public');
     setObservations('');
-    setResponsibleMembers('');
+    setSelectedMembers([]);
+  };
+
+  const handleMaxAttendeesChange = (value: string) => {
+    if (value === '') {
+      setMaxAttendees(0);
+    } else {
+      const parsedValue = parseInt(value, 10);
+      if (!isNaN(parsedValue)) {
+        setMaxAttendees(parsedValue);
+      }
+    }
+  };
+
+  const handlePriceChange = (value: string) => {
+    if (value === '') {
+      setPrice(0);
+    } else {
+      const parsedValue = parseFloat(value);
+      if (!isNaN(parsedValue)) {
+        setPrice(parsedValue);
+      }
+    }
   };
 
   const handleEventAdded = (event: any) => {
@@ -95,27 +131,31 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
       hasCheckin,
       visibility,
       observations,
-      responsibleMembers: responsibleMembers.split(',').map(m => m.trim()),
+      responsibleMembers: selectedMembers.map(member => member.name),
       attendees: 0,
       status: 'confirmed',
     };
     
-    handleEventAdded(newEvent);
-    resetForm();
+    setFormData(newEvent);
+    setShowConfirmDialog(true);
   };
 
-  const handleMaxAttendeesChange = (value: string) => {
-    const parsedValue = parseInt(value, 10);
-    if (!isNaN(parsedValue)) {
-      setMaxAttendees(parsedValue);
+  const handleConfirmCreate = () => {
+    if (formData) {
+      handleEventAdded(formData);
+      resetForm();
+      setShowConfirmDialog(false);
     }
   };
 
-  const handlePriceChange = (value: string) => {
-    const parsedValue = parseFloat(value);
-    if (!isNaN(parsedValue)) {
-      setPrice(parsedValue);
+  const handleAddMember = (member: { id: number; name: string; email: string }) => {
+    if (!selectedMembers.some(m => m.id === member.id)) {
+      setSelectedMembers([...selectedMembers, member]);
     }
+  };
+
+  const handleRemoveMember = (memberId: number) => {
+    setSelectedMembers(selectedMembers.filter(member => member.id !== memberId));
   };
 
   return (
@@ -301,13 +341,25 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
                       />
                     </div>
                     <div className="grid grid-cols-1 gap-3">
-                      <Label htmlFor="responsibleMembers">Responsible Members</Label>
-                      <Input
-                        id="responsibleMembers"
-                        value={responsibleMembers}
-                        onChange={(e) => setResponsibleMembers(e.target.value)}
-                        placeholder="Names separated by commas"
-                      />
+                      <Label>Responsible Members</Label>
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {selectedMembers.map((member) => (
+                          <AssignedMemberChip
+                            key={member.id}
+                            member={member}
+                            onRemove={() => handleRemoveMember(member.id)}
+                          />
+                        ))}
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="gap-2"
+                        onClick={() => setShowMemberDialog(true)}
+                      >
+                        <Users className="h-4 w-4" />
+                        Add Responsible Members
+                      </Button>
                     </div>
                   </div>
                   <Button type="submit">Create Event</Button>
@@ -317,6 +369,28 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
           </Card>
         </div>
       </div>
+
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Create Event</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to create this event?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmCreate}>Create</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <ChooseMemberDialog
+        open={showMemberDialog}
+        onOpenChange={setShowMemberDialog}
+        onSelect={handleAddMember}
+        multiple={true}
+      />
     </MainLayout>
   );
 }
