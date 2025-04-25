@@ -183,14 +183,10 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
               className="gap-2"
               onClick={() => navigate('/events')}
             >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Events
+              <ArrowLeft className="mr-2 h-4 w-4" />
             </Button>
             <div>
               <h1 className="text-3xl font-bold">Create New Event</h1>
-              <p className="text-muted-foreground mt-1">
-                Fill in the details to create a new event
-              </p>
             </div>
           </div>
 
