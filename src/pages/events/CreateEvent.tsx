@@ -337,7 +337,7 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
                             placeholder="0.00"
                             value={price}
                             onChange={(e) => handlePriceChange(e.target.value)}
-                            min={0}
+                            
                           />
                         </div>
                       </div>
