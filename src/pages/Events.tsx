@@ -29,7 +29,7 @@ import {
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 
-const sampleEvents: Event[] = [
+export const sampleEvents: Event[] = [
   {
     id: 1,
     title: 'Sunday Worship Service',
