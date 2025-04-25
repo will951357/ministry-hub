@@ -354,6 +354,7 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
                           />
                         </div>
                       </div>
+                      
                       <div className="grid gap-2">
                         <Label htmlFor="visibility">Visibility</Label>
                         <RadioGroup
@@ -361,16 +362,19 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
                           value={visibility}
                           onValueChange={(value) => setVisibility(value as 'public' | 'private')}
                         >
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="public" id="public" />
-                            <Label htmlFor="public">Public</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="private" id="private" />
-                            <Label htmlFor="private">Private</Label>
+                          <div className="flex space-x-4">
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="public" id="public" />
+                              <Label htmlFor="public">Public</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="private" id="private" />
+                              <Label htmlFor="private">Private</Label>
+                            </div>
                           </div>
                         </RadioGroup>
                       </div>
+
                     </div>
                     <div className="grid grid-cols-1 gap-3">
                       <Label htmlFor="observations">Additional Notes</Label>
