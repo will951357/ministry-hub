@@ -60,15 +60,19 @@ export default function KidDetails() {
   }
 
   return (
-    <div className="container mx-auto py-6 gap-4">
-      <Button
-        variant="ghost"
-        className="mb-6"
-        onClick={() => navigate("/people/kids")}
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Kids List
-      </Button>
+    <div className="container mx-auto py-6">
+
+      <div className="flex items-center gap-4">
+        <Button 
+          variant="outline" 
+          size="icon" 
+          onClick={() => navigate("/people/kids")}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <h1 className="text-2xl font-semibold text-church-primary">Details</h1>
+      </div>
 
       <h1 className="text-2xl font-bold mb-6">{kid.name}</h1>
       
