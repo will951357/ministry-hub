@@ -112,6 +112,16 @@ const mockVisitors: Visitor[] = [
     visits: 1,
     cellGroup: "College Ministry",
     visitMethod: "in-person"
+  },
+  {
+    id: "6",
+    name: "Will Patel",
+    phone: "(555) 345-6789",
+    email: "aisha.p@example.com",
+    lastVisit: "2024-04-02",
+    visits: 100,
+    cellGroup: "College Ministry",
+    visitMethod: "app"
   }
 ];
 
@@ -191,28 +201,7 @@ export default function Visitors() {
       setSelectedVisitors(filteredVisitors.map(v => v.id));
     }
   };
-
-  const handleSendEmail = () => {
-    if (selectedVisitors.length === 0) {
-      toast({
-        title: "No visitors selected",
-        description: "Please select at least one visitor to send an email.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const selectedNames = visitors
-      .filter(v => selectedVisitors.includes(v.id))
-      .map(v => v.name)
-      .join(", ");
-
-    toast({
-      title: "Email preparation started",
-      description: `Preparing to send email to ${selectedVisitors.length} visitor(s): ${selectedNames}`,
-    });
-  };
-
+  
   const handleSendNotifications = () => {
     if (selectedVisitors.length === 0) {
       toast({
@@ -280,7 +269,7 @@ export default function Visitors() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
-          title="Visitors (Last 30 Days)"
+          title="Visitors"
           value={visitorsLast30Days.toString()}
           icon={<UserPlus size={20} />}
           trend={{
@@ -297,6 +286,7 @@ export default function Visitors() {
           onClick={() => window.location.href = "/people/members"}
           footer={
             <div className="text-sm text-blue-600 flex items-center">
+              <div classname="flex" />
               <span>Click here to see requests</span>
             </div>
           }
