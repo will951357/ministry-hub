@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { Plus, X, Award } from "lucide-react";
+import { Plus, X, Award, ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
