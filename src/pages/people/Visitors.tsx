@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -252,7 +253,7 @@ export default function Visitors() {
   const visitorsInEvents = 15;
 
   return (
-    <div className="space-y-6 max-w-full overflow-x-hidden">
+    <div className="space-y-6 w-full overflow-x-auto min-w-0">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
         <div>
           <h1 className="text-2xl font-semibold text-church-primary mb-2">Visitors</h1>
@@ -261,13 +262,14 @@ export default function Visitors() {
           </p>
         </div>
         
-        <Button variant="default" onClick={() => navigate("/people/visitors/new")}>
+        <Button variant="default" onClick={() => navigate("/people/visitors/new")}
+          className="mt-2 sm:mt-0">
           <UserPlus size={16} className="mr-2" />
           Add Visitor
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 overflow-x-auto">
         <StatsCard
           title="Visitors"
           description="Last 30 days"
@@ -277,13 +279,13 @@ export default function Visitors() {
             value: parseFloat(variationPercentage.toFixed(1)),
             isPositive: variationPercentage > 0
           }}
-          className="bg-white rounded-lg border border-church-border shadow-sm"
+          className="bg-white rounded-lg border border-church-border shadow-sm min-w-[220px]"
         />
         <StatsCard
           title="Follow-up Pending"
           value="12"
           icon={<UserCheck size={20} />}
-          className="bg-white rounded-lg border border-church-border shadow-sm cursor-pointer"
+          className="bg-white rounded-lg border border-church-border shadow-sm cursor-pointer min-w-[220px]"
           onClick={() => window.location.href = "/people/members"}
           footer={
             <div className="text-sm text-blue-600 flex items-center">
@@ -297,7 +299,7 @@ export default function Visitors() {
           value={totalConversions.toString()}
           icon={<Users size={20} />}
           description="Last 30 days"
-          className="bg-white rounded-lg border border-church-border shadow-sm cursor-pointer"
+          className="bg-white rounded-lg border border-church-border shadow-sm cursor-pointer min-w-[220px]"
           onClick={() => window.location.href = "/people/members"}
           footer={
             <div className="text-sm text-blue-600 flex items-center">
@@ -310,7 +312,7 @@ export default function Visitors() {
           value={visitorsInEvents.toString()}
           icon={<Calendar size={20} />}
           description="Visitors registered for events"
-          className="bg-white rounded-lg border border-church-border shadow-sm cursor-pointer"
+          className="bg-white rounded-lg border border-church-border shadow-sm cursor-pointer min-w-[220px]"
           onClick={() => window.location.href = "/events"}
           footer={
             <div className="text-sm text-blue-600 flex items-center">
@@ -408,8 +410,8 @@ export default function Visitors() {
       </div>
 
       <Card className="overflow-hidden">
-        <CardContent className="p-0 overflow-auto">
-          <div className="w-full overflow-x-auto">
+        <CardContent className="p-0">
+          <div className="w-full overflow-x-auto min-w-0">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -460,32 +462,32 @@ export default function Visitors() {
                           )}
                         </Button>
                       </TableCell>
-                      <TableCell className="font-medium">{visitor.name}</TableCell>
-                      <TableCell className="hidden md:table-cell">
+                      <TableCell className="font-medium whitespace-nowrap">{visitor.name}</TableCell>
+                      <TableCell className="hidden md:table-cell whitespace-nowrap">
                         <span className="flex items-center">
                           <Phone size={14} className="mr-1 text-gray-400" />
                           {visitor.phone}
                         </span>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">
+                      <TableCell className="hidden md:table-cell whitespace-nowrap">
                         <span className="flex items-center">
                           <AtSign size={14} className="mr-1 text-gray-400" />
                           {visitor.email}
                         </span>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="whitespace-nowrap">
                         <span className="flex items-center">
                           <Calendar size={14} className="mr-1 text-gray-400" />
                           {new Date(visitor.lastVisit).toLocaleDateString()}
                         </span>
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell">
+                      <TableCell className="hidden lg:table-cell whitespace-nowrap">
                         <Badge variant="outline">{visitor.cellGroup}</Badge>
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
                         <Badge>{visitor.visits}</Badge>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="whitespace-nowrap">
                         {visitor.visitMethod === "app" ? (
                           <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200">
                             <Smartphone size={14} className="mr-1" />

@@ -6,7 +6,9 @@ import { Toaster } from "@/components/ui/toaster";
 export default function People() {
   return (
     <MainLayout>
-      <Outlet />
+      <div className="w-full min-w-0 overflow-x-auto">
+        <Outlet />
+      </div>
       <Toaster />
     </MainLayout>
   );
