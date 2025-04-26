@@ -18,14 +18,6 @@ export default function Donations() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
           <Button>
             <DollarSign className="h-4 w-4 mr-2" />
             Add Donation
@@ -55,12 +47,30 @@ export default function Donations() {
       </div>
 
       <Tabs defaultValue="all" onValueChange={setActiveTab} className="w-full">
-        <TabsList>
-          <TabsTrigger value="all">All Donations</TabsTrigger>
-          <TabsTrigger value="recent">Recent</TabsTrigger>
-          <TabsTrigger value="recurring">Recurring</TabsTrigger>
-          <TabsTrigger value="special">Special Projects</TabsTrigger>
-        </TabsList>
+        
+        <div classname='flex flex-row space-between'>
+          <div>
+            <TabsList>
+              <TabsTrigger value="all">All Donations</TabsTrigger>
+              <TabsTrigger value="recent">Recent</TabsTrigger>
+              <TabsTrigger value="recurring">Recurring</TabsTrigger>
+              <TabsTrigger value="special">Special Projects</TabsTrigger>
+            </TabsList>
+          </div>
+          
+          <div>
+            <Button variant="outline" size="sm">
+              <Filter className="h-4 w-4 mr-2" />
+              Filter
+            </Button>
+          
+            <Button variant="outline" size="sm">
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+          </div>
+        </div>
+        
         <TabsContent value="all" className="border rounded-md mt-6">
           <div className="p-4">
             <p className="text-center text-muted-foreground py-8">
