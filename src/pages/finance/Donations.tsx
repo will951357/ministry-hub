@@ -48,7 +48,7 @@ export default function Donations() {
 
       <Tabs defaultValue="all" onValueChange={setActiveTab} className="w-full">
         
-        <div classname='flex flex-row space-between'>
+        <div className='flex flex-row space-between'>
           <div>
             <TabsList>
               <TabsTrigger value="all">All Donations</TabsTrigger>
