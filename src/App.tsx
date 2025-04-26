@@ -66,6 +66,7 @@ const App = () => (
             <Route path="appointments/create" element={<CreateAppointment />} />
             <Route path="birthdays" element={<Birthdays />} />
             <Route path="kids" element={<Kids />} />
+            <Route path="kids/:id" element={<KidDetails />} />
           </Route>
           
           {/* Finance section */}

@@ -1,9 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { PlusCircle, Search, Filter, Eye, Trash, Download, QrCode, Baby } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Card } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
@@ -21,6 +21,7 @@ interface Kid {
 }
 
 export default function Kids() {
+  const navigate = useNavigate();
   const [kids, setKids] = useState<Kid[]>([{
     id: "1",
     name: "John Smith Jr.",
@@ -54,7 +55,6 @@ export default function Kids() {
   }]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedKid, setSelectedKid] = useState<Kid | null>(null);
-  const [isViewOpen, setIsViewOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const {
     toast
@@ -89,8 +89,7 @@ export default function Kids() {
   const filteredKids = kids.filter(kid => kid.name.toLowerCase().includes(searchQuery.toLowerCase()) || kid.parent.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const handleViewKid = (kid: Kid) => {
-    setSelectedKid(kid);
-    setIsViewOpen(true);
+    navigate(`/people/kids/${kid.id}`);
   };
 
   const handleDeletePrompt = (kid: Kid) => {
@@ -235,56 +234,6 @@ export default function Kids() {
           </Card>
         )}
       </div>
-
-      <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Child Information</DialogTitle>
-          </DialogHeader>
-          {selectedKid && <div className="space-y-4 py-2">
-              <div className="grid grid-cols-1 gap-1">
-                <div className="font-medium">Full Name</div>
-                <div>{selectedKid.name}</div>
-              </div>
-              <div className="grid grid-cols-1 gap-1">
-                <div className="font-medium">Parent</div>
-                <div>{selectedKid.parent}</div>
-              </div>
-              <div className="grid grid-cols-1 gap-1">
-                <div className="font-medium">Birth Date</div>
-                <div>{formatDate(selectedKid.birthDate)}</div>
-              </div>
-              <div className="grid grid-cols-1 gap-1">
-                <div className="font-medium">Contact Information</div>
-                <div>{selectedKid.contactOption || "Not provided"}</div>
-              </div>
-              <div className="grid grid-cols-1 gap-1">
-                <div className="font-medium">Alimentary Restrictions</div>
-                <div>{selectedKid.alimentaryRestriction || "None"}</div>
-              </div>
-              <div className="grid grid-cols-1 gap-1">
-                <div className="font-medium">Special Necessities</div>
-                <div>{selectedKid.specialNecessities || "None"}</div>
-              </div>
-              <div className="grid grid-cols-1 gap-1">
-                <div className="font-medium">Identification Password</div>
-                <div>{selectedKid.identificationPassword}</div>
-              </div>
-              <div className="grid grid-cols-1 gap-1">
-                <div className="font-medium">Added Date</div>
-                <div>{formatDate(selectedKid.addedDate)}</div>
-              </div>
-            </div>}
-          <DialogFooter className="sm:justify-between">
-            <Button type="button" onClick={handleSendNotification} variant="outline">
-              Send Notification
-            </Button>
-            <DialogClose asChild>
-              <Button type="button" variant="secondary">Close</Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <AlertDialogContent>
