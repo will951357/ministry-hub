@@ -58,7 +58,7 @@ export default function Donations() {
             </TabsList>
           </div>
           
-          <div>
+          <div className='gap-4'>
             <Button variant="outline" size="sm">
               <Filter className="h-4 w-4 mr-2" />
               Filter
