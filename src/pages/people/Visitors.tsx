@@ -400,14 +400,12 @@ export default function Visitors() {
           ) : (
             <Square className="h-5 w-5 text-gray-400" />
           )}
-          <span>Select All</span>
+          <span>Select All Visitors</span>
         </Button>
         <div className="text-sm text-gray-500 whitespace-nowrap">
           {selectedVisitors.length} of {filteredVisitors.length} visitors selected
         </div>
       </div>
-
-      <h3 className="text-xl">Visitor List </h3>
 
       <Card className="overflow-hidden">
         <CardHeader className="pb-2">
