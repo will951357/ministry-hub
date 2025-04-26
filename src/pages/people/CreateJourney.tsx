@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useNavigate } from "react-router-dom";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function CreateJourney() {
   const [newJourney, setNewJourney] = useState<{
@@ -17,6 +18,7 @@ export default function CreateJourney() {
       name: string;
       points: number;
       times: number;
+      type: string;
       subSteps: {
         id: string;
         name: string;
@@ -41,12 +43,13 @@ export default function CreateJourney() {
         name: "",
         points: 0,
         times: 1,
+        type: "visits",
         subSteps: []
       }]
     }));
   };
   
-  const updateStep = (id: string, field: 'name' | 'points' | 'times', value: string | number) => {
+  const updateStep = (id: string, field: 'name' | 'points' | 'times' | 'type', value: string | number) => {
     setNewJourney(prev => ({
       ...prev,
       steps: prev.steps.map(step => step.id === id ? {
@@ -129,6 +132,14 @@ export default function CreateJourney() {
         toast({
           title: "Error",
           description: "Minimum times must be at least 1",
+          variant: "destructive"
+        });
+        return;
+      }
+      if (!step.type) {
+        toast({
+          title: "Error",
+          description: "Step type is required",
           variant: "destructive"
         });
         return;
@@ -229,8 +240,8 @@ export default function CreateJourney() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="md:col-span-1">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
                       <label htmlFor={`step-name-${step.id}`} className="text-xs font-medium block mb-1">
                         Step Name
                       </label>
@@ -240,6 +251,27 @@ export default function CreateJourney() {
                         value={step.name} 
                         onChange={e => updateStep(step.id, 'name', e.target.value)} 
                       />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium block mb-1">
+                        Step Type
+                      </label>
+                      <Select 
+                        value={step.type} 
+                        onValueChange={(value) => updateStep(step.id, 'type', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="visits">Visits</SelectItem>
+                          <SelectItem value="events">Events</SelectItem>
+                          <SelectItem value="donation">Donation</SelectItem>
+                          <SelectItem value="social">Social</SelectItem>
+                          <SelectItem value="reading">Reading</SelectItem>
+                          <SelectItem value="groups">Groups</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div>
                       <label htmlFor={`step-times-${step.id}`} className="text-xs font-medium block mb-1">
