@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
+import { TitheTable } from "@/components/finance/TitheTable";
+import { titheRecords } from "@/data/tithes";
 
 export default function Tithes() {
   return (
@@ -73,39 +75,28 @@ export default function Tithes() {
           <TabsContent value="all">
             <div className="rounded-md border">
               <div className="p-4">
-                <div className="flex items-center justify-center">
-                  <Users className="h-8 w-8 text-muted-foreground mr-2" />
-                  <p className="text-center text-muted-foreground">
-                    Select filters to view tithe records
-                  </p>
-                </div>
+                <TitheTable records={titheRecords} />
               </div>
             </div>
           </TabsContent>
           <TabsContent value="consistent">
             <div className="rounded-md border">
               <div className="p-4">
-                <p className="text-center text-muted-foreground py-6">
-                  No consistent tithers to display.
-                </p>
+                <TitheTable records={titheRecords} status="consistent" />
               </div>
             </div>
           </TabsContent>
           <TabsContent value="irregular">
             <div className="rounded-md border">
               <div className="p-4">
-                <p className="text-center text-muted-foreground py-6">
-                  No irregular tithers to display.
-                </p>
+                <TitheTable records={titheRecords} status="irregular" />
               </div>
             </div>
           </TabsContent>
           <TabsContent value="new">
             <div className="rounded-md border">
               <div className="p-4">
-                <p className="text-center text-muted-foreground py-6">
-                  No new tithers to display.
-                </p>
+                <TitheTable records={titheRecords} status="new" />
               </div>
             </div>
           </TabsContent>
