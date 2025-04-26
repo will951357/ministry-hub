@@ -136,9 +136,9 @@ export default function CreateJourney() {
 
   return (
     <div className="space-y-6 px-4 md:px-6 py-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center">
+         <ArrowLeft className="h-4 w-4" />
         <h1 className="text-2xl font-semibold text-church-primary">Create New Faith Journey</h1>
-        <Button variant="outline" onClick={() => navigate("/people/journeys")}>Cancel</Button>
       </div>
       
       <div className="space-y-6">
