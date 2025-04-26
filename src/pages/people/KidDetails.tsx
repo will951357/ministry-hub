@@ -60,7 +60,7 @@ export default function KidDetails() {
   }
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto py-6 gap-4">
       <Button
         variant="ghost"
         className="mb-6"
@@ -70,52 +70,50 @@ export default function KidDetails() {
         Back to Kids List
       </Button>
 
-      <Card className="max-w-2xl mx-auto p-6">
-        <h1 className="text-2xl font-bold mb-6">{kid.name}</h1>
+      <h1 className="text-2xl font-bold mb-6">{kid.name}</h1>
+      
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-1">
+          <div className="font-medium">Parent</div>
+          <div>{kid.parent}</div>
+        </div>
         
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 gap-1">
-            <div className="font-medium">Parent</div>
-            <div>{kid.parent}</div>
-          </div>
-          
-          <div className="grid grid-cols-1 gap-1">
-            <div className="font-medium">Birth Date</div>
-            <div>{formatDate(kid.birthDate)}</div>
-          </div>
-          
-          <div className="grid grid-cols-1 gap-1">
-            <div className="font-medium">Contact Information</div>
-            <div>{kid.contactOption || "Not provided"}</div>
-          </div>
-          
-          <div className="grid grid-cols-1 gap-1">
-            <div className="font-medium">Alimentary Restrictions</div>
-            <div>{kid.alimentaryRestriction || "None"}</div>
-          </div>
-          
-          <div className="grid grid-cols-1 gap-1">
-            <div className="font-medium">Special Necessities</div>
-            <div>{kid.specialNecessities || "None"}</div>
-          </div>
-          
-          <div className="grid grid-cols-1 gap-1">
-            <div className="font-medium">Identification Password</div>
-            <div>{kid.identificationPassword}</div>
-          </div>
-          
-          <div className="grid grid-cols-1 gap-1">
-            <div className="font-medium">Added Date</div>
-            <div>{formatDate(kid.addedDate)}</div>
-          </div>
+        <div className="grid grid-cols-1 gap-1">
+          <div className="font-medium">Birth Date</div>
+          <div>{formatDate(kid.birthDate)}</div>
         </div>
+        
+        <div className="grid grid-cols-1 gap-1">
+          <div className="font-medium">Contact Information</div>
+          <div>{kid.contactOption || "Not provided"}</div>
+        </div>
+        
+        <div className="grid grid-cols-1 gap-1">
+          <div className="font-medium">Alimentary Restrictions</div>
+          <div>{kid.alimentaryRestriction || "None"}</div>
+        </div>
+        
+        <div className="grid grid-cols-1 gap-1">
+          <div className="font-medium">Special Necessities</div>
+          <div>{kid.specialNecessities || "None"}</div>
+        </div>
+        
+        <div className="grid grid-cols-1 gap-1">
+          <div className="font-medium">Identification Password</div>
+          <div>{kid.identificationPassword}</div>
+        </div>
+        
+        <div className="grid grid-cols-1 gap-1">
+          <div className="font-medium">Added Date</div>
+          <div>{formatDate(kid.addedDate)}</div>
+        </div>
+      </div>
 
-        <div className="mt-6">
-          <Button onClick={handleSendNotification}>
-            Send Notification
-          </Button>
-        </div>
-      </Card>
+      <div className="mt-6">
+        <Button onClick={handleSendNotification}>
+          Send Notification
+        </Button>
+      </div>
     </div>
   );
 }
