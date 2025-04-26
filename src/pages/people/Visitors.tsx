@@ -270,6 +270,7 @@ export default function Visitors() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
           title="Visitors"
+          description="Last 30 days"
           value={visitorsLast30Days.toString()}
           icon={<UserPlus size={20} />}
           trend={{
@@ -287,7 +288,7 @@ export default function Visitors() {
           footer={
             <div className="text-sm text-blue-600 flex items-center">
               <div classname="flex" />
-              <span>Click here to see requests</span>
+              <span>See requests</span>
             </div>
           }
         />
@@ -295,7 +296,7 @@ export default function Visitors() {
           title="Visitor Conversions"
           value={totalConversions.toString()}
           icon={<Users size={20} />}
-          description="Visitors who became members in the last 30 days"
+          description="Last 30 days"
           className="bg-white rounded-lg border border-church-border shadow-sm cursor-pointer"
           onClick={() => window.location.href = "/people/members"}
           footer={
