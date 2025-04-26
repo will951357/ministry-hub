@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, CalendarIcon, Clock } from "lucide-react";
+import { ChevronLeft, CalendarIcon, Clock, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -115,14 +115,17 @@ export default function CreateAppointment() {
 
   return (
     <div>
-      <div className="flex items-center mb-6">
+      <div className="flex items-center mb-6 gap-4">
+
         <Button 
-          variant="ghost" 
-          className="mr-2 p-0 h-auto"
+          variant="outline" 
+          size="icon" 
           onClick={() => navigate("/people/appointments")}
+          className="h-8 w-8"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <ArrowLeft className="h-4 w-4" />
         </Button>
+
         <div>
           <h1 className="text-2xl font-semibold text-church-primary">Create New Appointment</h1>
           <p className="text-church-secondary">
