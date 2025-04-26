@@ -408,7 +408,7 @@ export default function Visitors() {
       </div>
 
       <Card className="overflow-hidden">
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-0">
         </CardHeader>
         <CardContent className="p-0 overflow-auto">
           <div className="w-full overflow-x-auto">
