@@ -24,7 +24,7 @@ export function MainLayout({ children }: PropsWithChildren) {
   }, []);
   
   return (
-    <div className="min-h-screen bg-church-background flex overflow-hidden">
+    <div className="min-h-screen bg-church-background flex overflow-x-hidden">
       <SideNav 
         isOpen={isSidebarOpen} 
         setIsOpen={setIsSidebarOpen}
@@ -39,10 +39,8 @@ export function MainLayout({ children }: PropsWithChildren) {
           toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
           showMenuButton={isMobileView} 
         />
-        <main className="p-4 md:p-6 w-full overflow-x-auto">
-          <div className="min-w-0">
-            {children}
-          </div>
+        <main className="p-4 md:p-6 max-w-full overflow-x-hidden">
+          {children}
         </main>
       </div>
     </div>

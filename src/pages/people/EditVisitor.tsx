@@ -73,7 +73,7 @@ export default function EditVisitor() {
   ];
 
   return (
-    <div className="space-y-6 w-full overflow-x-auto min-w-0">
+    <div className="space-y-6">
       <div className="flex items-center gap-2">
         <Button 
           variant="outline" 
