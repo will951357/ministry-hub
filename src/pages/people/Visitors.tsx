@@ -47,6 +47,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type VisitMethod = "app" | "in-person";
 
@@ -123,7 +124,6 @@ const cellGroups = [
   "College Ministry"
 ];
 
-// Export the schema so it can be used in EditVisitor
 export const visitorSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   phone: z.string().min(5, { message: "Please enter a valid phone number." }),
@@ -146,6 +146,7 @@ export default function Visitors() {
   const [visitors, setVisitors] = useState<Visitor[]>(mockVisitors);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const form = useForm<VisitorFormValues>({
     resolver: zodResolver(visitorSchema),
@@ -262,7 +263,7 @@ export default function Visitors() {
   const visitorsInEvents = 15;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-full overflow-x-hidden">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
         <div>
           <h1 className="text-2xl font-semibold text-church-primary mb-2">Visitors</h1>
@@ -277,7 +278,7 @@ export default function Visitors() {
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
           title="Visitors (Last 30 Days)"
           value={visitorsLast30Days.toString()}
@@ -329,17 +330,17 @@ export default function Visitors() {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-        <div className="relative flex-1">
+        <div className="relative flex-1 w-full">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
           <Input 
             placeholder="Search visitors..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
+            className="pl-10 w-full"
           />
         </div>
         
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap w-full sm:w-auto">
           <Collapsible 
             open={isFiltersOpen} 
             onOpenChange={setIsFiltersOpen}
@@ -388,6 +389,7 @@ export default function Visitors() {
           <Button 
             onClick={handleSendNotifications}
             disabled={selectedVisitors.length === 0}
+            className="w-full sm:w-auto"
           >
             <Bell size={16} className="mr-2" />
             Send Notifications
@@ -395,11 +397,11 @@ export default function Visitors() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between bg-gray-50 p-3 rounded-md">
+      <div className="flex items-center justify-between bg-gray-50 p-3 rounded-md overflow-x-auto">
         <Button 
           variant="ghost" 
           size="sm" 
-          className="flex items-center gap-2" 
+          className="flex items-center gap-2 whitespace-nowrap" 
           onClick={handleSelectAll}
         >
           {areAllSelected ? (
@@ -409,109 +411,111 @@ export default function Visitors() {
           )}
           <span>Select All</span>
         </Button>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-gray-500 whitespace-nowrap">
           {selectedVisitors.length} of {filteredVisitors.length} visitors selected
         </div>
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
         <CardHeader className="pb-2">
           <CardTitle className="text-xl">Visitor List</CardTitle>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-10">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="p-0 h-6 w-6"
-                    onClick={handleSelectAll}
-                  >
-                    {areAllSelected ? (
-                      <CheckSquare className="h-5 w-5 text-church-primary" />
-                    ) : (
-                      <Square className="h-5 w-5 text-gray-400" />
-                    )}
-                  </Button>
-                </TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead className="hidden md:table-cell">Phone</TableHead>
-                <TableHead className="hidden md:table-cell">Email</TableHead>
-                <TableHead>Last Visit</TableHead>
-                <TableHead className="hidden lg:table-cell">Cell Group</TableHead>
-                <TableHead className="hidden lg:table-cell">Visits</TableHead>
-                <TableHead>Visit Method</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredVisitors.length === 0 ? (
+        <CardContent className="p-0 overflow-auto">
+          <div className="w-full overflow-x-auto">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-gray-500">
-                    No visitors found matching your search criteria.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredVisitors.map((visitor) => (
-                  <TableRow key={visitor.id}>
-                    <TableCell>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="p-0 h-6 w-6"
-                        onClick={() => handleSelectVisitor(visitor.id)}
-                      >
-                        {selectedVisitors.includes(visitor.id) ? (
-                          <CheckSquare className="h-5 w-5 text-church-primary" />
-                        ) : (
-                          <Square className="h-5 w-5 text-gray-400" />
-                        )}
-                      </Button>
-                    </TableCell>
-                    <TableCell className="font-medium">{visitor.name}</TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <span className="flex items-center">
-                        <Phone size={14} className="mr-1 text-gray-400" />
-                        {visitor.phone}
-                      </span>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <span className="flex items-center">
-                        <AtSign size={14} className="mr-1 text-gray-400" />
-                        {visitor.email}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="flex items-center">
-                        <Calendar size={14} className="mr-1 text-gray-400" />
-                        {new Date(visitor.lastVisit).toLocaleDateString()}
-                      </span>
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      <Badge variant="outline">{visitor.cellGroup}</Badge>
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      <Badge>{visitor.visits}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      {visitor.visitMethod === "app" ? (
-                        <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200">
-                          <Smartphone size={14} className="mr-1" />
-                          App
-                        </Badge>
+                  <TableHead className="w-10">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="p-0 h-6 w-6"
+                      onClick={handleSelectAll}
+                    >
+                      {areAllSelected ? (
+                        <CheckSquare className="h-5 w-5 text-church-primary" />
                       ) : (
-                        <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">
-                          <Building size={14} className="mr-1" />
-                          In Person
-                        </Badge>
+                        <Square className="h-5 w-5 text-gray-400" />
                       )}
+                    </Button>
+                  </TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead className="hidden md:table-cell">Phone</TableHead>
+                  <TableHead className="hidden md:table-cell">Email</TableHead>
+                  <TableHead>Last Visit</TableHead>
+                  <TableHead className="hidden lg:table-cell">Cell Group</TableHead>
+                  <TableHead className="hidden lg:table-cell">Visits</TableHead>
+                  <TableHead>Visit Method</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredVisitors.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center py-8 text-gray-500">
+                      No visitors found matching your search criteria.
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  filteredVisitors.map((visitor) => (
+                    <TableRow key={visitor.id}>
+                      <TableCell>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="p-0 h-6 w-6"
+                          onClick={() => handleSelectVisitor(visitor.id)}
+                        >
+                          {selectedVisitors.includes(visitor.id) ? (
+                            <CheckSquare className="h-5 w-5 text-church-primary" />
+                          ) : (
+                            <Square className="h-5 w-5 text-gray-400" />
+                          )}
+                        </Button>
+                      </TableCell>
+                      <TableCell className="font-medium">{visitor.name}</TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <span className="flex items-center">
+                          <Phone size={14} className="mr-1 text-gray-400" />
+                          {visitor.phone}
+                        </span>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <span className="flex items-center">
+                          <AtSign size={14} className="mr-1 text-gray-400" />
+                          {visitor.email}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="flex items-center">
+                          <Calendar size={14} className="mr-1 text-gray-400" />
+                          {new Date(visitor.lastVisit).toLocaleDateString()}
+                        </span>
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        <Badge variant="outline">{visitor.cellGroup}</Badge>
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        <Badge>{visitor.visits}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        {visitor.visitMethod === "app" ? (
+                          <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200">
+                            <Smartphone size={14} className="mr-1" />
+                            App
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">
+                            <Building size={14} className="mr-1" />
+                            In Person
+                          </Badge>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>
