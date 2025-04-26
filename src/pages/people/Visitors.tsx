@@ -407,6 +407,8 @@ export default function Visitors() {
         </div>
       </div>
 
+      <h3 className="text-xl">Visitor List </h3>
+
       <Card className="overflow-hidden">
         <CardHeader className="pb-2">
           <CardTitle className="text-xl">Visitor List</CardTitle>
