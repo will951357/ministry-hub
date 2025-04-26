@@ -16,6 +16,7 @@ export default function CreateJourney() {
       id: string;
       name: string;
       points: number;
+      times: number;
       subSteps: {
         id: string;
         name: string;
@@ -39,12 +40,13 @@ export default function CreateJourney() {
         id: generateId(),
         name: "",
         points: 0,
+        times: 1,
         subSteps: []
       }]
     }));
   };
   
-  const updateStep = (id: string, field: 'name' | 'points', value: string | number) => {
+  const updateStep = (id: string, field: 'name' | 'points' | 'times', value: string | number) => {
     setNewJourney(prev => ({
       ...prev,
       steps: prev.steps.map(step => step.id === id ? {
@@ -123,9 +125,16 @@ export default function CreateJourney() {
         });
         return;
       }
+      if (step.times < 1) {
+        toast({
+          title: "Error",
+          description: "Minimum times must be at least 1",
+          variant: "destructive"
+        });
+        return;
+      }
     }
     
-    // Here you would typically save the journey
     toast({
       title: "Success",
       description: "Journey created successfully"
@@ -220,8 +229,8 @@ export default function CreateJourney() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="col-span-2">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="md:col-span-1">
                       <label htmlFor={`step-name-${step.id}`} className="text-xs font-medium block mb-1">
                         Step Name
                       </label>
@@ -230,6 +239,19 @@ export default function CreateJourney() {
                         placeholder="e.g., Complete Daily Prayer" 
                         value={step.name} 
                         onChange={e => updateStep(step.id, 'name', e.target.value)} 
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor={`step-times-${step.id}`} className="text-xs font-medium block mb-1">
+                        Minimum Times
+                      </label>
+                      <Input 
+                        id={`step-times-${step.id}`} 
+                        type="number" 
+                        min="1"
+                        placeholder="1" 
+                        value={step.times || 1} 
+                        onChange={e => updateStep(step.id, 'times', parseInt(e.target.value) || 1)} 
                       />
                     </div>
                     <div>
