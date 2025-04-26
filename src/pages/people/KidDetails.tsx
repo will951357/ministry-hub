@@ -82,7 +82,7 @@ export default function KidDetails() {
       </div>
 
       {/* Line 1: Child's name and age */}
-      <div className="flex flex-row items-baseline gap-3">
+      <div className="flex flex-col items-baseline gap-3">
         <h1 className="text-3xl font-bold">{kid.name}</h1>
         <span className="text-xl text-muted-foreground">
           {calculateAge(kid.birthDate)} years old
