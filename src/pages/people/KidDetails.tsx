@@ -1,8 +1,7 @@
 
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Send } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 interface Kid {
@@ -36,9 +35,17 @@ export default function KidDetails() {
     addedDate: "2023-01-10"
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
+  const calculateAge = (birthDate: string) => {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    
+    return age;
   };
 
   const handleSendNotification = () => {
@@ -60,8 +67,8 @@ export default function KidDetails() {
   }
 
   return (
-    <div className="container mx-auto py-6">
-
+    <div className="container mx-auto py-6 space-y-8">
+      {/* Back button and header */}
       <div className="flex items-center gap-4">
         <Button 
           variant="outline" 
@@ -74,48 +81,48 @@ export default function KidDetails() {
         <h1 className="text-2xl font-semibold text-church-primary">Details</h1>
       </div>
 
-      <h1 className="text-2xl font-bold mb-6">{kid.name}</h1>
-      
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 gap-1">
-          <div className="font-medium">Parent</div>
-          <div>{kid.parent}</div>
+      {/* Line 1: Child's name and age */}
+      <div className="flex items-baseline gap-3">
+        <h1 className="text-3xl font-bold">{kid.name}</h1>
+        <span className="text-xl text-muted-foreground">
+          {calculateAge(kid.birthDate)} years old
+        </span>
+      </div>
+
+      {/* Line 2: Parent information */}
+      <div className="flex items-center gap-6 py-4 border-y">
+        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
+          {kid.parent.charAt(0)}
         </div>
-        
-        <div className="grid grid-cols-1 gap-1">
-          <div className="font-medium">Birth Date</div>
-          <div>{formatDate(kid.birthDate)}</div>
-        </div>
-        
-        <div className="grid grid-cols-1 gap-1">
-          <div className="font-medium">Contact Information</div>
-          <div>{kid.contactOption || "Not provided"}</div>
-        </div>
-        
-        <div className="grid grid-cols-1 gap-1">
-          <div className="font-medium">Alimentary Restrictions</div>
-          <div>{kid.alimentaryRestriction || "None"}</div>
-        </div>
-        
-        <div className="grid grid-cols-1 gap-1">
-          <div className="font-medium">Special Necessities</div>
-          <div>{kid.specialNecessities || "None"}</div>
-        </div>
-        
-        <div className="grid grid-cols-1 gap-1">
-          <div className="font-medium">Identification Password</div>
-          <div>{kid.identificationPassword}</div>
-        </div>
-        
-        <div className="grid grid-cols-1 gap-1">
-          <div className="font-medium">Added Date</div>
-          <div>{formatDate(kid.addedDate)}</div>
+        <div className="space-y-1">
+          <h2 className="font-semibold">{kid.parent}</h2>
+          <div className="text-sm text-muted-foreground space-x-4">
+            <span>{kid.contactOption}</span>
+          </div>
         </div>
       </div>
 
-      <div className="mt-6">
-        <Button onClick={handleSendNotification}>
-          Send Notification
+      {/* Line 3: Dietary restrictions and special needs */}
+      <div className="grid grid-cols-2 gap-8">
+        <div>
+          <h3 className="font-medium mb-2">Dietary Restrictions</h3>
+          <p className="text-muted-foreground">
+            {kid.alimentaryRestriction || "None"}
+          </p>
+        </div>
+        <div>
+          <h3 className="font-medium mb-2">Special Needs</h3>
+          <p className="text-muted-foreground">
+            {kid.specialNecessities || "None"}
+          </p>
+        </div>
+      </div>
+
+      {/* Line 4: Notification button */}
+      <div>
+        <Button onClick={handleSendNotification} className="gap-2">
+          <Send className="h-4 w-4" />
+          Send Notification to Parent
         </Button>
       </div>
     </div>
