@@ -352,7 +352,6 @@ export default function Journeys() {
       {journeyStats}
 
       <div className="flex flex-col gap-4 md:flex-row md:items-center justify-between">
-        <h2 className="text-xl font-medium text-church-primary">All Journeys</h2>
         
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-[600px]">
           <div className="relative flex-grow">
