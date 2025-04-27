@@ -10,7 +10,7 @@ export function ExpenseFormHeader() {
         <Button 
           variant="outline" 
           size="icon" 
-          onClick={() => navigate("./finance/accounting")}
+          onClick={() => navigate("/finance/accounting")}
           className="h-8 w-8"
         >
           <ArrowLeft className="h-4 w-4" />
