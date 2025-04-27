@@ -103,7 +103,7 @@ export default function Accounting() {
             <TabsTrigger value="budget">Budget Planning</TabsTrigger>
           </TabsList>
 
-          <div>
+          <div className="flex flex-row gap-4">
             <Select value={timeRange} onValueChange={setTimeRange}>
               <SelectTrigger className="w-[180px]">
                 <Calendar className="h-4 w-4 mr-2" />
