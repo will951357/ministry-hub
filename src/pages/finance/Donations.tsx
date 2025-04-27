@@ -4,6 +4,7 @@ import { DollarSign, Download, Filter, ArrowUpRight, PiggyBank, CreditCard } fro
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatsCard } from "@/components/dashboard/StatsCard";
+import { ChartCard } from "@/components/dashboard/ChartCard";
 
 export default function Donations() {
   const [activeTab, setActiveTab] = useState("all");
@@ -46,7 +47,9 @@ export default function Donations() {
         />
       </div>
 
-      <Tabs defaultValue="all" onValueChange={setActiveTab} className="w-full">
+      <ChartCard titile="Donations Track">
+        
+        <Tabs defaultValue="all" onValueChange={setActiveTab} className="w-full">
         
         <div className='flex flex-row justify-between items-center'>
           <div>
@@ -57,7 +60,7 @@ export default function Donations() {
               <TabsTrigger value="special">Special Projects</TabsTrigger>
             </TabsList>
           </div>
-          
+
           <div className='flex gap-4'>
             <Button variant="outline" size="sm">
               <Filter className="h-4 w-4 mr-2" />
@@ -100,6 +103,9 @@ export default function Donations() {
           </div>
         </TabsContent>
       </Tabs>
+      
+      </ChartCard>
+      
     </div>
   );
 }
