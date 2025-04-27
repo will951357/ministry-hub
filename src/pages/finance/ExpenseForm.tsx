@@ -75,10 +75,10 @@ export default function ExpenseForm() {
   }
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="container py-6">
       <ExpenseFormHeader />
 
-      <div className="mx-auto max-w-2xl">
+      <div className="max-w-2xl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <DateField control={form.control} />
