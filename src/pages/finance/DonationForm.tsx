@@ -9,12 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { SelectField } from "./components/SelectField";
 import { DateField } from "./components/DateField";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { mockDonations } from "@/data/donations";
-import { useClickOutside } from "@/hooks/use-click-outside";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-// Using the existing members from mock data as our donor list - ensure it's never undefined
+// Using the existing members from mock data as our donor list
 const membersList = [...new Set(mockDonations.map(d => d.donor))].filter(Boolean);
 
 const formSchema = z.object({
@@ -31,9 +32,10 @@ const formSchema = z.object({
 
 export default function DonationForm() {
   const navigate = useNavigate();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const dropdownRef = useClickOutside(() => setIsDropdownOpen(false));
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,11 +52,36 @@ export default function DonationForm() {
     navigate("/finance/donations");
   }
 
-  // Make sure filteredMembers is always a valid array
+  // Filter members based on search term
   const filteredMembers = searchTerm 
     ? membersList.filter(member =>
         member.toLowerCase().includes(searchTerm.toLowerCase()))
     : membersList;
+
+  // Handle click outside to close suggestions
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node) &&
+          inputRef.current && !inputRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    }
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Handle selecting a member from suggestions
+  const handleSelectMember = (member: string) => {
+    form.setValue("donor", member);
+    setSearchTerm(member);
+    setShowSuggestions(false);
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
 
   return (
     <div className="container mx-auto py-6">
@@ -77,43 +104,40 @@ export default function DonationForm() {
                     <div className="relative">
                       <FormControl>
                         <Input
+                          ref={inputRef}
                           {...field}
-                          onFocus={() => setIsDropdownOpen(true)}
-                          onClick={() => setIsDropdownOpen(true)}
+                          value={searchTerm || field.value}
                           onChange={(e) => {
-                            field.onChange(e.target.value);
-                            setSearchTerm(e.target.value);
-                            setIsDropdownOpen(true);
+                            const value = e.target.value;
+                            setSearchTerm(value);
+                            field.onChange(value);
+                            setShowSuggestions(true);
                           }}
+                          onFocus={() => setShowSuggestions(true)}
+                          onClick={() => setShowSuggestions(true)}
                           autoComplete="off"
                         />
                       </FormControl>
-                      {isDropdownOpen && (
-                        <div ref={dropdownRef} className="absolute w-full z-50">
-                          <Command className="rounded-lg border shadow-md bg-popover">
-                            <CommandInput 
-                              placeholder="Search members..." 
-                              value={searchTerm} 
-                              onValueChange={(value) => {
-                                setSearchTerm(value);
-                              }}
-                            />
-                            <CommandEmpty>No members found.</CommandEmpty>
-                            <CommandGroup className="max-h-48 overflow-auto">
-                              {filteredMembers && filteredMembers.length > 0 ? filteredMembers.map((member) => (
-                                <CommandItem
-                                  key={member}
-                                  value={member}
-                                  onSelect={() => {
-                                    form.setValue("donor", member);
-                                    setIsDropdownOpen(false);
-                                  }}
-                                >
-                                  {member}
-                                </CommandItem>
-                              )) : <CommandEmpty>No members found.</CommandEmpty>}
-                            </CommandGroup>
-                          </Command>
+                      {showSuggestions && filteredMembers.length > 0 && (
+                        <div 
+                          ref={suggestionsRef}
+                          className="absolute mt-1 w-full z-50 bg-background rounded-md border shadow-lg py-1 max-h-60 overflow-auto"
+                        >
+                          {filteredMembers.map((member) => (
+                            <div
+                              key={member}
+                              className={cn(
+                                "px-2 py-1.5 text-sm cursor-pointer hover:bg-muted flex items-center",
+                                field.value === member && "bg-muted"
+                              )}
+                              onClick={() => handleSelectMember(member)}
+                            >
+                              {member}
+                              {field.value === member && (
+                                <Check className="w-4 h-4 ml-auto" />
+                              )}
+                            </div>
+                          ))}
                         </div>
                       )}
                     </div>
