@@ -14,8 +14,8 @@ import { useEffect, useState } from "react";
 import { mockDonations } from "@/data/donations";
 import { useClickOutside } from "@/hooks/use-click-outside";
 
-// Using the existing members from mock data as our donor list
-const membersList = [...new Set(mockDonations.map(d => d.donor))];
+// Using the existing members from mock data as our donor list - ensure it's never undefined
+const membersList = [...new Set(mockDonations.map(d => d.donor))].filter(Boolean);
 
 const formSchema = z.object({
   donor: z.string().min(2, "Donor name must be at least 2 characters"),
@@ -50,7 +50,7 @@ export default function DonationForm() {
     navigate("/finance/donations");
   }
 
-  // Ensure we have a valid array for filtering
+  // Make sure filteredMembers is always a valid array
   const filteredMembers = searchTerm 
     ? membersList.filter(member =>
         member.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -79,19 +79,28 @@ export default function DonationForm() {
                         <Input
                           {...field}
                           onFocus={() => setIsDropdownOpen(true)}
+                          onClick={() => setIsDropdownOpen(true)}
                           onChange={(e) => {
                             field.onChange(e.target.value);
                             setSearchTerm(e.target.value);
+                            setIsDropdownOpen(true);
                           }}
+                          autoComplete="off"
                         />
                       </FormControl>
                       {isDropdownOpen && (
                         <div ref={dropdownRef} className="absolute w-full z-50">
                           <Command className="rounded-lg border shadow-md bg-popover">
-                            <CommandInput placeholder="Search members..." value={searchTerm} onValueChange={setSearchTerm} />
+                            <CommandInput 
+                              placeholder="Search members..." 
+                              value={searchTerm} 
+                              onValueChange={(value) => {
+                                setSearchTerm(value);
+                              }}
+                            />
                             <CommandEmpty>No members found.</CommandEmpty>
                             <CommandGroup className="max-h-48 overflow-auto">
-                              {filteredMembers.map((member) => (
+                              {filteredMembers && filteredMembers.length > 0 ? filteredMembers.map((member) => (
                                 <CommandItem
                                   key={member}
                                   value={member}
@@ -102,7 +111,7 @@ export default function DonationForm() {
                                 >
                                   {member}
                                 </CommandItem>
-                              ))}
+                              )) : <CommandEmpty>No members found.</CommandEmpty>}
                             </CommandGroup>
                           </Command>
                         </div>
