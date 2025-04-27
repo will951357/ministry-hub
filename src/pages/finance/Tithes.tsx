@@ -58,21 +58,29 @@ export default function Tithes() {
 
       <ChartCard title="Tithe Tracking" >
         <Tabs defaultValue="all">
-          <TabsList className="mb-4">
-            <TabsTrigger value="all">All Members</TabsTrigger>
-            <TabsTrigger value="consistent">Consistent</TabsTrigger>
-            <TabsTrigger value="irregular">Irregular</TabsTrigger>
-            <TabsTrigger value="new">New Tithers</TabsTrigger>
-          </TabsList>
 
-          <Button variant="outline" size="sm">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
+          <div className="flex justify-between">
+            <div>
+              <TabsList className="mb-4">
+                <TabsTrigger value="all">All Members</TabsTrigger>
+                <TabsTrigger value="consistent">Consistent</TabsTrigger>
+                <TabsTrigger value="irregular">Irregular</TabsTrigger>
+                <TabsTrigger value="new">New Tithers</TabsTrigger>
+              </TabsList>
+            </div>
+          
+            <div className='flex gap-4'>
+              <Button variant="outline" size="sm">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter
+              </Button>
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+            </div>
+          
+          </div>
           
           <TabsContent value="all">
             <div className="rounded-md border">
