@@ -1,11 +1,18 @@
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function ExpenseFormHeader() {
   return (
-    <div className="mb-8">
-      <h2 className="text-3xl font-bold tracking-tight">Record Expense</h2>
-      <p className="text-muted-foreground">
-        Create a new expense record with the form below.
-      </p>
+     <div className="flex items-center gap-4">
+        <Button 
+          variant="outline" 
+          size="icon" 
+          onClick={() => navigate("/people/journeys")}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <h1 className="text-2xl font-semibold text-church-primary">Register Expense</h1>
     </div>
   );
 }
