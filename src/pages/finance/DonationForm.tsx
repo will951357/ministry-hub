@@ -10,8 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { SelectField } from "./components/SelectField";
 import { DateField } from "./components/DateField";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { mockDonations } from "@/data/donations";
+import { useClickOutside } from "@/hooks/use-click-outside";
 
 // Using the existing members from mock data as our donor list
 const membersList = [...new Set(mockDonations.map(d => d.donor))];
@@ -32,10 +33,12 @@ export default function DonationForm() {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useClickOutside(() => setIsDropdownOpen(false));
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      donor: "",
       donorType: "member",
       fund: "General",
       paymentMethod: "Cash",
@@ -47,9 +50,11 @@ export default function DonationForm() {
     navigate("/finance/donations");
   }
 
-  const filteredMembers = membersList.filter(member =>
-    member.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Ensure we have a valid array for filtering
+  const filteredMembers = searchTerm 
+    ? membersList.filter(member =>
+        member.toLowerCase().includes(searchTerm.toLowerCase()))
+    : membersList;
 
   return (
     <div className="container mx-auto py-6">
@@ -81,14 +86,15 @@ export default function DonationForm() {
                         />
                       </FormControl>
                       {isDropdownOpen && (
-                        <div className="absolute w-full z-50">
-                          <Command className="rounded-lg border shadow-md">
-                            <CommandInput placeholder="Search members..." />
+                        <div ref={dropdownRef} className="absolute w-full z-50">
+                          <Command className="rounded-lg border shadow-md bg-popover">
+                            <CommandInput placeholder="Search members..." value={searchTerm} onValueChange={setSearchTerm} />
                             <CommandEmpty>No members found.</CommandEmpty>
                             <CommandGroup className="max-h-48 overflow-auto">
                               {filteredMembers.map((member) => (
                                 <CommandItem
                                   key={member}
+                                  value={member}
                                   onSelect={() => {
                                     form.setValue("donor", member);
                                     setIsDropdownOpen(false);
