@@ -47,7 +47,7 @@ export default function Donations() {
         />
       </div>
 
-      <ChartCard titile="Donations Track">
+      <ChartCard title="Donations Track">
         
         <Tabs defaultValue="all" onValueChange={setActiveTab} className="w-full">
         
