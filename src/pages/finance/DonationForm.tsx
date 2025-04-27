@@ -9,6 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { SelectField } from "./components/SelectField";
 import { DateField } from "./components/DateField";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { useState } from "react";
+import { mockDonations } from "@/data/donations";
+
+// Using the existing members from mock data as our donor list
+const membersList = [...new Set(mockDonations.map(d => d.donor))];
 
 const formSchema = z.object({
   donor: z.string().min(2, "Donor name must be at least 2 characters"),
@@ -24,6 +30,9 @@ const formSchema = z.object({
 
 export default function DonationForm() {
   const navigate = useNavigate();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -38,6 +47,10 @@ export default function DonationForm() {
     navigate("/finance/donations");
   }
 
+  const filteredMembers = membersList.filter(member =>
+    member.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="container mx-auto py-6">
       <div className="mb-6">
@@ -48,73 +61,109 @@ export default function DonationForm() {
       <div className="max-w-2xl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="donor"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Donor Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* First Row */}
+              <FormField
+                control={form.control}
+                name="donor"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Donor Name</FormLabel>
+                    <div className="relative">
+                      <FormControl>
+                        <Input
+                          {...field}
+                          onFocus={() => setIsDropdownOpen(true)}
+                          onChange={(e) => {
+                            field.onChange(e.target.value);
+                            setSearchTerm(e.target.value);
+                          }}
+                        />
+                      </FormControl>
+                      {isDropdownOpen && (
+                        <div className="absolute w-full z-50">
+                          <Command className="rounded-lg border shadow-md">
+                            <CommandInput placeholder="Search members..." />
+                            <CommandEmpty>No members found.</CommandEmpty>
+                            <CommandGroup className="max-h-48 overflow-auto">
+                              {filteredMembers.map((member) => (
+                                <CommandItem
+                                  key={member}
+                                  onSelect={() => {
+                                    form.setValue("donor", member);
+                                    setIsDropdownOpen(false);
+                                  }}
+                                >
+                                  {member}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </Command>
+                        </div>
+                      )}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <SelectField
-              control={form.control}
-              name="donorType"
-              label="Donor Type"
-              placeholder="Select donor type"
-              options={["Member", "Visitor", "Institution"]}
-            />
+              <SelectField
+                control={form.control}
+                name="donorType"
+                label="Donor Type"
+                placeholder="Select donor type"
+                options={["Member", "Visitor", "Institution"]}
+              />
 
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Amount</FormLabel>
-                  <FormControl>
-                    <Input type="number" step="0.01" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              {/* Second Row */}
+              <FormField
+                control={form.control}
+                name="amount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Amount</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="0.01" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <SelectField
-              control={form.control}
-              name="fund"
-              label="Fund"
-              placeholder="Select fund"
-              options={["General", "Building", "Missions", "Youth Ministry", "Community Outreach"]}
-            />
+              <SelectField
+                control={form.control}
+                name="fund"
+                label="Fund"
+                placeholder="Select fund"
+                options={["General", "Building", "Missions", "Youth Ministry", "Community Outreach"]}
+              />
 
-            <SelectField
-              control={form.control}
-              name="paymentMethod"
-              label="Payment Method"
-              placeholder="Select payment method"
-              options={["Cash", "Credit Card", "Check", "Bank Transfer"]}
-            />
+              {/* Third Row */}
+              <SelectField
+                control={form.control}
+                name="paymentMethod"
+                label="Payment Method"
+                placeholder="Select payment method"
+                options={["Cash", "Credit Card", "Check", "Bank Transfer"]}
+              />
 
-            <DateField control={form.control} />
+              <DateField control={form.control} />
 
-            <FormField
-              control={form.control}
-              name="observation"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Observation (Optional)</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              {/* Fourth Row */}
+              <FormField
+                control={form.control}
+                name="observation"
+                render={({ field }) => (
+                  <FormItem className="col-span-full">
+                    <FormLabel>Observation (Optional)</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className="flex gap-4">
               <Button type="submit">Save Donation</Button>
