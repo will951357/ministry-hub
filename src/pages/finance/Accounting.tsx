@@ -120,7 +120,7 @@ export default function Accounting() {
           
             <Button variant="outline" size="sm" onClick={() => handleExport("excel")}>
               <Download className="h-4 w-4 mr-2" />
-              Excel
+              Export
             </Button>
           </div>
         </div>
