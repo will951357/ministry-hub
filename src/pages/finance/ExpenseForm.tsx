@@ -81,8 +81,20 @@ export default function ExpenseForm() {
       <div className="mt-4 max-w-2xl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <DateField control={form.control} />
+            {/* Line 1: Date, Amount, and Payment Method */}
+            <div className="grid gap-4 md:grid-cols-3">
+              <DateField control={form.control} />
+              <AmountField control={form.control} />
+              <SelectField
+                control={form.control}
+                name="paymentMethod"
+                label="Payment Method"
+                placeholder="Select payment method"
+                options={paymentMethods}
+              />
+            </div>
 
+            {/* Line 2: Description */}
             <FormField
               control={form.control}
               name="description"
@@ -99,33 +111,26 @@ export default function ExpenseForm() {
               )}
             />
 
-            <AmountField control={form.control} />
+            {/* Line 3: Expense Type and Fund */}
+            <div className="grid gap-4 md:grid-cols-2">
+              <SelectField
+                control={form.control}
+                name="expenseType"
+                label="Expense Type"
+                placeholder="Select expense type"
+                options={expenseTypes}
+              />
+              <SelectField
+                control={form.control}
+                name="fund"
+                label="Fund"
+                placeholder="Select fund (optional)"
+                options={funds}
+                optional={true}
+              />
+            </div>
 
-            <SelectField
-              control={form.control}
-              name="expenseType"
-              label="Expense Type"
-              placeholder="Select expense type"
-              options={expenseTypes}
-            />
-
-            <SelectField
-              control={form.control}
-              name="fund"
-              label="Fund"
-              placeholder="Select fund (optional)"
-              options={funds}
-              optional={true}
-            />
-
-            <SelectField
-              control={form.control}
-              name="paymentMethod"
-              label="Payment Method"
-              placeholder="Select payment method"
-              options={paymentMethods}
-            />
-
+            {/* Line 4: Receipt Upload */}
             <ReceiptUpload 
               control={form.control}
               receiptFileName={receiptFileName}
