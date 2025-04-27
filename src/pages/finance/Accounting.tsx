@@ -1,29 +1,31 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Download, FileText, Filter, ArrowUpRight, ArrowDownRight, Calendar, Clock, Plus, Receipt } from "lucide-react";
+import { Download, Filter, ArrowUpRight, ArrowDownRight, Calendar, Clock, Plus, Receipt } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FinancialOverviewChart } from "@/components/finance/FinancialOverviewChart";
 import { ExpenseByCategoryChart } from "@/components/finance/ExpenseByCategoryChart";
 import { TransactionTable } from "@/components/finance/TransactionTable";
-import { Badge } from "@/components/ui/badge";
+import { IncomeByFundChart } from "@/components/finance/IncomeByFundChart";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { BudgetVsActualChart } from "@/components/finance/BudgetVsActualChart";
-import { YearlyBudgetProgressChart } from "@/components/finance/YearlyBudgetProgressChart";
 import { BudgetUsageByCategory } from "@/components/finance/BudgetUsageByCategory";
 import { FundBalanceChart } from "@/components/finance/FundBalanceChart";
 import { BudgetTable } from "@/components/finance/BudgetTable";
+
 export default function Accounting() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [timeRange, setTimeRange] = useState("this-month");
   const [selectedMonth, setSelectedMonth] = useState("april-2025");
+
   const handleExport = (format: string) => {
     toast.success(`Financial report exported as ${format.toUpperCase()}`, {
       description: "Your file is ready to download"
     });
   };
+
   return <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
@@ -125,63 +127,48 @@ export default function Accounting() {
           </div>
         </div>
         
-        <TabsContent value="dashboard" className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-4 mt-4">
-            <Card className="col-span-2 md:col-span-1">
-              <CardHeader>
-                <CardTitle>Income vs Expenses</CardTitle>
-                <CardDescription>Monthly comparison</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <FinancialOverviewChart />
-              </CardContent>
-            </Card>
-            <Card className="col-span-2 md:col-span-1">
+        <TabsContent value="dashboard" className="space-y-6">
+          <Card className="col-span-2">
+            <CardHeader>
+              <CardTitle>Annual Financial Overview</CardTitle>
+              <CardDescription>Income vs Expenses trends over the past year</CardDescription>
+            </CardHeader>
+            <CardContent className="h-[400px]">
+              <FinancialOverviewChart />
+            </CardContent>
+          </Card>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card>
               <CardHeader>
                 <CardTitle>Expenses by Category</CardTitle>
-                <CardDescription>Breakdown of spending areas</CardDescription>
+                <CardDescription>Breakdown for {selectedMonth}</CardDescription>
               </CardHeader>
-              <CardContent className="h-80">
+              <CardContent className="h-[350px]">
                 <ExpenseByCategoryChart />
               </CardContent>
             </Card>
-            <Card className="col-span-2 md:col-span-1">
+
+            <Card>
               <CardHeader>
-                <CardTitle>Budget vs Actual</CardTitle>
-                <CardDescription>Monthly comparison by category</CardDescription>
+                <CardTitle>Income by Fund</CardTitle>
+                <CardDescription>Fund distribution for {selectedMonth}</CardDescription>
               </CardHeader>
-              <CardContent className="h-80">
-                <BudgetVsActualChart />
-              </CardContent>
-            </Card>
-            <Card className="col-span-2 md:col-span-1">
-              <CardHeader>
-                <CardTitle>Annual Budget Progress</CardTitle>
-                <CardDescription>Accumulated expenses vs annual budget</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <YearlyBudgetProgressChart />
-              </CardContent>
-            </Card>
-            <Card className="col-span-2 md:col-span-1">
-              <CardHeader>
-                <CardTitle>Budget Usage by Category</CardTitle>
-                <CardDescription>Percentage of allocated budget used</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <BudgetUsageByCategory />
-              </CardContent>
-            </Card>
-            <Card className="col-span-2 md:col-span-1">
-              <CardHeader>
-                <CardTitle>Fund Balances</CardTitle>
-                <CardDescription>Current balance by fund</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <FundBalanceChart />
+              <CardContent className="h-[350px]">
+                <IncomeByFundChart />
               </CardContent>
             </Card>
           </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Budget vs Actual YTD</CardTitle>
+              <CardDescription>Year-to-date comparison through {selectedMonth}</CardDescription>
+            </CardHeader>
+            <CardContent className="h-[400px]">
+              <BudgetVsActualChart />
+            </CardContent>
+          </Card>
         </TabsContent>
         
         <TabsContent value="transactions" className="mt-4">
