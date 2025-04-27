@@ -33,33 +33,14 @@ export default function Accounting() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-[180px]">
-              <Calendar className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="Select period" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="this-month">This Month</SelectItem>
-              <SelectItem value="last-month">Last Month</SelectItem>
-              <SelectItem value="quarter">This Quarter</SelectItem>
-              <SelectItem value="year">This Year</SelectItem>
-              <SelectItem value="custom">Custom Range</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button variant="outline" size="sm" onClick={() => handleExport("pdf")}>
-            <FileText className="h-4 w-4 mr-2" />
-            PDF
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => handleExport("excel")}>
-            <Download className="h-4 w-4 mr-2" />
-            Excel
-          </Button>
+          
           <Button asChild>
             <Link to="/finance/expenses/new">
               <Plus className="h-4 w-4 mr-2" />
               New Expense
             </Link>
           </Button>
+          
         </div>
       </div>
 
@@ -114,11 +95,35 @@ export default function Accounting() {
       </div>
 
       <Tabs defaultValue="dashboard" onValueChange={setActiveTab} className="w-full">
-        <TabsList>
-          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="transactions">Transactions</TabsTrigger>
-          <TabsTrigger value="budget">Budget Planning</TabsTrigger>
-        </TabsList>
+
+        <div className="flex justify-between">
+          <TabsList>
+            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="transactions">Transactions</TabsTrigger>
+            <TabsTrigger value="budget">Budget Planning</TabsTrigger>
+          </TabsList>
+
+          <div>
+            <Select value={timeRange} onValueChange={setTimeRange}>
+              <SelectTrigger className="w-[180px]">
+                <Calendar className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Select period" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="this-month">This Month</SelectItem>
+                <SelectItem value="last-month">Last Month</SelectItem>
+                <SelectItem value="quarter">This Quarter</SelectItem>
+                <SelectItem value="year">This Year</SelectItem>
+                <SelectItem value="custom">Custom Range</SelectItem>
+              </SelectContent>
+            </Select>
+          
+            <Button variant="outline" size="sm" onClick={() => handleExport("excel")}>
+              <Download className="h-4 w-4 mr-2" />
+              Excel
+            </Button>
+          </div>
+        </div>
         
         <TabsContent value="dashboard" className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4 mt-4">
