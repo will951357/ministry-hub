@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -36,6 +37,7 @@ import ExpenseForm from "./pages/finance/ExpenseForm";
 import ClassDetails from "./pages/groups/ClassDetails";
 import Calendar from "./pages/Calendar";
 import { CreateEvent } from "./pages/events/CreateEvent";
+import DonationForm from "./pages/finance/DonationForm"; // Add this import
 
 const queryClient = new QueryClient();
 
