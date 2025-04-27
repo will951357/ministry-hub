@@ -1,13 +1,34 @@
+
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
+import { Card } from "@/components/ui/card";
 import { DollarSign, Download, Filter, ArrowUpRight, PiggyBank, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
+import { DonationTable } from "@/components/finance/DonationTable";
+import { mockDonations } from "@/data/donations";
 
 export default function Donations() {
   const [activeTab, setActiveTab] = useState("all");
+  const navigate = useNavigate();
+
+  const handleExport = () => {
+    const csvContent = mockDonations
+      .map(d => 
+        [d.date, d.donor, d.donorType, d.amount, d.fund, d.paymentMethod, d.observation]
+          .join(',')
+      )
+      .join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'donations.csv';
+    a.click();
+  };
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -19,7 +40,7 @@ export default function Donations() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button>
+          <Button onClick={() => navigate("/finance/donations/new")}>
             <DollarSign className="h-4 w-4 mr-2" />
             Add Donation
           </Button>
@@ -48,64 +69,58 @@ export default function Donations() {
       </div>
 
       <ChartCard title="Donations Track">
-        
         <Tabs defaultValue="all" onValueChange={setActiveTab} className="w-full">
-        
-        <div className='flex flex-row justify-between items-center'>
-          <div>
-            <TabsList>
-              <TabsTrigger value="all">All Donations</TabsTrigger>
-              <TabsTrigger value="recent">Recent</TabsTrigger>
-              <TabsTrigger value="recurring">Recurring</TabsTrigger>
-              <TabsTrigger value="special">Special Projects</TabsTrigger>
-            </TabsList>
-          </div>
+          <div className='flex flex-row justify-between items-center'>
+            <div>
+              <TabsList>
+                <TabsTrigger value="all">All Donations</TabsTrigger>
+                <TabsTrigger value="recent">Recent</TabsTrigger>
+                <TabsTrigger value="recurring">Recurring</TabsTrigger>
+                <TabsTrigger value="special">Special Projects</TabsTrigger>
+              </TabsList>
+            </div>
 
-          <div className='flex gap-4'>
-            <Button variant="outline" size="sm">
-              <Filter className="h-4 w-4 mr-2" />
-              Filter
-            </Button>
+            <div className='flex gap-4'>
+              <Button variant="outline" size="sm">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter
+              </Button>
+            
+              <Button variant="outline" size="sm" onClick={handleExport}>
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+            </div>
+          </div>
           
-            <Button variant="outline" size="sm">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-          </div>
-        </div>
-        
-        <TabsContent value="all" className="border rounded-md mt-6">
-          <div className="p-4">
-            <p className="text-center text-muted-foreground py-8">
-              No donations to display. Add a donation to get started.
-            </p>
-          </div>
-        </TabsContent>
-        <TabsContent value="recent" className="border rounded-md mt-6">
-          <div className="p-4">
-            <p className="text-center text-muted-foreground py-8">
-              No recent donations to display.
-            </p>
-          </div>
-        </TabsContent>
-        <TabsContent value="recurring" className="border rounded-md mt-6">
-          <div className="p-4">
-            <p className="text-center text-muted-foreground py-8">
-              No recurring donations to display.
-            </p>
-          </div>
-        </TabsContent>
-        <TabsContent value="special" className="border rounded-md mt-6">
-          <div className="p-4">
-            <p className="text-center text-muted-foreground py-8">
-              No special project donations to display.
-            </p>
-          </div>
-        </TabsContent>
-      </Tabs>
-      
+          <TabsContent value="all" className="border rounded-md mt-6">
+            <div className="p-4">
+              <DonationTable donations={mockDonations} />
+            </div>
+          </TabsContent>
+          <TabsContent value="recent" className="border rounded-md mt-6">
+            <div className="p-4">
+              <DonationTable 
+                donations={mockDonations.slice(0, 3)} 
+              />
+            </div>
+          </TabsContent>
+          <TabsContent value="recurring" className="border rounded-md mt-6">
+            <div className="p-4">
+              <DonationTable 
+                donations={mockDonations.filter(d => d.observation?.includes('Monthly'))} 
+              />
+            </div>
+          </TabsContent>
+          <TabsContent value="special" className="border rounded-md mt-6">
+            <div className="p-4">
+              <DonationTable 
+                donations={mockDonations.filter(d => d.fund === 'Building' || d.fund === 'Community Outreach')} 
+              />
+            </div>
+          </TabsContent>
+        </Tabs>
       </ChartCard>
-      
     </div>
   );
 }
