@@ -87,51 +87,48 @@ export default function Accounting() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
-        <Card className="p-3">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-xs font-medium text-muted-foreground">Total Income</CardTitle>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Income</CardTitle>
           </CardHeader>
-          <CardContent className="p-1">
-            <div className="text-xl font-bold">$42,580.00</div>
+          <CardContent>
+            <div className="text-2xl font-bold">$42,580.00</div>
             <div className="flex items-center text-xs text-green-600 mt-1">
               <ArrowUpRight className="h-3 w-3 mr-1" />
               <span>+8.2% from last month</span>
             </div>
           </CardContent>
         </Card>
-      
-        <Card className="p-3">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-xs font-medium text-muted-foreground">Total Expenses</CardTitle>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Expenses</CardTitle>
           </CardHeader>
-          <CardContent className="p-1">
-            <div className="text-xl font-bold">$35,210.00</div>
+          <CardContent>
+            <div className="text-2xl font-bold">$35,210.00</div>
             <div className="flex items-center text-xs text-red-600 mt-1">
               <ArrowDownRight className="h-3 w-3 mr-1" />
               <span>+12.5% from last month</span>
             </div>
           </CardContent>
         </Card>
-      
-        <Card className="p-3">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-xs font-medium text-muted-foreground">Net Balance</CardTitle>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Net Balance</CardTitle>
           </CardHeader>
-          <CardContent className="p-1">
-            <div className="text-xl font-bold">$7,370.00</div>
+          <CardContent>
+            <div className="text-2xl font-bold">$7,370.00</div>
             <div className="flex items-center text-xs text-muted-foreground mt-1">
               <Clock className="h-3 w-3 mr-1" />
               <span>Updated 2 hours ago</span>
             </div>
           </CardContent>
         </Card>
-      
-        <Card className="p-3">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-xs font-medium text-muted-foreground">Budget Variance</CardTitle>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Budget Variance</CardTitle>
           </CardHeader>
-          <CardContent className="p-1">
-            <div className="text-xl font-bold">+$1,230.00</div>
+          <CardContent>
+            <div className="text-2xl font-bold">+$1,230.00</div>
             <div className="flex items-center text-xs text-green-600 mt-1">
               <span>3.7% above budget</span>
             </div>
