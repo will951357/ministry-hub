@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { X, Plus, ChevronDown } from "lucide-react";
+import { X, Plus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +22,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
   TooltipContent,
@@ -41,6 +40,7 @@ interface FilterOption {
 }
 
 export interface FilterValues {
+  dateCondition?: "on" | "between";
   startDate?: Date;
   endDate?: Date;
   paymentMethod?: string;
@@ -59,8 +59,7 @@ export function DonationFilters({ onFilterChange }: DonationFiltersProps) {
   const [filterValues, setFilterValues] = useState<FilterValues>({});
 
   const availableFilters = [
-    { id: "startDate", type: "date" as FilterType, label: "Start Date", description: "Filter donations after this date" },
-    { id: "endDate", type: "date" as FilterType, label: "End Date", description: "Filter donations before this date" },
+    { id: "date", type: "date" as FilterType, label: "Date", description: "Filter by donation date" },
     { id: "payment", type: "payment" as FilterType, label: "Payment Method", description: "Filter by payment method" },
     { id: "amount", type: "amount" as FilterType, label: "Amount", description: "Filter by donation amount" }
   ];
@@ -86,8 +85,11 @@ export function DonationFilters({ onFilterChange }: DonationFiltersProps) {
     
     const newValues = { ...filterValues };
     
-    if (filterId === "startDate") delete newValues.startDate;
-    if (filterId === "endDate") delete newValues.endDate;
+    if (filterId === "date") {
+      delete newValues.dateCondition;
+      delete newValues.startDate;
+      delete newValues.endDate;
+    }
     if (filterId === "payment") delete newValues.paymentMethod;
     if (filterId === "amount") {
       delete newValues.amountCondition;
@@ -100,13 +102,16 @@ export function DonationFilters({ onFilterChange }: DonationFiltersProps) {
   };
 
   const updateFilterValue = (filterId: string, value: any) => {
-    // Update active filter display value
     const updatedFilters = activeFilters.map(filter => {
       if (filter.id === filterId) {
         let displayValue = '';
         
-        if (filterId === "startDate" || filterId === "endDate") {
-          displayValue = format(value, "MMM d, yyyy");
+        if (filterId === "date") {
+          if (value.condition === "on") {
+            displayValue = format(value.startDate, "MMM d, yyyy");
+          } else if (value.condition === "between" && value.startDate && value.endDate) {
+            displayValue = `${format(value.startDate, "MMM d")} - ${format(value.endDate, "MMM d, yyyy")}`;
+          }
         } else if (filterId === "payment") {
           displayValue = value;
         } else if (filterId === "amount") {
@@ -127,13 +132,12 @@ export function DonationFilters({ onFilterChange }: DonationFiltersProps) {
     
     setActiveFilters(updatedFilters);
     
-    // Update filter values for filtering data
     const newValues = { ...filterValues };
     
-    if (filterId === "startDate") {
-      newValues.startDate = value;
-    } else if (filterId === "endDate") {
-      newValues.endDate = value;
+    if (filterId === "date") {
+      newValues.dateCondition = value.condition;
+      newValues.startDate = value.startDate;
+      newValues.endDate = value.endDate;
     } else if (filterId === "payment") {
       newValues.paymentMethod = value;
     } else if (filterId === "amount") {
@@ -151,11 +155,55 @@ export function DonationFilters({ onFilterChange }: DonationFiltersProps) {
   const renderFilterContent = (filter: FilterOption) => {
     if (filter.type === "date") {
       return (
-        <div className="p-2">
-          <DatePicker 
-            date={filter.id === "startDate" ? filterValues.startDate : filterValues.endDate}
-            setDate={(date) => date && updateFilterValue(filter.id, date)} 
-          />
+        <div className="p-3 space-y-3">
+          <Select 
+            value={filterValues.dateCondition || "on"} 
+            onValueChange={(condition: "on" | "between") => {
+              updateFilterValue(filter.id, {
+                condition,
+                startDate: filterValues.startDate || new Date(),
+                endDate: filterValues.endDate
+              });
+            }}
+          >
+            <SelectTrigger className="w-[180px] h-9">
+              <SelectValue placeholder="Select type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="on">On</SelectItem>
+              <SelectItem value="between">Between</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <div className="space-y-2">
+            <DatePicker
+              date={filterValues.startDate}
+              setDate={(date) => {
+                if (date) {
+                  updateFilterValue(filter.id, {
+                    condition: filterValues.dateCondition || "on",
+                    startDate: date,
+                    endDate: filterValues.endDate
+                  });
+                }
+              }}
+            />
+
+            {filterValues.dateCondition === "between" && (
+              <DatePicker
+                date={filterValues.endDate}
+                setDate={(date) => {
+                  if (date) {
+                    updateFilterValue(filter.id, {
+                      condition: "between",
+                      startDate: filterValues.startDate,
+                      endDate: date
+                    });
+                  }
+                }}
+              />
+            )}
+          </div>
         </div>
       );
     }
@@ -197,7 +245,7 @@ export function DonationFilters({ onFilterChange }: DonationFiltersProps) {
               });
             }}
           >
-            <SelectTrigger className="w-[180px] h-9 mb-2">
+            <SelectTrigger className="w-[180px] h-9">
               <SelectValue placeholder="Condition" />
             </SelectTrigger>
             <SelectContent>

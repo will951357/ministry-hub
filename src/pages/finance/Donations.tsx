@@ -12,13 +12,29 @@ import { DonationFilters } from "@/components/finance/DonationFilters";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import type { FilterValues } from "@/components/finance/DonationFilters";
+
 export default function Donations() {
   const [activeTab, setActiveTab] = useState("all");
   const [filterValues, setFilterValues] = useState<FilterValues>({});
   const navigate = useNavigate();
+
   const filteredDonations = mockDonations.filter(donation => {
-    if (filterValues.startDate && new Date(donation.date) < filterValues.startDate) return false;
-    if (filterValues.endDate && new Date(donation.date) > filterValues.endDate) return false;
+    const donationDate = new Date(donation.date);
+
+    // Handle date filtering
+    if (filterValues.dateCondition === "on" && filterValues.startDate) {
+      const filterDate = new Date(filterValues.startDate);
+      if (donationDate.getDate() !== filterDate.getDate() ||
+          donationDate.getMonth() !== filterDate.getMonth() ||
+          donationDate.getFullYear() !== filterDate.getFullYear()) {
+        return false;
+      }
+    } else if (filterValues.dateCondition === "between" && filterValues.startDate && filterValues.endDate) {
+      if (donationDate < filterValues.startDate || donationDate > filterValues.endDate) {
+        return false;
+      }
+    }
+
     if (filterValues.paymentMethod && donation.paymentMethod !== filterValues.paymentMethod) return false;
 
     // Handle amount filtering
@@ -37,11 +53,13 @@ export default function Donations() {
     }
     return true;
   });
+
   const handleFilterChange = (filters: FilterValues) => {
     setFilterValues(filters);
     // Here you could update URL parameters if needed
     // For example: updateUrlParams(filters);
   };
+
   const handleExport = () => {
     const headers = ['Date', 'Donor', 'Type', 'Amount', 'Fund', 'Payment Method', 'Observation'];
     const csvContent = [headers.join(','), ...filteredDonations.map(d => [format(new Date(d.date), 'yyyy-MM-dd'), d.donor, d.donorType, d.amount, d.fund, d.paymentMethod, d.observation || ''].map(value => `"${value}"`).join(','))].join('\n');
@@ -54,6 +72,7 @@ export default function Donations() {
     a.download = `donations_${format(new Date(), 'yyyy-MM-dd')}.csv`;
     a.click();
   };
+
   return <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
