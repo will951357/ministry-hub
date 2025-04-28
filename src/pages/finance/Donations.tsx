@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
@@ -8,6 +9,7 @@ import { StatsCard } from "@/components/dashboard/StatsCard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { DonationTable } from "@/components/finance/DonationTable";
 import { mockDonations } from "@/data/donations";
+import { DonationFilters } from "@/components/finance/DonationFilters"; // Add this import
 import {
   Dialog,
   DialogContent,
