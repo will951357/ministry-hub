@@ -37,6 +37,8 @@ interface FilterOption {
   label: string;
   description: string;
   options?: Array<{ value: string; label: string }>;
+  displayValue?: string; // Added displayValue property to fix the TypeScript error
+  value?: any; // Added value property for consistency
 }
 
 export interface FilterValues {
