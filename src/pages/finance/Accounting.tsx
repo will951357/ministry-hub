@@ -76,9 +76,12 @@ export default function Accounting() {
         </div>
         <div className="flex items-center gap-2">
           
-          <Button asChild>
-            
-          </Button>
+          <div className='flex gap-4 items-center'>
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+          </div>
           
         </div>
       </div>
