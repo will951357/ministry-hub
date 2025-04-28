@@ -1,18 +1,15 @@
-
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Visitor } from "@/types/visitor";
 import { AtSign, Building, Calendar, CheckSquare, Phone, Smartphone, Square } from "lucide-react";
 import { Card } from "@/components/ui/card";
-
 type VisitorTableProps = {
   visitors: Visitor[];
   selectedVisitors: string[];
   onSelectVisitor: (id: string) => void;
   onSelectAll: () => void;
 };
-
 export function VisitorTable({
   visitors,
   selectedVisitors,
@@ -20,27 +17,8 @@ export function VisitorTable({
   onSelectAll
 }: VisitorTableProps) {
   const areAllSelected = visitors.length > 0 && selectedVisitors.length === visitors.length;
-
-  return (
-    <>
-      <div className="flex items-center justify-between bg-gray-50 p-3 rounded-md overflow-x-auto">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="flex items-center gap-2 whitespace-nowrap" 
-          onClick={onSelectAll}
-        >
-          {areAllSelected ? (
-            <CheckSquare className="h-5 w-5 text-church-primary" />
-          ) : (
-            <Square className="h-5 w-5 text-gray-400" />
-          )}
-          <span>Select All Visitors</span>
-        </Button>
-        <div className="text-sm text-gray-500 whitespace-nowrap">
-          {selectedVisitors.length} of {visitors.length} visitors selected
-        </div>
-      </div>
+  return <>
+      
 
       <Card className="overflow-hidden">
         <div className="w-full overflow-x-auto">
@@ -48,17 +26,8 @@ export function VisitorTable({
             <TableHeader>
               <TableRow>
                 <TableHead className="w-10">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="p-0 h-6 w-6"
-                    onClick={onSelectAll}
-                  >
-                    {areAllSelected ? (
-                      <CheckSquare className="h-5 w-5 text-church-primary" />
-                    ) : (
-                      <Square className="h-5 w-5 text-gray-400" />
-                    )}
+                  <Button variant="ghost" size="sm" className="p-0 h-6 w-6" onClick={onSelectAll}>
+                    {areAllSelected ? <CheckSquare className="h-5 w-5 text-church-primary" /> : <Square className="h-5 w-5 text-gray-400" />}
                   </Button>
                 </TableHead>
                 <TableHead>Name</TableHead>
@@ -71,27 +40,14 @@ export function VisitorTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {visitors.length === 0 ? (
-                <TableRow>
+              {visitors.length === 0 ? <TableRow>
                   <TableCell colSpan={8} className="text-center py-8 text-gray-500">
                     No visitors found matching your search criteria.
                   </TableCell>
-                </TableRow>
-              ) : (
-                visitors.map((visitor) => (
-                  <TableRow key={visitor.id}>
+                </TableRow> : visitors.map(visitor => <TableRow key={visitor.id}>
                     <TableCell>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="p-0 h-6 w-6"
-                        onClick={() => onSelectVisitor(visitor.id)}
-                      >
-                        {selectedVisitors.includes(visitor.id) ? (
-                          <CheckSquare className="h-5 w-5 text-church-primary" />
-                        ) : (
-                          <Square className="h-5 w-5 text-gray-400" />
-                        )}
+                      <Button variant="ghost" size="sm" className="p-0 h-6 w-6" onClick={() => onSelectVisitor(visitor.id)}>
+                        {selectedVisitors.includes(visitor.id) ? <CheckSquare className="h-5 w-5 text-church-primary" /> : <Square className="h-5 w-5 text-gray-400" />}
                       </Button>
                     </TableCell>
                     <TableCell className="font-medium">{visitor.name}</TableCell>
@@ -120,25 +76,18 @@ export function VisitorTable({
                       <Badge>{visitor.visits}</Badge>
                     </TableCell>
                     <TableCell>
-                      {visitor.visitMethod === "app" ? (
-                        <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200">
+                      {visitor.visitMethod === "app" ? <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200">
                           <Smartphone size={14} className="mr-1" />
                           App
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">
+                        </Badge> : <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">
                           <Building size={14} className="mr-1" />
                           In Person
-                        </Badge>
-                      )}
+                        </Badge>}
                     </TableCell>
-                  </TableRow>
-                ))
-              )}
+                  </TableRow>)}
             </TableBody>
           </Table>
         </div>
       </Card>
-    </>
-  );
+    </>;
 }
