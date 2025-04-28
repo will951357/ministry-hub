@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
@@ -27,12 +26,10 @@ import {
 import { format } from "date-fns";
 import { DatePicker } from "@/components/ui/date-picker";
 
-// Import the FilterValues type from the DonationFilters component to ensure type consistency
 import type { FilterValues } from "@/components/finance/DonationFilters";
 
 export default function Donations() {
   const [activeTab, setActiveTab] = useState("all");
-  // Update the state to match the FilterValues type from DonationFilters
   const [filterValues, setFilterValues] = useState<FilterValues>({});
   const navigate = useNavigate();
 
@@ -43,13 +40,11 @@ export default function Donations() {
     return true;
   });
 
-  // Create a handler function that matches what DonationFilters expects
   const handleFilterChange = (filters: FilterValues) => {
     setFilterValues(filters);
   };
 
   const handleExport = () => {
-    // Headers for the CSV
     const headers = ['Date', 'Donor', 'Type', 'Amount', 'Fund', 'Payment Method', 'Observation'];
     const csvContent = [
       headers.join(','),
@@ -114,24 +109,24 @@ export default function Donations() {
 
       <ChartCard title="Donations Track">
         <Tabs defaultValue="all" onValueChange={setActiveTab} className="w-full">
-          <div className='flex flex-row justify-between items-center'>
-            <div>
+          <div className='flex flex-col space-y-2'>
+            <div className='flex justify-between items-center'>
               <TabsList>
                 <TabsTrigger value="all">All Donations</TabsTrigger>
                 <TabsTrigger value="recent">Recent</TabsTrigger>
                 <TabsTrigger value="recurring">Recurring</TabsTrigger>
                 <TabsTrigger value="special">Special Projects</TabsTrigger>
               </TabsList>
+              
+              <div className='flex gap-4 items-center'>
+                <Button variant="outline" size="sm" onClick={handleExport}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
+              </div>
             </div>
-
-            <div className='flex gap-4'>
-              {/* Pass the proper handler function to match the expected type */}
-              <DonationFilters onFilterChange={handleFilterChange} />
-              <Button variant="outline" size="sm" onClick={handleExport}>
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-            </div>
+            
+            <DonationFilters onFilterChange={handleFilterChange} />
           </div>
           
           <TabsContent value="all" className="border rounded-md mt-6">
