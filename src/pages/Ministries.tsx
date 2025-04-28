@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -84,8 +85,7 @@ const MINISTRIES_DATA: Ministry[] = [
 
 export default function Ministries() {
   const { toast } = useToast();
-  const [selectedMinistry, setSelectedMinistry] = useState<Ministry | null>(null);
-  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const navigate = useNavigate();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -94,9 +94,8 @@ export default function Ministries() {
   const pendingApprovals = 3;
   const administratorsCount = 5;
 
-  const handleViewDetails = (ministry: Ministry) => {
-    setSelectedMinistry(ministry);
-    setShowDetailsDialog(true);
+  const handleViewDetails = (ministryId: number) => {
+    navigate(`/ministries/${ministryId}`);
   };
 
   const handleCreateMinistry = () => {
@@ -192,7 +191,7 @@ export default function Ministries() {
               description={ministry.description}
               icon={<Users className="h-4 w-4" />}
               className="cursor-pointer hover:shadow-md transition-shadow"
-              onClick={() => handleViewDetails(ministry)}
+              onClick={() => handleViewDetails(ministry.id)}
             >
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
@@ -204,7 +203,10 @@ export default function Ministries() {
                     <span>{ministry.members} members</span>
                   </div>
                 </div>
-                <Button variant="outline" size="sm" className="h-8 w-full">
+                <Button variant="outline" size="sm" className="h-8 w-full" onClick={(e) => {
+                  e.stopPropagation();
+                  handleViewDetails(ministry.id);
+                }}>
                   Details
                   <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
@@ -212,73 +214,6 @@ export default function Ministries() {
             </ChartCard>
           ))}
         </div>
-
-        {selectedMinistry && (
-          <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle className="flex items-center justify-between">
-                  <span>{selectedMinistry.name}</span>
-                  <Badge variant={selectedMinistry.status === "active" ? "default" : "destructive"}>
-                    {selectedMinistry.status === "active" ? "Active" : "Inactive"}
-                  </Badge>
-                </DialogTitle>
-                <DialogDescription>
-                  {selectedMinistry.description}
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-muted p-3 rounded-md flex items-center gap-2">
-                    <Users className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-xs text-muted-foreground">Members</p>
-                      <p className="font-medium">{selectedMinistry.members}</p>
-                    </div>
-                  </div>
-                  <div className="bg-muted p-3 rounded-md flex items-center gap-2">
-                    <Calendar className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-xs text-muted-foreground">Events</p>
-                      <p className="font-medium">5</p>
-                    </div>
-                  </div>
-                </div>
-
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Leaders</TableHead>
-                      <TableHead>Role</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell>John Doe</TableCell>
-                      <TableCell>Ministry Leader</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Jane Smith</TableCell>
-                      <TableCell>Assistant Leader</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
-
-              <DialogFooter>
-                <Button variant="outline">
-                  <UserCheck className="mr-2 h-4 w-4" />
-                  Manage Members
-                </Button>
-                <Button>
-                  <Settings className="mr-2 h-4 w-4" />
-                  Edit Ministry
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        )}
 
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
           <DialogContent>
