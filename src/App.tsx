@@ -78,6 +78,7 @@ const App = () => (
             <Route path="donations" element={<Donations />} />
             <Route path="donations/new" element={<DonationForm />} />
             <Route path="tithes" element={<Tithes />} />
+            <Route path="tithes/new" element={<TitheForm />} /> {/* Add this line */}
             <Route path="funds" element={<Funds />} />
             <Route path="accounting" element={<Accounting />} />
             <Route path="expenses/new" element={<ExpenseForm />} />

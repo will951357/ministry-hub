@@ -1,8 +1,6 @@
-import { 
-  Card, 
-  CardContent
-} from "@/components/ui/card";
-import { BadgeDollarSign, Download, Filter, Users, TrendingUp, PercentCircle, UserCheck } from "lucide-react";
+
+import { Card } from "@/components/ui/card";
+import { BadgeDollarSign, Download, Filter, Users, TrendingUp, PercentCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
@@ -10,8 +8,51 @@ import { StatsCard } from "@/components/dashboard/StatsCard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { TitheTable } from "@/components/finance/TitheTable";
 import { titheRecords } from "@/data/tithes";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 export default function Tithes() {
+  const navigate = useNavigate();
+  const [selectedStatus, setSelectedStatus] = useState<string>("all");
+
+  // Calculate statistics
+  const lastMonthTithers = 174; // Previous month's count
+  const currentTithers = 186;
+  const tithersChange = currentTithers - lastMonthTithers;
+
+  const lastMonthTotal = 17550;
+  const currentMonthTotal = 18450;
+  const monthlyChange = ((currentMonthTotal - lastMonthTotal) / lastMonthTotal) * 100;
+
+  const lastYearTotal = 161760;
+  const currentYearTotal = 187320;
+  const yearlyChange = ((currentYearTotal - lastYearTotal) / lastYearTotal) * 100;
+
+  const handleExport = () => {
+    const csvContent = "data:text/csv;charset=utf-8," + 
+      ["Member Name", "Amount", "Date", "Frequency", "Status", "Last Tithe"]
+        .join(",") + "\n" +
+      titheRecords
+        .filter(record => selectedStatus === "all" || record.status === selectedStatus)
+        .map(record => [
+          record.memberName,
+          record.amount,
+          record.date,
+          record.frequency,
+          record.status,
+          record.lastTithe || ""
+        ].join(","))
+        .join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "tithes.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
@@ -22,7 +63,7 @@ export default function Tithes() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button>
+          <Button onClick={() => navigate("/finance/tithes/new")}>
             <BadgeDollarSign className="h-4 w-4 mr-2" />
             Record Tithe
           </Button>
@@ -32,20 +73,20 @@ export default function Tithes() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
           title="Total Tithing Members"
-          value="186"
-          description={<span className="text-green-500">+12</span> + " from last month"}
+          value={currentTithers.toString()}
+          description={`${tithersChange >= 0 ? "+" : ""}${tithersChange} from last month`}
           icon={<Users className="h-4 w-4" />}
         />
         <StatsCard
           title="Monthly Tithe Total"
-          value="$18,450.00"
-          description={<span className="text-green-500">+5.2%</span> + " from last month"}
+          value={`$${currentMonthTotal.toLocaleString()}`}
+          description={`${monthlyChange >= 0 ? "+" : ""}${monthlyChange.toFixed(1)}% from last month`}
           icon={<BadgeDollarSign className="h-4 w-4" />}
         />
         <StatsCard
           title="Yearly Tithe Total"
-          value="$187,320.00"
-          description={<span className="text-green-500">+15.8%</span> + " from last year"}
+          value={`$${currentYearTotal.toLocaleString()}`}
+          description={`${yearlyChange >= 0 ? "+" : ""}${yearlyChange.toFixed(1)}% from last year`}
           icon={<TrendingUp className="h-4 w-4" />}
         />
         <StatsCard
@@ -56,9 +97,8 @@ export default function Tithes() {
         />
       </div>
 
-      <ChartCard title="Tithe Tracking" >
-        <Tabs defaultValue="all">
-
+      <ChartCard title="Tithe Tracking">
+        <Tabs defaultValue="all" onValueChange={setSelectedStatus}>
           <div className="flex justify-between">
             <div>
               <TabsList className="mb-4">
@@ -68,46 +108,37 @@ export default function Tithes() {
                 <TabsTrigger value="new">New Tithers</TabsTrigger>
               </TabsList>
             </div>
-          
-            <div className='flex gap-4'>
-              <Button variant="outline" size="sm">
+
+            <div className="flex gap-4">
+              <Button variant="outline" size="sm" onClick={() => setSelectedStatus("all")}>
                 <Filter className="h-4 w-4 mr-2" />
-                Filter
+                Reset Filter
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={handleExport}>
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </Button>
             </div>
-          
           </div>
-          
-          <TabsContent value="all">
-            <div className="rounded-md border">
-              <div className="p-4">
-                <TitheTable records={titheRecords} />
-              </div>
+
+          <TabsContent value="all" className="border rounded-md">
+            <div className="p-4">
+              <TitheTable records={titheRecords} />
             </div>
           </TabsContent>
-          <TabsContent value="consistent">
-            <div className="rounded-md border">
-              <div className="p-4">
-                <TitheTable records={titheRecords} status="consistent" />
-              </div>
+          <TabsContent value="consistent" className="border rounded-md">
+            <div className="p-4">
+              <TitheTable records={titheRecords.filter(r => r.status === "consistent")} />
             </div>
           </TabsContent>
-          <TabsContent value="irregular">
-            <div className="rounded-md border">
-              <div className="p-4">
-                <TitheTable records={titheRecords} status="irregular" />
-              </div>
+          <TabsContent value="irregular" className="border rounded-md">
+            <div className="p-4">
+              <TitheTable records={titheRecords.filter(r => r.status === "irregular")} />
             </div>
           </TabsContent>
-          <TabsContent value="new">
-            <div className="rounded-md border">
-              <div className="p-4">
-                <TitheTable records={titheRecords} status="new" />
-              </div>
+          <TabsContent value="new" className="border rounded-md">
+            <div className="p-4">
+              <TitheTable records={titheRecords.filter(r => r.status === "new")} />
             </div>
           </TabsContent>
         </Tabs>
