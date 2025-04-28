@@ -76,90 +76,106 @@ export function DonationFilters({ onFilterChange }: DonationFiltersProps) {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      {activeFilters.map((filter) => (
-        <div
-          key={filter.type}
-          className="inline-flex items-center gap-2 bg-white border rounded-full px-3 py-1.5 text-sm"
-        >
-          <span className="text-muted-foreground">{filter.label}</span>
-          {filter.type === "date" && (
-            <div className="flex items-center gap-1">
-              <span className="text-primary">Starting from</span>
-              <DatePicker
-                date={filterValues.startDate}
-                setDate={(date) =>
-                  updateFilterValue("date", { startDate: date })
-                }
-              />
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
-            </div>
-          )}
-          
-          {filter.type === "amount" && (
-            <div className="flex items-center gap-1">
-              <span className="text-primary">Less than $6</span>
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
-            </div>
-          )}
-
-          {filter.type === "status" && (
-            <div className="flex items-center gap-1">
-              <span className="text-primary">Failed</span>
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
-            </div>
-          )}
-          
-          {filter.type === "payment" && (
-            <div className="flex items-center gap-1">
-              <Select 
-                value={filterValues.paymentMethod} 
-                onValueChange={(value) => 
-                  updateFilterValue("payment", { paymentMethod: value })
-                }
-              >
-                <SelectTrigger className="border-0 p-0 h-auto hover:bg-transparent">
-                  <SelectValue placeholder="Select payment" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Credit Card">Credit Card</SelectItem>
-                  <SelectItem value="Cash">Cash</SelectItem>
-                  <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
-                  <SelectItem value="Check">Check</SelectItem>
-                </SelectContent>
-              </Select>
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
-            </div>
-          )}
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-4 w-4 p-0 hover:bg-transparent"
-            onClick={() => removeFilter(filter.type)}
+    <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2">
+        {activeFilters.map((filter) => (
+          <div
+            key={filter.type}
+            className="flex items-center gap-2 bg-white rounded-lg px-3 py-1.5 text-sm border shadow-sm"
           >
-            <X className="h-3 w-3" />
-          </Button>
-        </div>
-      ))}
+            <span className="text-muted-foreground whitespace-nowrap">{filter.label}:</span>
+            {filter.type === "date" && (
+              <div className="flex items-center gap-2">
+                <DatePicker
+                  date={filterValues.startDate}
+                  setDate={(date) =>
+                    updateFilterValue("date", { startDate: date })
+                  }
+                />
+              </div>
+            )}
+            
+            {filter.type === "amount" && (
+              <div className="flex items-center gap-1">
+                <Select>
+                  <SelectTrigger className="h-8 w-[120px] border-none focus:ring-0">
+                    <SelectValue placeholder="Select amount" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="lt_100">Less than $100</SelectItem>
+                    <SelectItem value="100_500">$100 - $500</SelectItem>
+                    <SelectItem value="gt_500">More than $500</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {filter.type === "status" && (
+              <div className="flex items-center gap-1">
+                <Select>
+                  <SelectTrigger className="h-8 w-[120px] border-none focus:ring-0">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="failed">Failed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            
+            {filter.type === "payment" && (
+              <div className="flex items-center gap-1">
+                <Select 
+                  value={filterValues.paymentMethod} 
+                  onValueChange={(value) => 
+                    updateFilterValue("payment", { paymentMethod: value })
+                  }
+                >
+                  <SelectTrigger className="h-8 w-[120px] border-none focus:ring-0">
+                    <SelectValue placeholder="Select payment" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Credit Card">Credit Card</SelectItem>
+                    <SelectItem value="Cash">Cash</SelectItem>
+                    <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
+                    <SelectItem value="Check">Check</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-4 w-4 p-0 hover:bg-transparent ml-2"
+              onClick={() => removeFilter(filter.type)}
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+        ))}
+      </div>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button 
             variant="outline" 
-            size="sm" 
-            className="rounded-full border-dashed"
+            size="sm"
+            className="h-8 px-3 text-sm font-medium"
           >
             Add Filter
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
+        <DropdownMenuContent align="start" className="w-[180px]">
           {availableFilters
             .filter((filter) => !activeFilters.find(f => f.type === filter.type))
             .map((filter) => (
               <DropdownMenuItem
                 key={filter.type}
                 onClick={() => addFilter(filter)}
+                className="text-sm"
               >
                 {filter.label}
               </DropdownMenuItem>
