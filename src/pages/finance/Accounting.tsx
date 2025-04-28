@@ -144,27 +144,6 @@ export default function Accounting() {
             <TabsTrigger value="transactions">Transactions</TabsTrigger>
             <TabsTrigger value="budget">Budget Planning</TabsTrigger>
           </TabsList>
-
-          <div className="flex flex-row gap-4">
-            <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-[180px]">
-                <Calendar className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Select period" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="this-month">This Month</SelectItem>
-                <SelectItem value="last-month">Last Month</SelectItem>
-                <SelectItem value="quarter">This Quarter</SelectItem>
-                <SelectItem value="year">This Year</SelectItem>
-                <SelectItem value="custom">Custom Range</SelectItem>
-              </SelectContent>
-            </Select>
-          
-            <Button variant="outline" size="sm" onClick={() => handleExport("excel")}>
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-          </div>
         </div>
         
         <TabsContent value="dashboard" className="space-y-6">
