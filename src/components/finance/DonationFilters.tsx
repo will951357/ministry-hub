@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,17 +17,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type FilterType = "date" | "payment";
+type FilterType = "date" | "payment" | "amount" | "status";
 type ActiveFilter = {
   type: FilterType;
   label: string;
 };
 
-// Export the interface so it can be imported in Donations.tsx
 export interface FilterValues {
   startDate?: Date;
   endDate?: Date;
   paymentMethod?: string;
+  amount?: string;
+  status?: string;
 }
 
 interface DonationFiltersProps {
@@ -39,7 +40,9 @@ export function DonationFilters({ onFilterChange }: DonationFiltersProps) {
   const [filterValues, setFilterValues] = useState<FilterValues>({});
 
   const availableFilters = [
-    { type: "date" as FilterType, label: "Date Range" },
+    { type: "date" as FilterType, label: "Date" },
+    { type: "amount" as FilterType, label: "Amount" },
+    { type: "status" as FilterType, label: "Status" },
     { type: "payment" as FilterType, label: "Payment Method" },
   ];
 
@@ -57,6 +60,10 @@ export function DonationFilters({ onFilterChange }: DonationFiltersProps) {
       delete newValues.endDate;
     } else if (filterType === "payment") {
       delete newValues.paymentMethod;
+    } else if (filterType === "amount") {
+      delete newValues.amount;
+    } else if (filterType === "status") {
+      delete newValues.status;
     }
     setFilterValues(newValues);
     onFilterChange(newValues);
@@ -69,72 +76,84 @@ export function DonationFilters({ onFilterChange }: DonationFiltersProps) {
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex flex-wrap gap-2">
-        {activeFilters.map((filter) => (
-          <div
-            key={filter.type}
-            className="flex items-center gap-2 bg-secondary p-2 rounded-lg"
+    <div className="flex flex-wrap items-center gap-2">
+      {activeFilters.map((filter) => (
+        <div
+          key={filter.type}
+          className="inline-flex items-center gap-2 bg-white border rounded-full px-3 py-1.5 text-sm"
+        >
+          <span className="text-muted-foreground">{filter.label}</span>
+          {filter.type === "date" && (
+            <div className="flex items-center gap-1">
+              <span className="text-primary">Starting from</span>
+              <DatePicker
+                date={filterValues.startDate}
+                setDate={(date) =>
+                  updateFilterValue("date", { startDate: date })
+                }
+              />
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            </div>
+          )}
+          
+          {filter.type === "amount" && (
+            <div className="flex items-center gap-1">
+              <span className="text-primary">Less than $6</span>
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            </div>
+          )}
+
+          {filter.type === "status" && (
+            <div className="flex items-center gap-1">
+              <span className="text-primary">Failed</span>
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            </div>
+          )}
+          
+          {filter.type === "payment" && (
+            <div className="flex items-center gap-1">
+              <Select 
+                value={filterValues.paymentMethod} 
+                onValueChange={(value) => 
+                  updateFilterValue("payment", { paymentMethod: value })
+                }
+              >
+                <SelectTrigger className="border-0 p-0 h-auto hover:bg-transparent">
+                  <SelectValue placeholder="Select payment" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Credit Card">Credit Card</SelectItem>
+                  <SelectItem value="Cash">Cash</SelectItem>
+                  <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
+                  <SelectItem value="Check">Check</SelectItem>
+                </SelectContent>
+              </Select>
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            </div>
+          )}
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-4 w-4 p-0 hover:bg-transparent"
+            onClick={() => removeFilter(filter.type)}
           >
-            {filter.type === "date" && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">Date Range:</span>
-                <div className="flex gap-2">
-                  <DatePicker
-                    date={filterValues.startDate}
-                    setDate={(date) =>
-                      updateFilterValue("date", { startDate: date })
-                    }
-                  />
-                  <DatePicker
-                    date={filterValues.endDate}
-                    setDate={(date) => updateFilterValue("date", { endDate: date })}
-                  />
-                </div>
-              </div>
-            )}
-            
-            {filter.type === "payment" && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">Payment Method:</span>
-                <Select 
-                  value={filterValues.paymentMethod} 
-                  onValueChange={(value) => 
-                    updateFilterValue("payment", { paymentMethod: value })
-                  }
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select payment method" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Credit Card">Credit Card</SelectItem>
-                    <SelectItem value="Cash">Cash</SelectItem>
-                    <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
-                    <SelectItem value="Check">Check</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-              onClick={() => removeFilter(filter.type)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        ))}
-      </div>
+            <X className="h-3 w-3" />
+          </Button>
+        </div>
+      ))}
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="ml-auto">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="rounded-full border-dashed"
+          >
             Add Filter
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="start">
           {availableFilters
             .filter((filter) => !activeFilters.find(f => f.type === filter.type))
             .map((filter) => (
