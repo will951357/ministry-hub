@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   TooltipProps 
 } from "recharts";
-import { format, parseISO, subDays, eachDayOfInterval } from "date-fns";
+import { format, parseISO, subDays, eachDayOfInterval, isValid } from "date-fns";
 import { FundDonation } from "@/data/fundDonations";
 
 interface FundDonationsChartProps {
@@ -78,14 +78,32 @@ export function FundDonationsChart({ donations }: FundDonationsChartProps) {
   // Custom tooltip component
   const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
     if (active && payload && payload.length) {
-      return (
-        <div className="bg-background p-3 border rounded-md shadow-md">
-          <p className="font-medium">{format(parseISO(label), "MMM d, yyyy")}</p>
-          <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-primary">${Number(payload[0].value).toLocaleString()}</span> in donations
-          </p>
-        </div>
-      );
+      // Check if label is a valid date string before parsing
+      try {
+        // Make sure we have a valid date before formatting
+        const date = parseISO(label);
+        if (!isValid(date)) {
+          return null;
+        }
+        
+        return (
+          <div className="bg-background p-3 border rounded-md shadow-md">
+            <p className="font-medium">{format(date, "MMM d, yyyy")}</p>
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium text-primary">${Number(payload[0].value).toLocaleString()}</span> in donations
+            </p>
+          </div>
+        );
+      } catch (error) {
+        // If there's any error parsing or formatting the date, return a simpler tooltip
+        return (
+          <div className="bg-background p-3 border rounded-md shadow-md">
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium text-primary">${Number(payload[0].value).toLocaleString()}</span> in donations
+            </p>
+          </div>
+        );
+      }
     }
     
     return null;
