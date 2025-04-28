@@ -131,7 +131,7 @@ export default function Tithes() {
 
       <ChartCard title="Tithe Tracking">
         <Tabs defaultValue="all" onValueChange={setSelectedStatus}>
-          <div className="flex flex-col space-y-2">
+          <div className="flex flex-col">
             <div className="flex justify-between">
               <TabsList className="mb-4">
                 <TabsTrigger value="all">All Members</TabsTrigger>
