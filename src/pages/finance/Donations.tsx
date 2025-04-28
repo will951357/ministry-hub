@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { DollarSign, Download, Filter, PiggyBank, CreditCard } from "lucide-react";
@@ -16,15 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { format } from "date-fns";
-import { DatePicker } from "@/components/ui/date-picker";
 
 import type { FilterValues } from "@/components/finance/DonationFilters";
 
@@ -37,11 +30,30 @@ export default function Donations() {
     if (filterValues.startDate && new Date(donation.date) < filterValues.startDate) return false;
     if (filterValues.endDate && new Date(donation.date) > filterValues.endDate) return false;
     if (filterValues.paymentMethod && donation.paymentMethod !== filterValues.paymentMethod) return false;
+    
+    // Handle amount filtering
+    if (filterValues.amountCondition) {
+      if (filterValues.amountCondition === "lt" && donation.amount >= (filterValues.amountValue || 0)) {
+        return false;
+      }
+      if (filterValues.amountCondition === "gt" && donation.amount <= (filterValues.amountValue || 0)) {
+        return false;
+      }
+      if (filterValues.amountCondition === "between") {
+        if (donation.amount < (filterValues.amountValue || 0) || 
+            donation.amount > (filterValues.amountMax || Infinity)) {
+          return false;
+        }
+      }
+    }
+    
     return true;
   });
 
   const handleFilterChange = (filters: FilterValues) => {
     setFilterValues(filters);
+    // Here you could update URL parameters if needed
+    // For example: updateUrlParams(filters);
   };
 
   const handleExport = () => {
@@ -79,6 +91,10 @@ export default function Donations() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => {}}>
+            <Filter className="h-4 w-4 mr-2" />
+            Filter
+          </Button>
           <Button onClick={() => navigate("/finance/donations/new")}>
             <DollarSign className="h-4 w-4 mr-2" />
             Add Donation
