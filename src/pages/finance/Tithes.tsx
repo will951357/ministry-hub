@@ -10,7 +10,6 @@ import { titheRecords } from "@/data/tithes";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { DataFilters, type FilterValues } from "@/components/shared/DataFilters";
-
 export default function Tithes() {
   const navigate = useNavigate();
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
@@ -20,31 +19,14 @@ export default function Tithes() {
   const lastMonthTithers = 174; // Previous month's count
   const currentTithers = 186;
   const tithersChange = currentTithers - lastMonthTithers;
-
   const lastMonthTotal = 17550;
   const currentMonthTotal = 18450;
-  const monthlyChange = ((currentMonthTotal - lastMonthTotal) / lastMonthTotal) * 100;
-
+  const monthlyChange = (currentMonthTotal - lastMonthTotal) / lastMonthTotal * 100;
   const lastYearTotal = 161760;
   const currentYearTotal = 187320;
-  const yearlyChange = ((currentYearTotal - lastYearTotal) / lastYearTotal) * 100;
-
+  const yearlyChange = (currentYearTotal - lastYearTotal) / lastYearTotal * 100;
   const handleExport = () => {
-    const csvContent = "data:text/csv;charset=utf-8," + 
-      ["Member Name", "Amount", "Date", "Frequency", "Status", "Last Tithe"]
-        .join(",") + "\n" +
-      titheRecords
-        .filter(record => selectedStatus === "all" || record.status === selectedStatus)
-        .map(record => [
-          record.memberName,
-          record.amount,
-          record.date,
-          record.frequency,
-          record.status,
-          record.lastTithe || ""
-        ].join(","))
-        .join("\n");
-
+    const csvContent = "data:text/csv;charset=utf-8," + ["Member Name", "Amount", "Date", "Frequency", "Status", "Last Tithe"].join(",") + "\n" + titheRecords.filter(record => selectedStatus === "all" || record.status === selectedStatus).map(record => [record.memberName, record.amount, record.date, record.frequency, record.status, record.lastTithe || ""].join(",")).join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -53,33 +35,45 @@ export default function Tithes() {
     link.click();
     document.body.removeChild(link);
   };
-
-  const filterOptions = [
-    { id: "date", type: "date" as const, label: "Date", description: "Filter by tithe date" },
-    { id: "payment", type: "payment" as const, label: "Payment Method", description: "Filter by payment method" },
-    { id: "amount", type: "amount" as const, label: "Amount", description: "Filter by tithe amount" }
-  ];
-
-  const paymentMethods = [
-    { value: "Credit Card", label: "Credit Card" },
-    { value: "Cash", label: "Cash" },
-    { value: "Bank Transfer", label: "Bank Transfer" },
-    { value: "Check", label: "Check" }
-  ];
-
+  const filterOptions = [{
+    id: "date",
+    type: "date" as const,
+    label: "Date",
+    description: "Filter by tithe date"
+  }, {
+    id: "payment",
+    type: "payment" as const,
+    label: "Payment Method",
+    description: "Filter by payment method"
+  }, {
+    id: "amount",
+    type: "amount" as const,
+    label: "Amount",
+    description: "Filter by tithe amount"
+  }];
+  const paymentMethods = [{
+    value: "Credit Card",
+    label: "Credit Card"
+  }, {
+    value: "Cash",
+    label: "Cash"
+  }, {
+    value: "Bank Transfer",
+    label: "Bank Transfer"
+  }, {
+    value: "Check",
+    label: "Check"
+  }];
   const handleFilterChange = (filters: FilterValues) => {
     setFilterValues(filters);
   };
-
   const filteredRecords = titheRecords.filter(record => {
     const recordDate = new Date(record.date);
 
     // Handle date filtering
     if (filterValues.dateCondition === "on" && filterValues.startDate) {
       const filterDate = new Date(filterValues.startDate);
-      if (recordDate.getDate() !== filterDate.getDate() ||
-          recordDate.getMonth() !== filterDate.getMonth() ||
-          recordDate.getFullYear() !== filterDate.getFullYear()) {
+      if (recordDate.getDate() !== filterDate.getDate() || recordDate.getMonth() !== filterDate.getMonth() || recordDate.getFullYear() !== filterDate.getFullYear()) {
         return false;
       }
     } else if (filterValues.dateCondition === "between" && filterValues.startDate && filterValues.endDate) {
@@ -102,12 +96,9 @@ export default function Tithes() {
         }
       }
     }
-
     return selectedStatus === "all" || record.status === selectedStatus;
   });
-
-  return (
-    <div className="container mx-auto py-6 space-y-6">
+  return <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Tithes</h1>
@@ -124,30 +115,10 @@ export default function Tithes() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatsCard
-          title="Total Tithing Members"
-          value={currentTithers.toString()}
-          description={`${tithersChange >= 0 ? "+" : ""}${tithersChange} from last month`}
-          icon={<Users className="h-4 w-4" />}
-        />
-        <StatsCard
-          title="Monthly Tithe Total"
-          value={`$${currentMonthTotal.toLocaleString()}`}
-          description={`${monthlyChange >= 0 ? "+" : ""}${monthlyChange.toFixed(1)}% from last month`}
-          icon={<BadgeDollarSign className="h-4 w-4" />}
-        />
-        <StatsCard
-          title="Yearly Tithe Total"
-          value={`$${currentYearTotal.toLocaleString()}`}
-          description={`${yearlyChange >= 0 ? "+" : ""}${yearlyChange.toFixed(1)}% from last year`}
-          icon={<TrendingUp className="h-4 w-4" />}
-        />
-        <StatsCard
-          title="Consistency Rate"
-          value="78%"
-          footer={<Progress value={78} className="h-2 mt-2" />}
-          icon={<PercentCircle className="h-4 w-4" />}
-        />
+        <StatsCard title="Total Tithing Members" value={currentTithers.toString()} description={`${tithersChange >= 0 ? "+" : ""}${tithersChange} from last month`} icon={<Users className="h-4 w-4" />} />
+        <StatsCard title="Monthly Tithe Total" value={`$${currentMonthTotal.toLocaleString()}`} description={`${monthlyChange >= 0 ? "+" : ""}${monthlyChange.toFixed(1)}% from last month`} icon={<BadgeDollarSign className="h-4 w-4" />} />
+        <StatsCard title="Yearly Tithe Total" value={`$${currentYearTotal.toLocaleString()}`} description={`${yearlyChange >= 0 ? "+" : ""}${yearlyChange.toFixed(1)}% from last year`} icon={<TrendingUp className="h-4 w-4" />} />
+        <StatsCard title="Consistency Rate" value="78%" footer={<Progress value={78} className="h-2 mt-2" />} icon={<PercentCircle className="h-4 w-4" />} />
       </div>
 
       <ChartCard title="Tithe Tracking">
@@ -162,10 +133,7 @@ export default function Tithes() {
               </TabsList>
 
               <div className="flex gap-4">
-                <Button variant="outline" size="sm" onClick={() => setSelectedStatus("all")}>
-                  <Filter className="h-4 w-4 mr-2" />
-                  Reset Filter
-                </Button>
+                
                 <Button variant="outline" size="sm" onClick={handleExport}>
                   <Download className="h-4 w-4 mr-2" />
                   Export
@@ -173,11 +141,7 @@ export default function Tithes() {
               </div>
             </div>
 
-            <DataFilters 
-              onFilterChange={handleFilterChange}
-              filterOptions={filterOptions}
-              paymentMethods={paymentMethods}
-            />
+            <DataFilters onFilterChange={handleFilterChange} filterOptions={filterOptions} paymentMethods={paymentMethods} />
           </div>
 
           <TabsContent value="all" className="border rounded-md">
@@ -202,6 +166,5 @@ export default function Tithes() {
           </TabsContent>
         </Tabs>
       </ChartCard>
-    </div>
-  );
+    </div>;
 }
