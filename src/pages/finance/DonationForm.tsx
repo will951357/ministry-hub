@@ -84,139 +84,141 @@ export default function DonationForm() {
   };
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex items-center gap-1">
-        <Button 
-          variant="outline" 
-          size="icon" 
-          onClick={() => navigate('/events')}
-          className="h-8 w-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <h1 className="text-3xl font-bold">New Donation</h1>
-      </div>
-
-      <div className="max-w-2xl">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* First Row */}
-              <FormField
-                control={form.control}
-                name="donor"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Donor Name</FormLabel>
-                    <div className="relative">
-                      <FormControl>
-                        <Input
-                          ref={inputRef}
-                          {...field}
-                          value={searchTerm || field.value}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            setSearchTerm(value);
-                            field.onChange(value);
-                            setShowSuggestions(true);
-                          }}
-                          onFocus={() => setShowSuggestions(true)}
-                          onClick={() => setShowSuggestions(true)}
-                          autoComplete="off"
-                        />
-                      </FormControl>
-                      {showSuggestions && filteredMembers.length > 0 && (
-                        <div 
-                          ref={suggestionsRef}
-                          className="absolute mt-1 w-full z-50 bg-background rounded-md border shadow-lg py-1 max-h-60 overflow-auto"
-                        >
-                          {filteredMembers.map((member) => (
-                            <div
-                              key={member}
-                              className={cn(
-                                "px-2 py-1.5 text-sm cursor-pointer hover:bg-muted flex items-center",
-                                field.value === member && "bg-muted"
-                              )}
-                              onClick={() => handleSelectMember(member)}
-                            >
-                              {member}
-                              {field.value === member && (
-                                <Check className="w-4 h-4 ml-auto" />
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <SelectField
-                control={form.control}
-                name="donorType"
-                label="Donor Type"
-                placeholder="Select donor type"
-                options={["Member", "Visitor", "Institution"]}
-              />
-
-              {/* Second Row */}
-              <FormField
-                control={form.control}
-                name="amount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Amount</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <SelectField
-                control={form.control}
-                name="fund"
-                label="Fund"
-                placeholder="Select fund"
-                options={["General", "Building", "Missions", "Youth Ministry", "Community Outreach"]}
-              />
-
-              {/* Third Row */}
-              <SelectField
-                control={form.control}
-                name="paymentMethod"
-                label="Payment Method"
-                placeholder="Select payment method"
-                options={["Cash", "Credit Card", "Check", "Bank Transfer"]}
-              />
-
-              <DateField control={form.control} />
-
-              {/* Fourth Row */}
-              <FormField
-                control={form.control}
-                name="observation"
-                render={({ field }) => (
-                  <FormItem className="col-span-full">
-                    <FormLabel>Observation (Optional)</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="flex gap-4">
-              <Button type="submit">Save Donation</Button>
-            </div>
-          </form>
-        </Form>
-      </div>
+   <div className="container mx-auto py-6">
+    <div className="flex items-center gap-2 mb-6">
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={() => navigate('/events')}
+        className="h-8 w-8"
+      >
+        <ArrowLeft className="h-4 w-4" />
+      </Button>
+      <h1 className="text-3xl font-bold">New Donation</h1>
     </div>
+  
+    <div className="max-w-4xl mx-auto">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Donor Name */}
+            <FormField
+              control={form.control}
+              name="donor"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Donor Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      ref={inputRef}
+                      {...field}
+                      value={searchTerm || field.value}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setSearchTerm(value);
+                        field.onChange(value);
+                        setShowSuggestions(true);
+                      }}
+                      onFocus={() => setShowSuggestions(true)}
+                      onClick={() => setShowSuggestions(true)}
+                      autoComplete="off"
+                    />
+                  </FormControl>
+                  {showSuggestions && filteredMembers.length > 0 && (
+                    <div
+                      ref={suggestionsRef}
+                      className="absolute mt-1 w-full z-50 bg-background rounded-md border shadow-lg py-1 max-h-60 overflow-auto"
+                    >
+                      {filteredMembers.map((member) => (
+                        <div
+                          key={member}
+                          className={cn(
+                            "px-2 py-1.5 text-sm cursor-pointer hover:bg-muted flex items-center",
+                            field.value === member && "bg-muted"
+                          )}
+                          onClick={() => handleSelectMember(member)}
+                        >
+                          {member}
+                          {field.value === member && (
+                            <Check className="w-4 h-4 ml-auto" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+  
+            {/* Donor Type */}
+            <SelectField
+              control={form.control}
+              name="donorType"
+              label="Donor Type"
+              placeholder="Select donor type"
+              options={["Member", "Visitor", "Institution"]}
+            />
+  
+            {/* Amount */}
+            <FormField
+              control={form.control}
+              name="amount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Amount</FormLabel>
+                  <FormControl>
+                    <Input type="number" step="0.01" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+  
+            {/* Fund */}
+            <SelectField
+              control={form.control}
+              name="fund"
+              label="Fund"
+              placeholder="Select fund"
+              options={["General", "Building", "Missions", "Youth Ministry", "Community Outreach"]}
+            />
+  
+            {/* Payment Method */}
+            <SelectField
+              control={form.control}
+              name="paymentMethod"
+              label="Payment Method"
+              placeholder="Select payment method"
+              options={["Cash", "Credit Card", "Check", "Bank Transfer"]}
+            />
+  
+            {/* Date */}
+            <DateField control={form.control} />
+  
+            {/* Observation (full width) */}
+            <FormField
+              control={form.control}
+              name="observation"
+              render={({ field }) => (
+                <FormItem className="col-span-1 md:col-span-2">
+                  <FormLabel>Observation (Optional)</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+  
+          <div className="flex justify-start">
+            <Button type="submit">Save Donation</Button>
+          </div>
+        </form>
+      </Form>
+    </div>
+  </div>
+
   );
 }
