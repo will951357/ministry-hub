@@ -2,32 +2,74 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
-import { DollarSign, Download, Filter, ArrowUpRight, PiggyBank, CreditCard } from "lucide-react";
+import { DollarSign, Download, Filter, PiggyBank, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { DonationTable } from "@/components/finance/DonationTable";
 import { mockDonations } from "@/data/donations";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { format } from "date-fns";
+import { DatePicker } from "@/components/ui/date-picker";
 
 export default function Donations() {
   const [activeTab, setActiveTab] = useState("all");
+  const [startDate, setStartDate] = useState<Date | undefined>();
+  const [endDate, setEndDate] = useState<Date | undefined>();
+  const [paymentMethod, setPaymentMethod] = useState<string | undefined>();
   const navigate = useNavigate();
 
+  const filteredDonations = mockDonations.filter(donation => {
+    if (startDate && new Date(donation.date) < startDate) return false;
+    if (endDate && new Date(donation.date) > endDate) return false;
+    if (paymentMethod && donation.paymentMethod !== paymentMethod) return false;
+    return true;
+  });
+
   const handleExport = () => {
-    const csvContent = mockDonations
-      .map(d => 
-        [d.date, d.donor, d.donorType, d.amount, d.fund, d.paymentMethod, d.observation]
-          .join(',')
+    // Headers for the CSV
+    const headers = ['Date', 'Donor', 'Type', 'Amount', 'Fund', 'Payment Method', 'Observation'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredDonations.map(d => 
+        [
+          format(new Date(d.date), 'yyyy-MM-dd'),
+          d.donor,
+          d.donorType,
+          d.amount,
+          d.fund,
+          d.paymentMethod,
+          d.observation || ''
+        ].map(value => `"${value}"`).join(',')
       )
-      .join('\n');
+    ].join('\n');
     
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'donations.csv';
+    a.download = `donations_${format(new Date(), 'yyyy-MM-dd')}.csv`;
     a.click();
+  };
+
+  const resetFilters = () => {
+    setStartDate(undefined);
+    setEndDate(undefined);
+    setPaymentMethod(undefined);
   };
 
   return (
@@ -81,10 +123,51 @@ export default function Donations() {
             </div>
 
             <div className='flex gap-4'>
-              <Button variant="outline" size="sm">
-                <Filter className="h-4 w-4 mr-2" />
-                Filter
-              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Filter className="h-4 w-4 mr-2" />
+                    Filter
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Filter Donations</DialogTitle>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <label className="text-sm font-medium">Date Range</label>
+                      <div className="flex gap-4">
+                        <div>
+                          <label className="text-sm text-muted-foreground">From</label>
+                          <DatePicker date={startDate} setDate={setStartDate} />
+                        </div>
+                        <div>
+                          <label className="text-sm text-muted-foreground">To</label>
+                          <DatePicker date={endDate} setDate={setEndDate} />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid gap-2">
+                      <label className="text-sm font-medium">Payment Method</label>
+                      <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select payment method" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Credit Card">Credit Card</SelectItem>
+                          <SelectItem value="Cash">Cash</SelectItem>
+                          <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
+                          <SelectItem value="Check">Check</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button variant="outline" onClick={resetFilters}>
+                      Reset Filters
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             
               <Button variant="outline" size="sm" onClick={handleExport}>
                 <Download className="h-4 w-4 mr-2" />
@@ -95,27 +178,27 @@ export default function Donations() {
           
           <TabsContent value="all" className="border rounded-md mt-6">
             <div className="p-4">
-              <DonationTable donations={mockDonations} />
+              <DonationTable donations={filteredDonations} />
             </div>
           </TabsContent>
           <TabsContent value="recent" className="border rounded-md mt-6">
             <div className="p-4">
               <DonationTable 
-                donations={mockDonations.slice(0, 3)} 
+                donations={filteredDonations.slice(0, 3)} 
               />
             </div>
           </TabsContent>
           <TabsContent value="recurring" className="border rounded-md mt-6">
             <div className="p-4">
               <DonationTable 
-                donations={mockDonations.filter(d => d.observation?.includes('Monthly'))} 
+                donations={filteredDonations.filter(d => d.observation?.includes('Monthly'))} 
               />
             </div>
           </TabsContent>
           <TabsContent value="special" className="border rounded-md mt-6">
             <div className="p-4">
               <DonationTable 
-                donations={mockDonations.filter(d => d.fund === 'Building' || d.fund === 'Community Outreach')} 
+                donations={filteredDonations.filter(d => d.fund === 'Building' || d.fund === 'Community Outreach')} 
               />
             </div>
           </TabsContent>
