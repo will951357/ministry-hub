@@ -1,14 +1,14 @@
+
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, Calendar, Bell, Info, Filter, Search } from "lucide-react";
+import { Plus, Users, Calendar, Bell, Filter, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-import { StatsCard } from "@/components/dashboard/StatsCard";
+import { useNavigate } from "react-router-dom";
 
 // Sample groups data
 const groupsData = [
@@ -72,13 +72,13 @@ interface Group {
 }
 
 export default function Groups() {
-  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const navigate = useNavigate();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isNotificationDialogOpen, setIsNotificationDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGroups, setSelectedGroups] = useState<number[]>([]);
   const [isGroupSelectMode, setIsGroupSelectMode] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   
   const activeGroups = groupsData.filter(group => group.status === "active");
   const totalEvents = groupsData.reduce((total, group) => total + group.events, 0);
@@ -86,10 +86,7 @@ export default function Groups() {
   const handleGroupClick = (group: Group) => {
     if (isGroupSelectMode) {
       toggleGroupSelection(group.id);
-    } else {
-      setSelectedGroup(group);
-      setIsDialogOpen(true);
-    }
+    } 
   };
 
   const toggleGroupSelection = (groupId: number) => {
@@ -193,14 +190,15 @@ export default function Groups() {
           </div>
         </div>
 
+        {/* Groups grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredGroups.map((group) => (
             <div 
               key={group.id} 
               className={`bg-white rounded-lg border ${
                 selectedGroups.includes(group.id) ? "border-primary" : "border-church-border"
-              } p-6 shadow-sm hover:shadow-md transition-all cursor-pointer relative`}
-              onClick={() => handleGroupClick(group)}
+              } hover:shadow-md transition-all ${isGroupSelectMode ? "cursor-pointer" : ""} relative`}
+              onClick={() => isGroupSelectMode && handleGroupClick(group)}
             >
               {isGroupSelectMode && (
                 <div className="absolute top-4 left-4 z-10" onClick={(e) => {
@@ -210,87 +208,65 @@ export default function Groups() {
                   <Checkbox checked={selectedGroups.includes(group.id)} />
                 </div>
               )}
-              <div 
-                className="absolute top-4 right-4 p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors z-10"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSendNotification(group);
-                }}
-              >
-                <Bell size={16} className="text-church-secondary" />
-              </div>
-              <div className="space-y-4">
-                <h3 className={`text-lg font-medium ${isGroupSelectMode ? "pl-8" : ""}`}>
-                  {group.name}
-                </h3>
-                <p className="text-church-secondary text-sm line-clamp-2">
-                  {group.description}
-                </p>
-                <div className="flex justify-between items-center">
+              
+              {/* Card Header Section */}
+              <div className="border-b p-4">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className={`text-lg font-medium ${isGroupSelectMode ? "pl-8" : ""}`}>
+                    {group.name}
+                  </h3>
                   <Badge variant={group.status === "active" ? "default" : "secondary"}>
                     {group.status === "active" ? "Active" : "Inactive"}
                   </Badge>
-                  <div className="flex items-center gap-1 text-xs text-church-secondary">
-                    <Users size={14} />
+                </div>
+                <p className="text-church-secondary text-sm line-clamp-2">
+                  {group.description}
+                </p>
+              </div>
+              
+              {/* Card Content Section */}
+              <div className="p-4">
+                <div className="flex items-center justify-between text-sm mb-4">
+                  <div className="flex items-center gap-1">
+                    <Users size={16} className="text-church-secondary" />
                     <span>{group.members} members</span>
                   </div>
+                  <div className="flex items-center gap-1">
+                    <Calendar size={16} className="text-church-secondary" />
+                    <span>{group.events} events</span>
+                  </div>
+                </div>
+                
+                {/* Card Actions */}
+                <div className="flex justify-between items-center">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSendNotification(group);
+                    }}
+                  >
+                    <Bell size={16} className="mr-1" />
+                    Notify
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/groups/${group.id}`);
+                    }}
+                  >
+                    Details
+                  </Button>
                 </div>
               </div>
             </div>
           ))}
         </div>
       </div>
-
-      {/* Group details dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-xl">{selectedGroup?.name}</DialogTitle>
-          </DialogHeader>
-          
-          {selectedGroup && (
-            <div className="space-y-4">
-              <div>
-                <h4 className="text-sm font-medium text-church-secondary mb-1">Description</h4>
-                <p>{selectedGroup.description}</p>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-sm font-medium text-church-secondary mb-1">Status</h4>
-                  <Badge variant={selectedGroup.status === "active" ? "default" : "secondary"}>
-                    {selectedGroup.status === "active" ? "Active" : "Inactive"}
-                  </Badge>
-                </div>
-                
-                <div>
-                  <h4 className="text-sm font-medium text-church-secondary mb-1">Members</h4>
-                  <div className="flex items-center gap-1">
-                    <Users size={16} className="text-church-secondary" />
-                    <span>{selectedGroup.members}</span>
-                  </div>
-                </div>
-                
-                <div>
-                  <h4 className="text-sm font-medium text-church-secondary mb-1">Events</h4>
-                  <div className="flex items-center gap-1">
-                    <Calendar size={16} className="text-church-secondary" />
-                    <span>{selectedGroup.events}</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="pt-4 flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Close</Button>
-                <Button>
-                  <Info size={16} className="mr-1" />
-                  View Details
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
 
       {/* Create group dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
