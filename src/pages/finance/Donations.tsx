@@ -9,6 +9,8 @@ import { ChartCard } from "@/components/dashboard/ChartCard";
 import { DonationTable } from "@/components/finance/DonationTable";
 import { mockDonations } from "@/data/donations";
 import { DonationFilters } from "@/components/finance/DonationFilters";
+import type { FilterValues } from "@/components/finance/DonationFilters";
+
 import {
   Dialog,
   DialogContent,
@@ -25,8 +27,6 @@ import {
 } from "@/components/ui/select";
 import { format } from "date-fns";
 import { DatePicker } from "@/components/ui/date-picker";
-
-import type { FilterValues } from "@/components/finance/DonationFilters";
 
 export default function Donations() {
   const [activeTab, setActiveTab] = useState("all");
@@ -79,6 +79,10 @@ export default function Donations() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm">
+            <Filter className="h-4 w-4 mr-2" />
+            Filters
+          </Button>
           <Button onClick={() => navigate("/finance/donations/new")}>
             <DollarSign className="h-4 w-4 mr-2" />
             Add Donation
