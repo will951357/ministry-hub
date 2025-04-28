@@ -12,7 +12,7 @@ import { DateField } from "./components/DateField";
 import { useEffect, useState, useRef } from "react";
 import { mockDonations } from "@/data/donations";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Using the existing members from mock data as our donor list
@@ -85,9 +85,16 @@ export default function DonationForm() {
 
   return (
     <div className="container mx-auto py-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">New Donation</h1>
-        <p className="text-muted-foreground">Record a new donation</p>
+      <div className="flex items-center gap-1">
+        <Button 
+          variant="outline" 
+          size="icon" 
+          onClick={() => navigate('/events')}
+          className="h-8 w-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <h1 className="text-3xl font-bold">New Donation</h1>
       </div>
 
       <div className="max-w-2xl">
@@ -206,9 +213,6 @@ export default function DonationForm() {
 
             <div className="flex gap-4">
               <Button type="submit">Save Donation</Button>
-              <Button type="button" variant="outline" onClick={() => navigate("/finance/donations")}>
-                Cancel
-              </Button>
             </div>
           </form>
         </Form>
