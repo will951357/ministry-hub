@@ -63,6 +63,13 @@ export default function Donations() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+
+          <div className='flex gap-4 items-center'>
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+          </div>
           
           <Button onClick={() => navigate("/finance/donations/new")}>
             <DollarSign className="h-4 w-4 mr-2" />
@@ -87,13 +94,6 @@ export default function Donations() {
                 <TabsTrigger value="recurring">Recurring</TabsTrigger>
                 <TabsTrigger value="special">Special Projects</TabsTrigger>
               </TabsList>
-              
-              <div className='flex gap-4 items-center'>
-                <Button variant="outline" size="sm" onClick={handleExport}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Export
-                </Button>
-              </div>
             </div>
             
             <DonationFilters onFilterChange={handleFilterChange} />
