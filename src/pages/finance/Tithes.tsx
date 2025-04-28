@@ -10,6 +10,7 @@ import { titheRecords } from "@/data/tithes";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { DataFilters, type FilterValues } from "@/components/shared/DataFilters";
+
 export default function Tithes() {
   const navigate = useNavigate();
   const [selectedStatus, setSelectedStatus] = useState<string>("all");

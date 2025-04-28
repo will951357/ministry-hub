@@ -6,13 +6,13 @@ import { useNavigate } from "react-router-dom";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { SelectField } from "./components/SelectField";
 import { DateField } from "./components/DateField";
 import { useState, useRef } from "react";
 import { titheRecords } from "@/data/tithes";
 import { ArrowLeft, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 // Get unique members from existing tithe records
 const membersList = [...new Set(titheRecords.map(record => record.memberName))];
@@ -24,7 +24,7 @@ const formSchema = z.object({
   }),
   frequency: z.enum(["weekly", "monthly", "quarterly", "yearly", "one-time"]),
   date: z.date(),
-  observation: z.string().optional(),
+  notes: z.string().optional(),
 });
 
 export default function TitheForm() {
@@ -33,17 +33,25 @@ export default function TitheForm() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       memberName: "",
       frequency: "monthly",
+      notes: "",
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+    
+    toast({
+      title: "Tithe recorded",
+      description: `Successfully recorded ${values.amount} tithe from ${values.memberName}`,
+    });
+    
     navigate("/finance/tithes");
   }
 
@@ -89,43 +97,45 @@ export default function TitheForm() {
                   <FormItem>
                     <FormLabel>Member Name</FormLabel>
                     <FormControl>
-                      <Input
-                        ref={inputRef}
-                        {...field}
-                        value={searchTerm || field.value}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setSearchTerm(value);
-                          field.onChange(value);
-                          setShowSuggestions(true);
-                        }}
-                        onFocus={() => setShowSuggestions(true)}
-                        onClick={() => setShowSuggestions(true)}
-                        autoComplete="off"
-                      />
-                    </FormControl>
-                    {showSuggestions && filteredMembers.length > 0 && (
-                      <div
-                        ref={suggestionsRef}
-                        className="absolute mt-1 w-full z-50 bg-background rounded-md border shadow-lg py-1 max-h-60 overflow-auto"
-                      >
-                        {filteredMembers.map((member) => (
+                      <div className="relative">
+                        <Input
+                          ref={inputRef}
+                          {...field}
+                          value={searchTerm || field.value}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setSearchTerm(value);
+                            field.onChange(value);
+                            setShowSuggestions(true);
+                          }}
+                          onFocus={() => setShowSuggestions(true)}
+                          onClick={() => setShowSuggestions(true)}
+                          autoComplete="off"
+                        />
+                        {showSuggestions && filteredMembers.length > 0 && (
                           <div
-                            key={member}
-                            className={cn(
-                              "px-2 py-1.5 text-sm cursor-pointer hover:bg-muted flex items-center",
-                              field.value === member && "bg-muted"
-                            )}
-                            onClick={() => handleSelectMember(member)}
+                            ref={suggestionsRef}
+                            className="absolute mt-1 w-full z-50 bg-background rounded-md border shadow-lg py-1 max-h-60 overflow-auto"
                           >
-                            {member}
-                            {field.value === member && (
-                              <Check className="w-4 h-4 ml-auto" />
-                            )}
+                            {filteredMembers.map((member) => (
+                              <div
+                                key={member}
+                                className={cn(
+                                  "px-2 py-1.5 text-sm cursor-pointer hover:bg-muted flex items-center",
+                                  field.value === member && "bg-muted"
+                                )}
+                                onClick={() => handleSelectMember(member)}
+                              >
+                                {member}
+                                {field.value === member && (
+                                  <Check className="w-4 h-4 ml-auto" />
+                                )}
+                              </div>
+                            ))}
                           </div>
-                        ))}
+                        )}
                       </div>
-                    )}
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -139,7 +149,7 @@ export default function TitheForm() {
                   <FormItem>
                     <FormLabel>Amount</FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.01" {...field} />
+                      <Input type="number" step="0.01" placeholder="0.00" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -158,15 +168,15 @@ export default function TitheForm() {
               {/* Date */}
               <DateField control={form.control} />
 
-              {/* Observation (full width) */}
+              {/* Notes (full width) */}
               <FormField
                 control={form.control}
-                name="observation"
+                name="notes"
                 render={({ field }) => (
                   <FormItem className="col-span-1 md:col-span-2">
-                    <FormLabel>Observation (Optional)</FormLabel>
+                    <FormLabel>Notes (Optional)</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} placeholder="Add any additional notes here" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
