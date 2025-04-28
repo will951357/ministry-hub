@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Download, Filter, ArrowUpRight, ArrowDownRight, Calendar, Clock, Plus, Receipt } from "lucide-react";
+import { Download, Filter, ArrowUpRight, ArrowDownRight, Calendar, Clock, Plus, Receipt, TrendingUp, Wallet, PiggyBank, Gauge } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -15,6 +15,7 @@ import { BudgetUsageByCategory } from "@/components/finance/BudgetUsageByCategor
 import { FundBalanceChart } from "@/components/finance/FundBalanceChart";
 import { BudgetTable } from "@/components/finance/BudgetTable";
 import { DataFilters, type FilterValues } from "@/components/shared/DataFilters";
+import { StatsCard } from "@/components/dashboard/StatsCard";
 
 export default function Accounting() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -32,45 +33,57 @@ export default function Accounting() {
     });
   };
 
-  const filterOptions = [{
-    id: "date",
-    type: "date" as const,
-    label: "Date",
-    description: "Filter by transaction date"
-  }, {
-    id: "category",
-    type: "payment" as const,
-    label: "Category",
-    description: "Filter by transaction category"
-  }, {
-    id: "amount",
-    type: "amount" as const,
-    label: "Amount",
-    description: "Filter by transaction amount"
-  }];
+  const filterOptions = [
+    {
+      id: "date",
+      type: "date" as const,
+      label: "Date",
+      description: "Filter by transaction date"
+    },
+    {
+      id: "category",
+      type: "payment" as const,
+      label: "Category",
+      description: "Filter by transaction category"
+    },
+    {
+      id: "amount",
+      type: "amount" as const,
+      label: "Amount",
+      description: "Filter by transaction amount"
+    }
+  ];
 
-  const categoryOptions = [{
-    value: "Worship",
-    label: "Worship"
-  }, {
-    value: "Missions",
-    label: "Missions"
-  }, {
-    value: "Building",
-    label: "Building"
-  }, {
-    value: "Admin",
-    label: "Admin"
-  }, {
-    value: "Tithes",
-    label: "Tithes"
-  }, {
-    value: "Education",
-    label: "Education"
-  }, {
-    value: "Youth",
-    label: "Youth"
-  }];
+  const categoryOptions = [
+    {
+      value: "Worship",
+      label: "Worship"
+    },
+    {
+      value: "Missions",
+      label: "Missions"
+    },
+    {
+      value: "Building",
+      label: "Building"
+    },
+    {
+      value: "Admin",
+      label: "Admin"
+    },
+    {
+      value: "Tithes",
+      label: "Tithes"
+    },
+    {
+      value: "Education",
+      label: "Education"
+    },
+    {
+      value: "Youth",
+      label: "Youth"
+    }
+  ];
 
   const handleFilterChange = (filters: FilterValues) => {
     setFilterValues(filters);
@@ -97,57 +110,47 @@ export default function Accounting() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Income</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$42,580.00</div>
-            <div className="flex items-center text-xs text-green-600 mt-1">
-              <ArrowUpRight className="h-3 w-3 mr-1" />
-              <span>+8.2% from last month</span>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Expenses</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$35,210.00</div>
-            <div className="flex items-center text-xs text-red-600 mt-1">
-              <ArrowDownRight className="h-3 w-3 mr-1" />
-              <span>+12.5% from last month</span>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Net Balance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$7,370.00</div>
-            <div className="flex items-center text-xs text-muted-foreground mt-1">
-              <Clock className="h-3 w-3 mr-1" />
-              <span>Updated 2 hours ago</span>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Budget Variance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">+$1,230.00</div>
-            <div className="flex items-center text-xs text-green-600 mt-1">
-              <span>3.7% above budget</span>
-            </div>
-          </CardContent>
-        </Card>
+        <StatsCard
+          title="Total Income"
+          value="$42,580.00"
+          description={<div className="flex items-center text-xs text-green-600 mt-1">
+            <ArrowUpRight className="h-3 w-3 mr-1" />
+            <span>+8.2% from last month</span>
+          </div>}
+          icon={<TrendingUp className="h-4 w-4" />}
+        />
+
+        <StatsCard
+          title="Total Expenses"
+          value="$35,210.00"
+          description={<div className="flex items-center text-xs text-red-600 mt-1">
+            <ArrowDownRight className="h-3 w-3 mr-1" />
+            <span>+12.5% from last month</span>
+          </div>}
+          icon={<Wallet className="h-4 w-4" />}
+        />
+
+        <StatsCard
+          title="Net Balance"
+          value="$7,370.00"
+          description={<div className="flex items-center text-xs text-muted-foreground mt-1">
+            <Clock className="h-3 w-3 mr-1" />
+            <span>Updated 2 hours ago</span>
+          </div>}
+          icon={<PiggyBank className="h-4 w-4" />}
+        />
+
+        <StatsCard
+          title="Budget Variance"
+          value="+$1,230.00"
+          description={<div className="flex items-center text-xs text-green-600 mt-1">
+            <span>3.7% above budget</span>
+          </div>}
+          icon={<Gauge className="h-4 w-4" />}
+        />
       </div>
 
       <Tabs defaultValue="dashboard" onValueChange={setActiveTab} className="w-full">
-
         <div className="flex justify-between">
           <TabsList>
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
