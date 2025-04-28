@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
@@ -28,15 +27,17 @@ import { DatePicker } from "@/components/ui/date-picker";
 
 export default function Donations() {
   const [activeTab, setActiveTab] = useState("all");
-  const [startDate, setStartDate] = useState<Date | undefined>();
-  const [endDate, setEndDate] = useState<Date | undefined>();
-  const [paymentMethod, setPaymentMethod] = useState<string | undefined>();
+  const [filterValues, setFilterValues] = useState({
+    startDate: undefined,
+    endDate: undefined,
+    paymentMethod: undefined,
+  });
   const navigate = useNavigate();
 
   const filteredDonations = mockDonations.filter(donation => {
-    if (startDate && new Date(donation.date) < startDate) return false;
-    if (endDate && new Date(donation.date) > endDate) return false;
-    if (paymentMethod && donation.paymentMethod !== paymentMethod) return false;
+    if (filterValues.startDate && new Date(donation.date) < filterValues.startDate) return false;
+    if (filterValues.endDate && new Date(donation.date) > filterValues.endDate) return false;
+    if (filterValues.paymentMethod && donation.paymentMethod !== filterValues.paymentMethod) return false;
     return true;
   });
 
@@ -64,12 +65,6 @@ export default function Donations() {
     a.href = url;
     a.download = `donations_${format(new Date(), 'yyyy-MM-dd')}.csv`;
     a.click();
-  };
-
-  const resetFilters = () => {
-    setStartDate(undefined);
-    setEndDate(undefined);
-    setPaymentMethod(undefined);
   };
 
   return (
@@ -123,52 +118,7 @@ export default function Donations() {
             </div>
 
             <div className='flex gap-4'>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Filter className="h-4 w-4 mr-2" />
-                    Filter
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Filter Donations</DialogTitle>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                      <label className="text-sm font-medium">Date Range</label>
-                      <div className="flex gap-4">
-                        <div>
-                          <label className="text-sm text-muted-foreground">From</label>
-                          <DatePicker date={startDate} setDate={setStartDate} />
-                        </div>
-                        <div>
-                          <label className="text-sm text-muted-foreground">To</label>
-                          <DatePicker date={endDate} setDate={setEndDate} />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="grid gap-2">
-                      <label className="text-sm font-medium">Payment Method</label>
-                      <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select payment method" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Credit Card">Credit Card</SelectItem>
-                          <SelectItem value="Cash">Cash</SelectItem>
-                          <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
-                          <SelectItem value="Check">Check</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <Button variant="outline" onClick={resetFilters}>
-                      Reset Filters
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            
+              <DonationFilters onFilterChange={setFilterValues} />
               <Button variant="outline" size="sm" onClick={handleExport}>
                 <Download className="h-4 w-4 mr-2" />
                 Export
