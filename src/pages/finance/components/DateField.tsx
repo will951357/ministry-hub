@@ -10,16 +10,17 @@ import { Control } from "react-hook-form";
 
 interface DateFieldProps {
   control: Control<any>;
+  name: string;
+  isOptional?: boolean;
 }
 
-export function DateField({ control }: DateFieldProps) {
+export function DateField({ control, name, isOptional = false }: DateFieldProps) {
   return (
     <FormField
       control={control}
-      name="date"
+      name={name}
       render={({ field }) => (
         <FormItem className="flex flex-col">
-          <FormLabel>Date</FormLabel>
           <Popover>
             <PopoverTrigger asChild>
               <FormControl>
@@ -33,7 +34,7 @@ export function DateField({ control }: DateFieldProps) {
                   {field.value ? (
                     format(field.value, "PPP")
                   ) : (
-                    <span>Pick a date</span>
+                    <span>{isOptional ? "Optional: Pick a date" : "Pick a date"}</span>
                   )}
                   <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                 </Button>

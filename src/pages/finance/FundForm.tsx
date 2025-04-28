@@ -116,30 +116,25 @@ export default function FundForm() {
               />
               
               {/* Start Date */}
-              <FormField
-                control={form.control}
-                name="startDate"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Start Date</FormLabel>
-                    <DateField control={form.control} name="startDate" />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <FormItem className="flex flex-col">
+                <FormLabel>Start Date</FormLabel>
+                <DateField 
+                  control={form.control} 
+                  name="startDate"
+                />
+                <FormMessage />
+              </FormItem>
   
               {/* End Date (Optional) */}
-              <FormField
-                control={form.control}
-                name="endDate"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>End Date (Optional)</FormLabel>
-                    <DateField control={form.control} name="endDate" isOptional={true} />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <FormItem className="flex flex-col">
+                <FormLabel>End Date (Optional)</FormLabel>
+                <DateField 
+                  control={form.control} 
+                  name="endDate" 
+                  isOptional={true}
+                />
+                <FormMessage />
+              </FormItem>
   
               {/* Description (full width) */}
               <FormField
