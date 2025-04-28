@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
@@ -10,27 +9,18 @@ import { ChartCard } from "@/components/dashboard/ChartCard";
 import { DonationTable } from "@/components/finance/DonationTable";
 import { mockDonations } from "@/data/donations";
 import { DonationFilters } from "@/components/finance/DonationFilters";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { format } from "date-fns";
-
 import type { FilterValues } from "@/components/finance/DonationFilters";
-
 export default function Donations() {
   const [activeTab, setActiveTab] = useState("all");
   const [filterValues, setFilterValues] = useState<FilterValues>({});
   const navigate = useNavigate();
-
   const filteredDonations = mockDonations.filter(donation => {
     if (filterValues.startDate && new Date(donation.date) < filterValues.startDate) return false;
     if (filterValues.endDate && new Date(donation.date) > filterValues.endDate) return false;
     if (filterValues.paymentMethod && donation.paymentMethod !== filterValues.paymentMethod) return false;
-    
+
     // Handle amount filtering
     if (filterValues.amountCondition) {
       if (filterValues.amountCondition === "lt" && donation.amount >= (filterValues.amountValue || 0)) {
@@ -40,49 +30,31 @@ export default function Donations() {
         return false;
       }
       if (filterValues.amountCondition === "between") {
-        if (donation.amount < (filterValues.amountValue || 0) || 
-            donation.amount > (filterValues.amountMax || Infinity)) {
+        if (donation.amount < (filterValues.amountValue || 0) || donation.amount > (filterValues.amountMax || Infinity)) {
           return false;
         }
       }
     }
-    
     return true;
   });
-
   const handleFilterChange = (filters: FilterValues) => {
     setFilterValues(filters);
     // Here you could update URL parameters if needed
     // For example: updateUrlParams(filters);
   };
-
   const handleExport = () => {
     const headers = ['Date', 'Donor', 'Type', 'Amount', 'Fund', 'Payment Method', 'Observation'];
-    const csvContent = [
-      headers.join(','),
-      ...filteredDonations.map(d => 
-        [
-          format(new Date(d.date), 'yyyy-MM-dd'),
-          d.donor,
-          d.donorType,
-          d.amount,
-          d.fund,
-          d.paymentMethod,
-          d.observation || ''
-        ].map(value => `"${value}"`).join(',')
-      )
-    ].join('\n');
-    
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const csvContent = [headers.join(','), ...filteredDonations.map(d => [format(new Date(d.date), 'yyyy-MM-dd'), d.donor, d.donorType, d.amount, d.fund, d.paymentMethod, d.observation || ''].map(value => `"${value}"`).join(','))].join('\n');
+    const blob = new Blob([csvContent], {
+      type: 'text/csv'
+    });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `donations_${format(new Date(), 'yyyy-MM-dd')}.csv`;
     a.click();
   };
-
-  return (
-    <div className="container mx-auto py-6 space-y-6">
+  return <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Donations</h1>
@@ -91,10 +63,7 @@ export default function Donations() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => {}}>
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
+          
           <Button onClick={() => navigate("/finance/donations/new")}>
             <DollarSign className="h-4 w-4 mr-2" />
             Add Donation
@@ -103,24 +72,9 @@ export default function Donations() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <StatsCard
-          title="Total Donations"
-          value="$24,560.00"
-          description="+12.5% from last month"
-          icon={<DollarSign className="h-4 w-4" />}
-        />
-        <StatsCard
-          title="Donations This Month"
-          value="$3,240.00"
-          description="42 donations"
-          icon={<CreditCard className="h-4 w-4" />}
-        />
-        <StatsCard
-          title="Average Donation"
-          value="$78.50"
-          description="Per donation"
-          icon={<PiggyBank className="h-4 w-4" />}
-        />
+        <StatsCard title="Total Donations" value="$24,560.00" description="+12.5% from last month" icon={<DollarSign className="h-4 w-4" />} />
+        <StatsCard title="Donations This Month" value="$3,240.00" description="42 donations" icon={<CreditCard className="h-4 w-4" />} />
+        <StatsCard title="Average Donation" value="$78.50" description="Per donation" icon={<PiggyBank className="h-4 w-4" />} />
       </div>
 
       <ChartCard title="Donations Track">
@@ -152,27 +106,20 @@ export default function Donations() {
           </TabsContent>
           <TabsContent value="recent" className="border rounded-md mt-6">
             <div className="p-4">
-              <DonationTable 
-                donations={filteredDonations.slice(0, 3)} 
-              />
+              <DonationTable donations={filteredDonations.slice(0, 3)} />
             </div>
           </TabsContent>
           <TabsContent value="recurring" className="border rounded-md mt-6">
             <div className="p-4">
-              <DonationTable 
-                donations={filteredDonations.filter(d => d.observation?.includes('Monthly'))} 
-              />
+              <DonationTable donations={filteredDonations.filter(d => d.observation?.includes('Monthly'))} />
             </div>
           </TabsContent>
           <TabsContent value="special" className="border rounded-md mt-6">
             <div className="p-4">
-              <DonationTable 
-                donations={filteredDonations.filter(d => d.fund === 'Building' || d.fund === 'Community Outreach')} 
-              />
+              <DonationTable donations={filteredDonations.filter(d => d.fund === 'Building' || d.fund === 'Community Outreach')} />
             </div>
           </TabsContent>
         </Tabs>
       </ChartCard>
-    </div>
-  );
+    </div>;
 }
