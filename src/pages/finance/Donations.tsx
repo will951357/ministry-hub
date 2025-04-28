@@ -9,7 +9,7 @@ import { StatsCard } from "@/components/dashboard/StatsCard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { DonationTable } from "@/components/finance/DonationTable";
 import { mockDonations } from "@/data/donations";
-import { DonationFilters } from "@/components/finance/DonationFilters"; // Add this import
+import { DonationFilters } from "@/components/finance/DonationFilters";
 import {
   Dialog,
   DialogContent,
@@ -27,13 +27,13 @@ import {
 import { format } from "date-fns";
 import { DatePicker } from "@/components/ui/date-picker";
 
+// Import the FilterValues type from the DonationFilters component to ensure type consistency
+import type { FilterValues } from "@/components/finance/DonationFilters";
+
 export default function Donations() {
   const [activeTab, setActiveTab] = useState("all");
-  const [filterValues, setFilterValues] = useState({
-    startDate: undefined,
-    endDate: undefined,
-    paymentMethod: undefined,
-  });
+  // Update the state to match the FilterValues type from DonationFilters
+  const [filterValues, setFilterValues] = useState<FilterValues>({});
   const navigate = useNavigate();
 
   const filteredDonations = mockDonations.filter(donation => {
@@ -42,6 +42,11 @@ export default function Donations() {
     if (filterValues.paymentMethod && donation.paymentMethod !== filterValues.paymentMethod) return false;
     return true;
   });
+
+  // Create a handler function that matches what DonationFilters expects
+  const handleFilterChange = (filters: FilterValues) => {
+    setFilterValues(filters);
+  };
 
   const handleExport = () => {
     // Headers for the CSV
@@ -120,7 +125,8 @@ export default function Donations() {
             </div>
 
             <div className='flex gap-4'>
-              <DonationFilters onFilterChange={setFilterValues} />
+              {/* Pass the proper handler function to match the expected type */}
+              <DonationFilters onFilterChange={handleFilterChange} />
               <Button variant="outline" size="sm" onClick={handleExport}>
                 <Download className="h-4 w-4 mr-2" />
                 Export

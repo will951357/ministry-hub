@@ -23,7 +23,8 @@ type ActiveFilter = {
   label: string;
 };
 
-interface FilterValues {
+// Export the interface so it can be imported in Donations.tsx
+export interface FilterValues {
   startDate?: Date;
   endDate?: Date;
   paymentMethod?: string;
