@@ -71,7 +71,7 @@ export default function Donations() {
             </Button>
           </div>
           
-          <Button onClick={() => navigate("/finance/donations/new")}>
+          <Button size="sm" onClick={() => navigate("/finance/donations/new")}>
             <DollarSign className="h-4 w-4 mr-2" />
             Add Donation
           </Button>
