@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Download, Filter, ArrowUpRight, ArrowDownRight, Calendar, Clock, Plus, Receipt } from "lucide-react";
@@ -14,16 +15,74 @@ import { BudgetVsActualChart } from "@/components/finance/BudgetVsActualChart";
 import { BudgetUsageByCategory } from "@/components/finance/BudgetUsageByCategory";
 import { FundBalanceChart } from "@/components/finance/FundBalanceChart";
 import { BudgetTable } from "@/components/finance/BudgetTable";
+import { DataFilters, type FilterValues } from "@/components/shared/DataFilters";
 
 export default function Accounting() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [timeRange, setTimeRange] = useState("this-month");
   const [selectedMonth, setSelectedMonth] = useState("april-2025");
+  const [filterValues, setFilterValues] = useState<FilterValues>({});
 
   const handleExport = (format: string) => {
     toast.success(`Financial report exported as ${format.toUpperCase()}`, {
       description: "Your file is ready to download"
     });
+  };
+
+  const filterOptions = [
+    {
+      id: "date",
+      type: "date" as const,
+      label: "Date",
+      description: "Filter by transaction date"
+    },
+    {
+      id: "category",
+      type: "payment" as const,
+      label: "Category",
+      description: "Filter by transaction category"
+    },
+    {
+      id: "amount",
+      type: "amount" as const,
+      label: "Amount",
+      description: "Filter by transaction amount"
+    }
+  ];
+
+  const categoryOptions = [
+    {
+      value: "Worship",
+      label: "Worship"
+    },
+    {
+      value: "Missions",
+      label: "Missions"
+    },
+    {
+      value: "Building",
+      label: "Building"
+    },
+    {
+      value: "Admin",
+      label: "Admin"
+    },
+    {
+      value: "Tithes",
+      label: "Tithes"
+    },
+    {
+      value: "Education",
+      label: "Education"
+    },
+    {
+      value: "Youth",
+      label: "Youth"
+    }
+  ];
+
+  const handleFilterChange = (filters: FilterValues) => {
+    setFilterValues(filters);
   };
 
   return <div className="container mx-auto py-6 space-y-6">
@@ -179,10 +238,6 @@ export default function Accounting() {
                 <CardDescription>Recent financial activity</CardDescription>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm">
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filter
-                </Button>
                 <Button asChild variant="outline" size="sm">
                   <Link to="/finance/expenses/new">
                     <Receipt className="h-4 w-4 mr-2" />
@@ -192,6 +247,11 @@ export default function Accounting() {
               </div>
             </CardHeader>
             <CardContent>
+              <DataFilters 
+                onFilterChange={handleFilterChange} 
+                filterOptions={filterOptions} 
+                paymentMethods={categoryOptions} 
+              />
               <TransactionTable />
             </CardContent>
           </Card>
