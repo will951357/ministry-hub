@@ -11,7 +11,7 @@ import { mockDonations } from "@/data/donations";
 import { DonationFilters } from "@/components/finance/DonationFilters";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { format } from "date-fns";
-import type { FilterValues } from "@/components/finance/DonationFilters";
+import { DataFilters, type FilterValues } from "@/components/shared/DataFilters";
 
 export default function Donations() {
   const [activeTab, setActiveTab] = useState("all");
@@ -73,6 +73,19 @@ export default function Donations() {
     a.click();
   };
 
+  const filterOptions = [
+    { id: "date", type: "date" as const, label: "Date", description: "Filter by donation date" },
+    { id: "payment", type: "payment" as const, label: "Payment Method", description: "Filter by payment method" },
+    { id: "amount", type: "amount" as const, label: "Amount", description: "Filter by donation amount" }
+  ];
+
+  const paymentMethods = [
+    { value: "Credit Card", label: "Credit Card" },
+    { value: "Cash", label: "Cash" },
+    { value: "Bank Transfer", label: "Bank Transfer" },
+    { value: "Check", label: "Check" }
+  ];
+
   return <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
@@ -104,7 +117,7 @@ export default function Donations() {
       </div>
 
       <ChartCard title="Donations Track">
-        <Tabs defaultValue="all" onValueChange={setActiveTab} className="w-full">
+        <Tabs defaultValue="all" onValueChange={setActiveTab}>
           <div className='flex flex-col space-y-2'>
             <div className='flex justify-between items-center'>
               <TabsList>
@@ -115,7 +128,11 @@ export default function Donations() {
               </TabsList>
             </div>
             
-            <DonationFilters onFilterChange={handleFilterChange} />
+            <DataFilters 
+              onFilterChange={handleFilterChange}
+              filterOptions={filterOptions}
+              paymentMethods={paymentMethods}
+            />
           </div>
           
           <TabsContent value="all" className="border rounded-md mt-6">

@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { BadgeDollarSign, Download, Filter, Users, TrendingUp, PercentCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,10 +9,12 @@ import { TitheTable } from "@/components/finance/TitheTable";
 import { titheRecords } from "@/data/tithes";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { DataFilters, type FilterValues } from "@/components/shared/DataFilters";
 
 export default function Tithes() {
   const navigate = useNavigate();
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
+  const [filterValues, setFilterValues] = useState<FilterValues>({});
 
   // Calculate statistics
   const lastMonthTithers = 174; // Previous month's count
@@ -52,6 +53,58 @@ export default function Tithes() {
     link.click();
     document.body.removeChild(link);
   };
+
+  const filterOptions = [
+    { id: "date", type: "date" as const, label: "Date", description: "Filter by tithe date" },
+    { id: "payment", type: "payment" as const, label: "Payment Method", description: "Filter by payment method" },
+    { id: "amount", type: "amount" as const, label: "Amount", description: "Filter by tithe amount" }
+  ];
+
+  const paymentMethods = [
+    { value: "Credit Card", label: "Credit Card" },
+    { value: "Cash", label: "Cash" },
+    { value: "Bank Transfer", label: "Bank Transfer" },
+    { value: "Check", label: "Check" }
+  ];
+
+  const handleFilterChange = (filters: FilterValues) => {
+    setFilterValues(filters);
+  };
+
+  const filteredRecords = titheRecords.filter(record => {
+    const recordDate = new Date(record.date);
+
+    // Handle date filtering
+    if (filterValues.dateCondition === "on" && filterValues.startDate) {
+      const filterDate = new Date(filterValues.startDate);
+      if (recordDate.getDate() !== filterDate.getDate() ||
+          recordDate.getMonth() !== filterDate.getMonth() ||
+          recordDate.getFullYear() !== filterDate.getFullYear()) {
+        return false;
+      }
+    } else if (filterValues.dateCondition === "between" && filterValues.startDate && filterValues.endDate) {
+      if (recordDate < filterValues.startDate || recordDate > filterValues.endDate) {
+        return false;
+      }
+    }
+
+    // Handle amount filtering
+    if (filterValues.amountCondition) {
+      if (filterValues.amountCondition === "lt" && record.amount >= (filterValues.amountValue || 0)) {
+        return false;
+      }
+      if (filterValues.amountCondition === "gt" && record.amount <= (filterValues.amountValue || 0)) {
+        return false;
+      }
+      if (filterValues.amountCondition === "between") {
+        if (record.amount < (filterValues.amountValue || 0) || record.amount > (filterValues.amountMax || Infinity)) {
+          return false;
+        }
+      }
+    }
+
+    return selectedStatus === "all" || record.status === selectedStatus;
+  });
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -99,31 +152,37 @@ export default function Tithes() {
 
       <ChartCard title="Tithe Tracking">
         <Tabs defaultValue="all" onValueChange={setSelectedStatus}>
-          <div className="flex justify-between">
-            <div>
+          <div className="flex flex-col space-y-4">
+            <div className="flex justify-between">
               <TabsList className="mb-4">
                 <TabsTrigger value="all">All Members</TabsTrigger>
                 <TabsTrigger value="consistent">Consistent</TabsTrigger>
                 <TabsTrigger value="irregular">Irregular</TabsTrigger>
                 <TabsTrigger value="new">New Tithers</TabsTrigger>
               </TabsList>
+
+              <div className="flex gap-4">
+                <Button variant="outline" size="sm" onClick={() => setSelectedStatus("all")}>
+                  <Filter className="h-4 w-4 mr-2" />
+                  Reset Filter
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleExport}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
+              </div>
             </div>
 
-            <div className="flex gap-4">
-              <Button variant="outline" size="sm" onClick={() => setSelectedStatus("all")}>
-                <Filter className="h-4 w-4 mr-2" />
-                Reset Filter
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleExport}>
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-            </div>
+            <DataFilters 
+              onFilterChange={handleFilterChange}
+              filterOptions={filterOptions}
+              paymentMethods={paymentMethods}
+            />
           </div>
 
           <TabsContent value="all" className="border rounded-md">
             <div className="p-4">
-              <TitheTable records={titheRecords} />
+              <TitheTable records={filteredRecords} />
             </div>
           </TabsContent>
           <TabsContent value="consistent" className="border rounded-md">
