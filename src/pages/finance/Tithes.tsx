@@ -107,7 +107,15 @@ export default function Tithes() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={() => navigate("/finance/tithes/new")}>
+          
+          <div className='flex gap-4 items-center'>
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+          </div>
+          
+          <Button size="sm" onClick={() => navigate("/finance/tithes/new")}>
             <BadgeDollarSign className="h-4 w-4 mr-2" />
             Record Tithe
           </Button>
@@ -131,14 +139,6 @@ export default function Tithes() {
                 <TabsTrigger value="irregular">Irregular</TabsTrigger>
                 <TabsTrigger value="new">New Tithers</TabsTrigger>
               </TabsList>
-
-              <div className="flex gap-4">
-                
-                <Button variant="outline" size="sm" onClick={handleExport}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Export
-                </Button>
-              </div>
             </div>
 
             <DataFilters onFilterChange={handleFilterChange} filterOptions={filterOptions} paymentMethods={paymentMethods} />
