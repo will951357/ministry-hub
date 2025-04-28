@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { 
   Card,
@@ -18,8 +19,11 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
+import { useNavigate } from "react-router-dom";
 
 export default function Funds() {
+  const navigate = useNavigate();
+  
   const funds = [
     {
       id: 1,
@@ -64,7 +68,7 @@ export default function Funds() {
             Manage special funds and campaigns
           </p>
         </div>
-        <Button>
+        <Button onClick={() => navigate("/finance/funds/new")}>
           <Plus className="h-4 w-4 mr-2" />
           Create New Fund
         </Button>

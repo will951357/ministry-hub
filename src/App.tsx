@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -38,6 +39,7 @@ import Calendar from "./pages/Calendar";
 import { CreateEvent } from "./pages/events/CreateEvent";
 import DonationForm from "./pages/finance/DonationForm";
 import TitheForm from "./pages/finance/TitheForm";
+import FundForm from "./pages/finance/FundForm";
 
 const queryClient = new QueryClient();
 
@@ -80,6 +82,7 @@ const App = () => (
             <Route path="tithes" element={<Tithes />} />
             <Route path="tithes/new" element={<TitheForm />} />
             <Route path="funds" element={<Funds />} />
+            <Route path="funds/new" element={<FundForm />} />
             <Route path="accounting" element={<Accounting />} />
             <Route path="expenses/new" element={<ExpenseForm />} />
           </Route>

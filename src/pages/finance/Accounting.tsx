@@ -15,16 +15,23 @@ import { BudgetUsageByCategory } from "@/components/finance/BudgetUsageByCategor
 import { FundBalanceChart } from "@/components/finance/FundBalanceChart";
 import { BudgetTable } from "@/components/finance/BudgetTable";
 import { DataFilters, type FilterValues } from "@/components/shared/DataFilters";
+
 export default function Accounting() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [timeRange, setTimeRange] = useState("this-month");
   const [selectedMonth, setSelectedMonth] = useState("april-2025");
   const [filterValues, setFilterValues] = useState<FilterValues>({});
+
+  const handleExportClick = (event: React.MouseEvent<HTMLButtonElement>, format: string) => {
+    console.log(`Exporting in ${format} format`);
+  };
+
   const handleExport = (format: string) => {
     toast.success(`Financial report exported as ${format.toUpperCase()}`, {
       description: "Your file is ready to download"
     });
   };
+
   const filterOptions = [{
     id: "date",
     type: "date" as const,
@@ -41,6 +48,7 @@ export default function Accounting() {
     label: "Amount",
     description: "Filter by transaction amount"
   }];
+
   const categoryOptions = [{
     value: "Worship",
     label: "Worship"
@@ -63,9 +71,11 @@ export default function Accounting() {
     value: "Youth",
     label: "Youth"
   }];
+
   const handleFilterChange = (filters: FilterValues) => {
     setFilterValues(filters);
   };
+
   return <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
@@ -77,7 +87,7 @@ export default function Accounting() {
         <div className="flex items-center gap-2">
           
           <div className='flex gap-4 items-center'>
-            <Button variant="outline" size="sm" onClick={handleExport}>
+            <Button variant="outline" size="sm" onClick={(e) => handleExportClick(e, "csv")}>
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
