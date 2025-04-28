@@ -133,7 +133,7 @@ export default function Tithes() {
         <Tabs defaultValue="all" onValueChange={setSelectedStatus}>
           <div className="flex flex-col">
             <div className="flex justify-between">
-              <TabsList className="mb-4">
+              <TabsList className="mb-2">
                 <TabsTrigger value="all">All Members</TabsTrigger>
                 <TabsTrigger value="consistent">Consistent</TabsTrigger>
                 <TabsTrigger value="irregular">Irregular</TabsTrigger>
