@@ -28,6 +28,7 @@ import Finance from "./pages/Finance";
 import Donations from "./pages/finance/Donations";
 import Tithes from "./pages/finance/Tithes";
 import Funds from "./pages/finance/Funds";
+import FundDetails from "./pages/finance/FundDetails";
 import Accounting from "./pages/finance/Accounting";
 import AppMember from "./pages/AppMember";
 import Blog from "./pages/app-member/Blog";
@@ -83,6 +84,7 @@ const App = () => (
             <Route path="tithes/new" element={<TitheForm />} />
             <Route path="funds" element={<Funds />} />
             <Route path="funds/new" element={<FundForm />} />
+            <Route path="funds/:id" element={<FundDetails />} />
             <Route path="accounting" element={<Accounting />} />
             <Route path="expenses/new" element={<ExpenseForm />} />
           </Route>

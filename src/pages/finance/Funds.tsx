@@ -20,44 +20,10 @@ import { Badge } from "@/components/ui/badge";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { useNavigate } from "react-router-dom";
+import { funds } from "@/data/funds";
 
 export default function Funds() {
   const navigate = useNavigate();
-  
-  const funds = [
-    {
-      id: 1,
-      name: "Building Fund",
-      current: 245600,
-      goal: 500000,
-      progress: 49,
-      status: "active"
-    },
-    {
-      id: 2,
-      name: "Mission Trip",
-      current: 12300,
-      goal: 25000,
-      progress: 49,
-      status: "active"
-    },
-    {
-      id: 3,
-      name: "Youth Ministry",
-      current: 8750,
-      goal: 10000,
-      progress: 87.5,
-      status: "active"
-    },
-    {
-      id: 4,
-      name: "Christmas Outreach",
-      current: 5000,
-      goal: 15000,
-      progress: 33.3,
-      status: "upcoming"
-    }
-  ];
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -123,7 +89,11 @@ export default function Funds() {
               </div>
               
               <div className="flex justify-between mt-4 pt-2 border-t">
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate(`/finance/funds/${fund.id}`)}
+                >
                   <BarChart3 className="h-4 w-4 mr-2" />
                   View Details
                 </Button>

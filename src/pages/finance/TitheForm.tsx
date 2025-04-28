@@ -1,4 +1,3 @@
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -14,7 +13,6 @@ import { ArrowLeft, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
-// Get unique members from existing tithe records
 const membersList = [...new Set(titheRecords.map(record => record.memberName))];
 
 const formSchema = z.object({
@@ -55,13 +53,11 @@ export default function TitheForm() {
     navigate("/finance/tithes");
   }
 
-  // Filter members based on search term
   const filteredMembers = searchTerm 
     ? membersList.filter(member =>
         member.toLowerCase().includes(searchTerm.toLowerCase()))
     : membersList;
 
-  // Handle selecting a member from suggestions
   const handleSelectMember = (member: string) => {
     form.setValue("memberName", member);
     setSearchTerm(member);
@@ -89,7 +85,6 @@ export default function TitheForm() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Member Name */}
               <FormField
                 control={form.control}
                 name="memberName"
@@ -141,7 +136,6 @@ export default function TitheForm() {
                 )}
               />
 
-              {/* Amount */}
               <FormField
                 control={form.control}
                 name="amount"
@@ -156,7 +150,6 @@ export default function TitheForm() {
                 )}
               />
 
-              {/* Frequency */}
               <SelectField
                 control={form.control}
                 name="frequency"
@@ -165,10 +158,8 @@ export default function TitheForm() {
                 options={["weekly", "monthly", "quarterly", "yearly", "one-time"]}
               />
 
-              {/* Date */}
-              <DateField control={form.control} />
+              <DateField control={form.control} name="date" />
 
-              {/* Notes (full width) */}
               <FormField
                 control={form.control}
                 name="notes"

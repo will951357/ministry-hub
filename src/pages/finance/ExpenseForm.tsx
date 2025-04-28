@@ -1,4 +1,3 @@
-
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -83,7 +82,7 @@ export default function ExpenseForm() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Line 1: Date, Amount, and Payment Method */}
             <div className="grid gap-4 md:grid-cols-3">
-              <DateField control={form.control} />
+              <DateField control={form.control} name="date" />
               <AmountField control={form.control} />
               <SelectField
                 control={form.control}
