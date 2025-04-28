@@ -195,7 +195,6 @@ export default function Accounting() {
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>Transaction Log</CardTitle>
-                <CardDescription>Recent financial activity</CardDescription>
               </div>
               <div className="flex gap-2">
                 <Button asChild variant="outline" size="sm">
