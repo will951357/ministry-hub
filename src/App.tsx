@@ -25,6 +25,8 @@ import Groups from "./pages/Groups";
 import GroupDetails from "./pages/groups/GroupDetails";
 import CreateGroup from "./pages/groups/CreateGroup";
 import Learning from "./pages/groups/Learning";
+import CreateCourse from "./pages/groups/CreateCourse";
+import AddClass from "./pages/groups/AddClass";
 import CourseEdit from "./pages/groups/CourseEdit";
 import Events from "./pages/Events";
 import Finance from "./pages/Finance";
@@ -107,8 +109,10 @@ const App = () => (
           <Route path="/groups/create" element={<CreateGroup />} />
           <Route path="/groups/:id" element={<GroupDetails />} />
           <Route path="/groups/learning" element={<Learning />} />
-          <Route path="/groups/learning/class/:courseId/:classId" element={<ClassDetails />} />
+          <Route path="/groups/learning/create" element={<CreateCourse />} />
+          <Route path="/groups/learning/add-class/:courseId" element={<AddClass />} />
           <Route path="/groups/learning/edit/:courseId" element={<CourseEdit />} />
+          <Route path="/groups/learning/class/:courseId/:classId" element={<ClassDetails />} />
           <Route path="/events" element={<Events />} />
           <Route path="/events/create" element={<CreateEvent />} />
           <Route path="/events/edit/:eventId" element={<CreateEvent />} />

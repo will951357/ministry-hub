@@ -1,25 +1,16 @@
 import { useState } from "react";
-import * as React from "react"; // Added explicit React import to resolve UMD global errors
+import * as React from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, Book, FileText, Award, UserCheck, Filter, Bell, Search, ChevronDown, ChevronRight, Eye, Edit as EditIcon } from "lucide-react";
+import { Plus, Users, Book, FileText, Award, Filter, Bell, Search, ChevronDown, Eye, Edit as EditIcon } from "lucide-react";
 import { CalendarIcon } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 
@@ -321,68 +312,12 @@ export const coursesData: Course[] = [
   }
 ];
 
-interface CourseFormValues {
-  name: string;
-  description: string;
-  targetAudience: "Kids" | "Young" | "Adult";
-  certificateType: string;
-  maxApplicants: number;
-  minGrade: number;
-  startDate: Date | undefined;
-  endDate: Date | undefined;
-  registrationStartDate: Date | undefined;
-  registrationEndDate: Date | undefined;
-  responsibleMembers: number[];
-}
-
-interface ClassFormValues {
-  subject: string;
-  date: Date | undefined;
-  sideMaterial: string;
-  description: string;
-  teacher: string;
-}
-
 export default function Learning() {
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isAddClassDialogOpen, setIsAddClassDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
   const [selectedCourses, setSelectedCourses] = useState<number[]>([]);
   const [isCourseSelectMode, setIsCourseSelectMode] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [expandedCourses, setExpandedCourses] = useState<number[]>([]);
-  const [selectedClass, setSelectedClass] = useState<Class | null>(null);
-  const [isClassDetailsOpen, setIsClassDetailsOpen] = useState(false);
-  const [isEditCourseDialogOpen, setIsEditCourseDialogOpen] = useState(false);
-  const [courseToEdit, setCourseToEdit] = useState<Course | null>(null);
   const navigate = useNavigate();
-  
-  const form = useForm<CourseFormValues>({
-    defaultValues: {
-      name: "",
-      description: "",
-      targetAudience: "Adult",
-      certificateType: "Standard",
-      maxApplicants: 30,
-      minGrade: 70,
-      startDate: undefined,
-      endDate: undefined,
-      registrationStartDate: undefined,
-      registrationEndDate: undefined,
-      responsibleMembers: []
-    }
-  });
-  
-  const classForm = useForm<ClassFormValues>({
-    defaultValues: {
-      subject: "",
-      date: undefined,
-      sideMaterial: "",
-      description: "",
-      teacher: ""
-    }
-  });
   
   const activeCourses = coursesData.filter(course => course.status === "active");
   const upcomingCourses = coursesData.filter(course => course.status === "upcoming");
@@ -440,55 +375,6 @@ export default function Learning() {
         return 'default';
     }
   };
-  
-  const onSubmit = (data: CourseFormValues) => {
-    toast.success("Course created successfully!");
-    setIsCreateDialogOpen(false);
-    console.log("Form submitted with data:", data);
-  };
-
-  const openAddClassDialog = (course: Course) => {
-    setSelectedCourse(course);
-    setIsAddClassDialogOpen(true);
-  };
-
-  const onAddClass = (data: ClassFormValues) => {
-    if (!selectedCourse || !data.date) return;
-    
-    const formattedDate = format(data.date, "yyyy-MM-dd");
-    
-    const newClass: Class = {
-      id: selectedCourse.classes.length + 1,
-      subject: data.subject,
-      teacher: data.teacher,
-      students: 0,
-      averageGrade: 0,
-      presenceRate: 0,
-      startDate: formattedDate,
-      endDate: formattedDate,
-      status: "scheduled",
-      description: data.description,
-      sideMaterial: data.sideMaterial,
-      lessons: []
-    };
-    
-    selectedCourse.classes.push(newClass);
-    
-    toast.success(`Class "${data.subject}" added to "${selectedCourse.name}"`);
-    
-    setIsAddClassDialogOpen(false);
-    
-    classForm.reset();
-  };
-
-  const toggleMemberSelection = (memberId: number) => {
-    const updatedSelection = selectedMembers.includes(memberId)
-      ? selectedMembers.filter(id => id !== memberId)
-      : [...selectedMembers, memberId];
-    
-    setSelectedMembers(updatedSelection);
-    form.setValue("responsibleMembers", updatedSelection);
-  };
 
   const handleFilter = () => {
     toast.info("Filter functionality coming soon");
@@ -511,27 +397,12 @@ export default function Learning() {
   };
 
   const handleEditCourse = (course: Course) => {
-    setCourseToEdit(course);
-    form.reset({
-      name: course.name,
-      description: course.description,
-      targetAudience: course.targetAudience,
-      certificateType: course.certificateType,
-      maxApplicants: course.maxApplicants,
-      minGrade: course.minAverageGrade,
-      startDate: new Date(course.startDate),
-      endDate: new Date(course.endDate),
-      registrationStartDate: undefined,
-      registrationEndDate: undefined,
-      responsibleMembers: course.responsibleMembers.map(member => member.id)
-    });
-    setIsEditCourseDialogOpen(true);
+    navigate(`/groups/learning/edit/${course.id}`);
   };
 
   const handleQuickAddClass = (course: Course, e: React.MouseEvent) => {
     e.stopPropagation();
-    setSelectedCourse(course);
-    setIsAddClassDialogOpen(true);
+    navigate(`/groups/learning/add-class/${course.id}`);
   };
 
   return (
@@ -544,7 +415,7 @@ export default function Learning() {
               Manage all courses, classes, and learning opportunities.
             </p>
           </div>
-          <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <Button onClick={() => navigate("/groups/learning/create")}>
             <Plus size={16} />
             <span>Create Course</span>
           </Button>
@@ -587,7 +458,7 @@ export default function Learning() {
           </div>
         </div>
 
-        {/* Updated Courses Overview with individual cards */}
+        {/* Courses Overview with individual cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <ChartCard 
             title="Total Courses" 
@@ -672,10 +543,10 @@ export default function Learning() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <div className="flex justify-center gap-1">
+                          <div className="flex justify-center space-x-2">
                             <Button
                               variant="ghost"
-                              size="sm"
+                              size="icon"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleEditCourse(course);
@@ -685,14 +556,14 @@ export default function Learning() {
                             </Button>
                             <Button
                               variant="ghost"
-                              size="sm"
+                              size="icon"
                               onClick={(e) => handleQuickAddClass(course, e)}
                             >
                               <Plus className="h-4 w-4" />
                             </Button>
                             <Button
                               variant="ghost"
-                              size="sm"
+                              size="icon"
                               onClick={() => toggleExpandCourse(course.id)}
                             >
                               <ChevronDown
@@ -771,510 +642,6 @@ export default function Learning() {
           </Card>
         </div>
       </div>
-
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Create New Course</DialogTitle>
-            <DialogDescription>
-              Enter information for the new course
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-4">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Course Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter course name" {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Enter course description" {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="targetAudience"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Target Audience</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select audience" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Kids">Kids</SelectItem>
-                            <SelectItem value="Young">Young</SelectItem>
-                            <SelectItem value="Adult">Adult</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="certificateType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Certificate Type</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select certificate type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Standard">Standard</SelectItem>
-                            <SelectItem value="Advanced">Advanced</SelectItem>
-                            <SelectItem value="Kids">Kids</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="startDate"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Start Date</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "PPP")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              initialFocus
-                              className={cn("p-3 pointer-events-auto")}
-                            />
-                          </PopoverContent>
-                        </Popover>
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="endDate"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>End Date</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "PPP")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              initialFocus
-                              className={cn("p-3 pointer-events-auto")}
-                            />
-                          </PopoverContent>
-                        </Popover>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <div className="flex justify-end gap-2 pt-4">
-                  <Button variant="outline" type="button" onClick={() => setIsCreateDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit">
-                    <Plus size={16} className="mr-1" />
-                    Create Course
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isAddClassDialogOpen} onOpenChange={setIsAddClassDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Add Class</DialogTitle>
-            <DialogDescription>
-              Add a class to {selectedCourse?.name}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-4">
-            <Form {...classForm}>
-              <form onSubmit={classForm.handleSubmit(onAddClass)} className="space-y-4">
-                <FormField
-                  control={classForm.control}
-                  name="subject"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Class Subject</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter class subject" {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={classForm.control}
-                  name="date"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Class Date</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
-                            className={cn("p-3 pointer-events-auto")}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={classForm.control}
-                  name="sideMaterial"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Side Material</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter side material" {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={classForm.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Enter class description" {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={classForm.control}
-                  name="teacher"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Teacher</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter teacher name" {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="flex justify-end gap-2 pt-4">
-                  <Button variant="outline" type="button" onClick={() => setIsAddClassDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit">
-                    <Plus size={16} className="mr-1" />
-                    Add Class
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isClassDetailsOpen} onOpenChange={setIsClassDetailsOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Class Details</DialogTitle>
-            <DialogDescription>
-              {selectedClass?.subject} - {selectedCourse?.name}
-            </DialogDescription>
-          </DialogHeader>
-          
-          {selectedClass && (
-            <div className="space-y-6">
-              {/* Class details */}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-      
-      <Dialog open={isEditCourseDialogOpen} onOpenChange={setIsEditCourseDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Edit Course</DialogTitle>
-            <DialogDescription>
-              Update course information
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-4">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Course Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter course name" {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Enter course description" {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="targetAudience"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Target Audience</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select audience" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Kids">Kids</SelectItem>
-                            <SelectItem value="Young">Young</SelectItem>
-                            <SelectItem value="Adult">Adult</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="certificateType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Certificate Type</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select certificate type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Standard">Standard</SelectItem>
-                            <SelectItem value="Advanced">Advanced</SelectItem>
-                            <SelectItem value="Kids">Kids</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="startDate"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Start Date</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "PPP")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              initialFocus
-                              className={cn("p-3 pointer-events-auto")}
-                            />
-                          </PopoverContent>
-                        </Popover>
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="endDate"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>End Date</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "PPP")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              initialFocus
-                              className={cn("p-3 pointer-events-auto")}
-                            />
-                          </PopoverContent>
-                        </Popover>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <div className="flex justify-end gap-2 pt-4">
-                  <Button variant="outline" type="button" onClick={() => setIsEditCourseDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit">
-                    Save Changes
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </div>
-        </DialogContent>
-      </Dialog>
     </MainLayout>
   );
 }
