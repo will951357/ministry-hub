@@ -37,6 +37,7 @@ interface ClassFormValues {
 interface SessionFormValues {
   title: string;
   description: string;
+  sessionDate: Date | undefined;
   files: FileList | null;
 }
 
@@ -74,7 +75,9 @@ export default function AddClass() {
   ]);
   const [questions, setQuestions] = useState<EvaluationQuestion[]>([]);
   const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
-  const [sessions, setSessions] = useState<{ title: string; description: string; files: string[] }[]>([]);
+  const [sessions, setSessions] = useState<{ title: string; description: string; sessionDate: Date | undefined; files: string[] }[]>([]);
+  const [evaluations, setEvaluations] = useState<{ title: string; description: string; questions: EvaluationQuestion[] }[]>([]);
+  const [currentEvaluationIndex, setCurrentEvaluationIndex] = useState<number | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   
   const classForm = useForm<ClassFormValues>({
@@ -93,6 +96,7 @@ export default function AddClass() {
     defaultValues: {
       title: "",
       description: "",
+      sessionDate: undefined,
       files: null,
     },
   });
@@ -132,33 +136,56 @@ export default function AddClass() {
         {
           title: "Foundations of Faith",
           description: "Understanding the core principles of faith.",
+          sessionDate: new Date(new Date().setDate(new Date().getDate() + 7)),
           files: ["foundations.pdf", "reading_list.docx"]
         },
         {
           title: "Scripture Study Methods",
           description: "Learning effective methods for scripture study.",
+          sessionDate: new Date(new Date().setDate(new Date().getDate() + 14)),
           files: ["study_guide.pdf"]
         }
       ]);
       
-      // Mock questions data
-      setQuestions([
+      // Mock evaluations data
+      setEvaluations([
         {
-          question: "Which of the following is a book in the New Testament?",
-          choices: [
-            { text: "Exodus", isCorrect: false },
-            { text: "Matthew", isCorrect: true },
-            { text: "Isaiah", isCorrect: false },
-            { text: "Psalms", isCorrect: false }
+          title: "Midterm Assessment",
+          description: "Evaluation of basic theological concepts",
+          questions: [
+            {
+              question: "Which of the following is a book in the New Testament?",
+              choices: [
+                { text: "Exodus", isCorrect: false },
+                { text: "Matthew", isCorrect: true },
+                { text: "Isaiah", isCorrect: false },
+                { text: "Psalms", isCorrect: false }
+              ]
+            },
+            {
+              question: "Who wrote most of the epistles in the New Testament?",
+              choices: [
+                { text: "Peter", isCorrect: false },
+                { text: "John", isCorrect: false },
+                { text: "Paul", isCorrect: true },
+                { text: "James", isCorrect: false }
+              ]
+            }
           ]
         },
         {
-          question: "Who wrote most of the epistles in the New Testament?",
-          choices: [
-            { text: "Peter", isCorrect: false },
-            { text: "John", isCorrect: false },
-            { text: "Paul", isCorrect: true },
-            { text: "James", isCorrect: false }
+          title: "Final Assessment",
+          description: "Comprehensive evaluation of the course material",
+          questions: [
+            {
+              question: "What is the first book of the Bible?",
+              choices: [
+                { text: "Exodus", isCorrect: false },
+                { text: "Genesis", isCorrect: true },
+                { text: "Leviticus", isCorrect: false },
+                { text: "Numbers", isCorrect: false }
+              ]
+            }
           ]
         }
       ]);
@@ -186,6 +213,7 @@ export default function AddClass() {
     setSessions([...sessions, {
       title: data.title,
       description: data.description,
+      sessionDate: data.sessionDate,
       files: fileNames,
     }]);
     
@@ -243,13 +271,60 @@ export default function AddClass() {
   };
 
   const onSubmitEvaluation = () => {
-    console.log("Evaluation saved:", { 
+    const evaluationData = { 
       title: evaluationForm.getValues("title"), 
       description: evaluationForm.getValues("description"), 
-      questions 
+      questions: [...questions]
+    };
+
+    if (!evaluationData.title) {
+      toast.error("Please enter an evaluation title");
+      return;
+    }
+
+    if (questions.length === 0) {
+      toast.error("Please add at least one question");
+      return;
+    }
+
+    if (currentEvaluationIndex !== null) {
+      // Update existing evaluation
+      const updatedEvaluations = [...evaluations];
+      updatedEvaluations[currentEvaluationIndex] = evaluationData;
+      setEvaluations(updatedEvaluations);
+      toast.success("Evaluation updated");
+    } else {
+      // Add new evaluation
+      setEvaluations([...evaluations, evaluationData]);
+      toast.success("Evaluation added");
+    }
+    
+    // Reset form
+    evaluationForm.reset();
+    setQuestions([]);
+    setCurrentEvaluationIndex(null);
+  };
+
+  const editEvaluation = (index: number) => {
+    const evaluation = evaluations[index];
+    evaluationForm.reset({
+      title: evaluation.title,
+      description: evaluation.description
     });
-    toast.success("Evaluation saved");
-    setActiveTab("students");
+    setQuestions([...evaluation.questions]);
+    setCurrentEvaluationIndex(index);
+  };
+
+  const removeEvaluation = (index: number) => {
+    const updatedEvaluations = [...evaluations];
+    updatedEvaluations.splice(index, 1);
+    setEvaluations(updatedEvaluations);
+  };
+
+  const cancelEditEvaluation = () => {
+    evaluationForm.reset();
+    setQuestions([]);
+    setCurrentEvaluationIndex(null);
   };
 
   const toggleStudentSelection = (studentId: number) => {
@@ -556,6 +631,45 @@ export default function AddClass() {
                     
                     <FormField
                       control={sessionForm.control}
+                      name="sessionDate"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Session Date</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant={"outline"}
+                                  className={cn(
+                                    "w-full pl-3 text-left font-normal",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value ? (
+                                    format(field.value, "PPP")
+                                  ) : (
+                                    <span>Pick a date</span>
+                                  )}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                initialFocus
+                                className={cn("p-3 pointer-events-auto")}
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={sessionForm.control}
                       name="description"
                       render={({ field }) => (
                         <FormItem>
@@ -603,6 +717,7 @@ export default function AddClass() {
                         <TableHeader>
                           <TableRow>
                             <TableHead>Title</TableHead>
+                            <TableHead>Date</TableHead>
                             <TableHead>Summary</TableHead>
                             <TableHead>Supporting Files</TableHead>
                           </TableRow>
@@ -611,6 +726,7 @@ export default function AddClass() {
                           {sessions.map((session, index) => (
                             <TableRow key={index}>
                               <TableCell className="font-medium">{session.title}</TableCell>
+                              <TableCell>{session.sessionDate ? format(session.sessionDate, "PPP") : "No date set"}</TableCell>
                               <TableCell>{session.description}</TableCell>
                               <TableCell>
                                 {session.files.length > 0 ? (
@@ -651,7 +767,9 @@ export default function AddClass() {
               <TabsContent value="evaluations" className="space-y-6">
                 <Form {...evaluationForm}>
                   <div className="space-y-4 border rounded-md p-4 bg-muted/30">
-                    <h3 className="font-medium">Create Evaluation</h3>
+                    <h3 className="font-medium">
+                      {currentEvaluationIndex !== null ? "Edit Evaluation" : "Create Evaluation"}
+                    </h3>
                     
                     <FormField
                       control={evaluationForm.control}
@@ -714,35 +832,29 @@ export default function AddClass() {
                       
                       <div className="flex justify-end pt-2">
                         <Button type="button" onClick={addQuestion}>
-                          <Plus size={16} /> Add Question
+                          Add Question
                         </Button>
                       </div>
                     </div>
-                  </div>
-                </Form>
-                
-                {questions.length > 0 ? (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Questions</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ScrollArea className="h-[300px]">
-                        <div className="space-y-4">
+
+                    {questions.length > 0 && (
+                      <div className="space-y-4 border-t pt-4 mt-4">
+                        <h4 className="font-medium">Questions for this evaluation</h4>
+                        <div className="space-y-3">
                           {questions.map((q, index) => (
-                            <div key={index} className="p-4 border rounded-md space-y-3">
+                            <div key={index} className="p-3 border rounded-md space-y-2">
                               <div className="flex items-start justify-between">
-                                <div className="font-medium text-lg">{q.question}</div>
+                                <div className="font-medium">{q.question}</div>
                                 <Button 
                                   variant="ghost" 
                                   size="sm" 
                                   onClick={() => removeQuestion(index)}
-                                  className="mt-[-4px]"
+                                  className="h-6 w-6 p-0"
                                 >
                                   <X size={16} />
                                 </Button>
                               </div>
-                              <div className="pl-4 space-y-2">
+                              <div className="pl-3 space-y-1 text-sm">
                                 {q.choices.map((choice, choiceIndex) => (
                                   <div key={choiceIndex} className="flex items-center gap-2">
                                     <div className={cn(
@@ -753,7 +865,7 @@ export default function AddClass() {
                                     </div>
                                     <div>{choice.text}</div>
                                     {choice.isCorrect && (
-                                      <Badge className="ml-2 bg-green-100 text-green-800 hover:bg-green-100">
+                                      <Badge className="ml-1 bg-green-100 text-green-800 hover:bg-green-100">
                                         Correct
                                       </Badge>
                                     )}
@@ -763,20 +875,69 @@ export default function AddClass() {
                             </div>
                           ))}
                         </div>
-                      </ScrollArea>
+                      </div>
+                    )}
+                    
+                    <div className="pt-4 flex justify-end gap-2">
+                      {currentEvaluationIndex !== null && (
+                        <Button type="button" variant="outline" onClick={cancelEditEvaluation}>
+                          Cancel
+                        </Button>
+                      )}
+                      <Button type="button" onClick={onSubmitEvaluation}>
+                        {currentEvaluationIndex !== null ? "Update Evaluation" : "Add Evaluation"}
+                      </Button>
+                    </div>
+                  </div>
+                </Form>
+                
+                {evaluations.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Evaluations</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {evaluations.map((evaluation, index) => (
+                          <div key={index} className="border rounded-md p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <div>
+                                <h3 className="text-lg font-medium">{evaluation.title}</h3>
+                                <p className="text-sm text-muted-foreground">{evaluation.description}</p>
+                              </div>
+                              <div className="flex gap-2">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  onClick={() => editEvaluation(index)}
+                                >
+                                  Edit
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  onClick={() => removeEvaluation(index)}
+                                  className="text-red-500 hover:text-red-700"
+                                >
+                                  Remove
+                                </Button>
+                              </div>
+                            </div>
+                            <div className="text-sm">
+                              <span className="text-muted-foreground">{evaluation.questions.length} questions</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </CardContent>
                   </Card>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No questions added yet
-                  </div>
                 )}
                 
                 <div className="pt-6 flex justify-end gap-2">
                   <Button variant="outline" onClick={() => setActiveTab("sessions")}>
                     Back
                   </Button>
-                  <Button onClick={onSubmitEvaluation}>
+                  <Button onClick={() => setActiveTab("students")}>
                     Continue
                   </Button>
                 </div>
@@ -841,3 +1002,4 @@ export default function AddClass() {
     </MainLayout>
   );
 }
+
