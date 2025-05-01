@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Plus, CalendarIcon, FileText, Users, Edit, X, Check } from "lucide-react";
+import { Plus, CalendarIcon, FileText, Users, Edit, X, Check, User, Award } from "lucide-react";
 import { coursesData, membersData } from "./Learning";
 import { format } from "date-fns";
 import { useState } from "react";
@@ -21,6 +21,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface QuestionChoice {
   text: string;
@@ -43,6 +44,26 @@ interface Session {
   description: string;
   sessionDate: Date;
   files: string[];
+}
+
+// Extended member interface to include grades and attendance
+interface StudentDetail {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  avatar: string;
+  attendance: number;
+  averageGrade: number;
+  evaluationGrades: {
+    evaluationId: number;
+    title: string;
+    grade: number;
+  }[];
+  sessionAttendance: {
+    sessionId: number;
+    attended: boolean;
+  }[];
 }
 
 const ClassDetails = () => {
@@ -106,6 +127,26 @@ const ClassDetails = () => {
       ]
     }
   ]);
+
+  // Mock student data with attendance and grades
+  const [students, setStudents] = useState<StudentDetail[]>(
+    membersData.slice(0, 5).map((member, index) => ({
+      ...member,
+      attendance: Math.floor(Math.random() * 30) + 70, // Random attendance between 70-100%
+      averageGrade: Math.floor(Math.random() * 30) + 70, // Random grade between 70-100
+      evaluationGrades: [
+        {
+          evaluationId: 1,
+          title: "Midterm Assessment",
+          grade: Math.floor(Math.random() * 30) + 70
+        }
+      ],
+      sessionAttendance: sessions.map((session, sIndex) => ({
+        sessionId: sIndex + 1,
+        attended: Math.random() > 0.2 // 80% chance of attendance
+      }))
+    }))
+  );
 
   // Setup forms
   const generalForm = useForm({
@@ -282,6 +323,56 @@ const ClassDetails = () => {
     toast.success(`${selectedStudents.length} students enrolled`);
   };
 
+  // New function to get initial letter from name for avatar fallback
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  };
+
+  // Function to update student attendance 
+  const toggleStudentAttendance = (studentId: number, sessionId: number) => {
+    setStudents(prevStudents => 
+      prevStudents.map(student => 
+        student.id === studentId
+          ? {
+              ...student,
+              sessionAttendance: student.sessionAttendance.map(session =>
+                session.sessionId === sessionId
+                  ? { ...session, attended: !session.attended }
+                  : session
+              )
+            }
+          : student
+      )
+    );
+    toast.success("Attendance updated");
+  };
+
+  // Function to update student grade
+  const updateStudentGrade = (studentId: number, evaluationId: number, grade: number) => {
+    setStudents(prevStudents =>
+      prevStudents.map(student =>
+        student.id === studentId
+          ? {
+              ...student,
+              evaluationGrades: student.evaluationGrades.map(evalGrade =>
+                evalGrade.evaluationId === evaluationId
+                  ? { ...evalGrade, grade }
+                  : evalGrade
+              ),
+              // Also update average grade
+              averageGrade: Math.round(
+                (student.evaluationGrades.reduce(
+                  (sum, evalGrade) => sum + (evalGrade.evaluationId === evaluationId ? grade : evalGrade.grade), 
+                  0
+                )) / student.evaluationGrades.length
+              )
+            }
+          : student
+      )
+    );
+    toast.success("Grade updated");
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -303,6 +394,7 @@ const ClassDetails = () => {
             <TabsTrigger value="students">Students</TabsTrigger>
           </TabsList>
 
+          {/* General Information Tab */}
           <TabsContent value="general" className="space-y-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
@@ -564,6 +656,7 @@ const ClassDetails = () => {
             </Card>
           </TabsContent>
 
+          {/* Sessions Tab */}
           <TabsContent value="sessions" className="space-y-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
@@ -712,6 +805,7 @@ const ClassDetails = () => {
             </Card>
           </TabsContent>
 
+          {/* Evaluations Tab */}
           <TabsContent value="evaluations" className="space-y-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
@@ -882,68 +976,3 @@ const ClassDetails = () => {
                       ))}
                     </div>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="students" className="space-y-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Students</CardTitle>
-                <Button>
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add Students
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[400px] pr-4">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead style={{ width: 50 }}></TableHead>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {membersData.map(member => (
-                        <TableRow key={member.id}>
-                          <TableCell>
-                            <Checkbox 
-                              checked={selectedStudents.includes(member.id)} 
-                              onCheckedChange={() => toggleStudentSelection(member.id)}
-                            />
-                          </TableCell>
-                          <TableCell className="font-medium">{member.name}</TableCell>
-                          <TableCell>{member.role}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className="bg-green-100 text-green-800">
-                              Active
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </ScrollArea>
-                
-                <div className="pt-4 flex items-center justify-between">
-                  <div className="text-sm">
-                    {selectedStudents.length} students selected
-                  </div>
-                  <Button onClick={handleUpdateStudents}>
-                    Update Enrollment
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
-    </MainLayout>
-  );
-};
-
-export default ClassDetails;
