@@ -4,16 +4,17 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { format } from "date-fns";
-import { CalendarIcon, Plus, X, Upload, FileText, CheckCheck, User, Users } from "lucide-react";
+import { CalendarIcon, Plus, X, Upload, FileText, CheckCheck, User, Users, Circle, CirclePlus } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -39,10 +40,20 @@ interface SessionFormValues {
   files: FileList | null;
 }
 
+interface QuestionChoice {
+  text: string;
+  isCorrect: boolean;
+}
+
+interface EvaluationQuestion {
+  question: string;
+  choices: QuestionChoice[];
+}
+
 interface EvaluationFormValues {
   title: string;
   description: string;
-  questions: { question: string; type: "multiple" | "text" | "scale" }[];
+  questions: EvaluationQuestion[];
 }
 
 interface StudentFormValues {
@@ -55,10 +66,16 @@ export default function AddClass() {
   const [activeTab, setActiveTab] = useState("general");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [newQuestion, setNewQuestion] = useState("");
-  const [questionType, setQuestionType] = useState<"multiple" | "text" | "scale">("text");
-  const [questions, setQuestions] = useState<{ question: string; type: "multiple" | "text" | "scale" }[]>([]);
+  const [newChoices, setNewChoices] = useState<QuestionChoice[]>([
+    { text: "", isCorrect: false },
+    { text: "", isCorrect: false },
+    { text: "", isCorrect: false },
+    { text: "", isCorrect: false }
+  ]);
+  const [questions, setQuestions] = useState<EvaluationQuestion[]>([]);
   const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
   const [sessions, setSessions] = useState<{ title: string; description: string; files: string[] }[]>([]);
+  const [isEditMode, setIsEditMode] = useState(false);
   
   const classForm = useForm<ClassFormValues>({
     defaultValues: {
@@ -94,6 +111,63 @@ export default function AddClass() {
     },
   });
 
+  React.useEffect(() => {
+    // Check if we're in edit mode
+    if (courseId && courseId !== "new") {
+      setIsEditMode(true);
+      // Here you would fetch the class data and populate the forms
+      // This is just mock data for demonstration
+      classForm.reset({
+        subject: "Introduction to Theology",
+        description: "A comprehensive overview of basic theological concepts.",
+        startDate: new Date(),
+        endDate: new Date(new Date().setMonth(new Date().getMonth() + 3)),
+        minGrade: 75,
+        minAttendance: 85,
+        teacherId: 1,
+      });
+      
+      // Mock sessions data
+      setSessions([
+        {
+          title: "Foundations of Faith",
+          description: "Understanding the core principles of faith.",
+          files: ["foundations.pdf", "reading_list.docx"]
+        },
+        {
+          title: "Scripture Study Methods",
+          description: "Learning effective methods for scripture study.",
+          files: ["study_guide.pdf"]
+        }
+      ]);
+      
+      // Mock questions data
+      setQuestions([
+        {
+          question: "Which of the following is a book in the New Testament?",
+          choices: [
+            { text: "Exodus", isCorrect: false },
+            { text: "Matthew", isCorrect: true },
+            { text: "Isaiah", isCorrect: false },
+            { text: "Psalms", isCorrect: false }
+          ]
+        },
+        {
+          question: "Who wrote most of the epistles in the New Testament?",
+          choices: [
+            { text: "Peter", isCorrect: false },
+            { text: "John", isCorrect: false },
+            { text: "Paul", isCorrect: true },
+            { text: "James", isCorrect: false }
+          ]
+        }
+      ]);
+      
+      // Mock selected students
+      setSelectedStudents([1, 3, 5]);
+    }
+  }, [courseId]);
+
   const onSubmitClass = (data: ClassFormValues) => {
     console.log("Class info saved:", data);
     toast.success("Class information saved");
@@ -119,11 +193,46 @@ export default function AddClass() {
     toast.success("Session added successfully");
   };
 
+  const updateChoiceText = (index: number, text: string) => {
+    const updatedChoices = [...newChoices];
+    updatedChoices[index].text = text;
+    setNewChoices(updatedChoices);
+  };
+
+  const updateChoiceCorrect = (index: number) => {
+    const updatedChoices = newChoices.map((choice, i) => ({
+      ...choice,
+      isCorrect: i === index
+    }));
+    setNewChoices(updatedChoices);
+  };
+
   const addQuestion = () => {
-    if (newQuestion.trim()) {
-      setQuestions([...questions, { question: newQuestion, type: questionType }]);
+    if (newQuestion.trim() && newChoices.some(choice => choice.text.trim())) {
+      // Only include choices that have text
+      const validChoices = newChoices.filter(choice => choice.text.trim());
+      
+      // Ensure at least one choice is marked as correct
+      if (!validChoices.some(choice => choice.isCorrect)) {
+        validChoices[0].isCorrect = true;
+      }
+      
+      setQuestions([...questions, {
+        question: newQuestion,
+        choices: validChoices
+      }]);
+      
       setNewQuestion("");
+      setNewChoices([
+        { text: "", isCorrect: false },
+        { text: "", isCorrect: false },
+        { text: "", isCorrect: false },
+        { text: "", isCorrect: false }
+      ]);
+      
       toast.success("Question added");
+    } else {
+      toast.error("Please enter a question and at least one choice");
     }
   };
 
@@ -163,14 +272,31 @@ export default function AddClass() {
     }, 1500);
   };
 
+  const handleFinish = () => {
+    const classData = classForm.getValues();
+    if (!classData.subject || !classData.description || !classData.startDate || !classData.endDate) {
+      toast.error("Please fill in all required fields in the General tab");
+      setActiveTab("general");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      toast.success("Class created successfully!");
+      navigate("/groups/learning");
+    }, 1500);
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-semibold">Add New Class</h1>
+            <h1 className="text-2xl font-semibold">{isEditMode ? "Edit Class" : "Add New Class"}</h1>
             <p className="text-muted-foreground">
-              Create a new class for your course
+              {isEditMode ? "Update your class information" : "Create a new class for your course"}
             </p>
           </div>
           <Button variant="outline" onClick={() => navigate("/groups/learning")}>
@@ -182,16 +308,36 @@ export default function AddClass() {
           <CardHeader>
             <CardTitle>Class Setup</CardTitle>
             <CardDescription>
-              Complete all tabs to finish setting up your class
+              Complete the General tab to create your class. Other tabs are optional and can be updated later.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid grid-cols-4 mb-6">
-                <TabsTrigger value="general" disabled={isSubmitting}>General</TabsTrigger>
-                <TabsTrigger value="sessions" disabled={isSubmitting}>Sessions</TabsTrigger>
-                <TabsTrigger value="evaluations" disabled={isSubmitting}>Evaluations</TabsTrigger>
-                <TabsTrigger value="students" disabled={isSubmitting}>Students</TabsTrigger>
+                <TabsTrigger value="general" disabled={isSubmitting}>
+                  <span className="flex items-center gap-2">
+                    General
+                    <Badge variant="outline" className="bg-red-100 text-red-700 border-red-300">Required</Badge>
+                  </span>
+                </TabsTrigger>
+                <TabsTrigger value="sessions" disabled={isSubmitting}>
+                  <span className="flex items-center gap-2">
+                    Sessions
+                    <Badge variant="outline" className="bg-slate-100">Optional</Badge>
+                  </span>
+                </TabsTrigger>
+                <TabsTrigger value="evaluations" disabled={isSubmitting}>
+                  <span className="flex items-center gap-2">
+                    Evaluations
+                    <Badge variant="outline" className="bg-slate-100">Optional</Badge>
+                  </span>
+                </TabsTrigger>
+                <TabsTrigger value="students" disabled={isSubmitting}>
+                  <span className="flex items-center gap-2">
+                    Students
+                    <Badge variant="outline" className="bg-slate-100">Optional</Badge>
+                  </span>
+                </TabsTrigger>
               </TabsList>
               
               <TabsContent value="general" className="space-y-4">
@@ -202,9 +348,9 @@ export default function AddClass() {
                       name="subject"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Class Name</FormLabel>
+                          <FormLabel>Class Name*</FormLabel>
                           <FormControl>
-                            <Input placeholder="Enter class name" {...field} />
+                            <Input placeholder="Enter class name" {...field} required />
                           </FormControl>
                         </FormItem>
                       )}
@@ -215,9 +361,9 @@ export default function AddClass() {
                       name="description"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Description</FormLabel>
+                          <FormLabel>Description*</FormLabel>
                           <FormControl>
-                            <Textarea placeholder="Enter class description" className="min-h-32" {...field} />
+                            <Textarea placeholder="Enter class description" className="min-h-32" {...field} required />
                           </FormControl>
                         </FormItem>
                       )}
@@ -229,7 +375,7 @@ export default function AddClass() {
                         name="startDate"
                         render={({ field }) => (
                           <FormItem className="flex flex-col">
-                            <FormLabel>Start Date</FormLabel>
+                            <FormLabel>Start Date*</FormLabel>
                             <Popover>
                               <PopoverTrigger asChild>
                                 <FormControl>
@@ -268,7 +414,7 @@ export default function AddClass() {
                         name="endDate"
                         render={({ field }) => (
                           <FormItem className="flex flex-col">
-                            <FormLabel>End Date</FormLabel>
+                            <FormLabel>End Date*</FormLabel>
                             <Popover>
                               <PopoverTrigger asChild>
                                 <FormControl>
@@ -309,7 +455,7 @@ export default function AddClass() {
                         name="minGrade"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Minimum Grade (%)</FormLabel>
+                            <FormLabel>Minimum Grade (%)*</FormLabel>
                             <FormControl>
                               <Input 
                                 type="number" 
@@ -317,6 +463,7 @@ export default function AddClass() {
                                 max={100} 
                                 {...field} 
                                 onChange={e => field.onChange(parseInt(e.target.value))} 
+                                required
                               />
                             </FormControl>
                           </FormItem>
@@ -328,7 +475,7 @@ export default function AddClass() {
                         name="minAttendance"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Minimum Attendance (%)</FormLabel>
+                            <FormLabel>Minimum Attendance (%)*</FormLabel>
                             <FormControl>
                               <Input 
                                 type="number" 
@@ -336,6 +483,7 @@ export default function AddClass() {
                                 max={100} 
                                 {...field} 
                                 onChange={e => field.onChange(parseInt(e.target.value))} 
+                                required
                               />
                             </FormControl>
                           </FormItem>
@@ -348,10 +496,11 @@ export default function AddClass() {
                       name="teacherId"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Teacher</FormLabel>
+                          <FormLabel>Teacher*</FormLabel>
                           <Select 
                             onValueChange={(value) => field.onChange(parseInt(value))} 
                             defaultValue={field.value.toString()}
+                            required
                           >
                             <FormControl>
                               <SelectTrigger>
@@ -370,8 +519,18 @@ export default function AddClass() {
                       )}
                     />
                     
-                    <div className="pt-4 flex justify-end">
-                      <Button type="submit">Save & Continue</Button>
+                    <div className="pt-4 flex justify-between">
+                      <FormDescription>
+                        * Required fields
+                      </FormDescription>
+                      <div className="flex gap-2">
+                        {!isEditMode && (
+                          <Button variant="outline" onClick={handleFinish}>
+                            Save & Create Class
+                          </Button>
+                        )}
+                        <Button type="submit">Save & Continue</Button>
+                      </div>
                     </div>
                   </form>
                 </Form>
@@ -521,27 +680,41 @@ export default function AddClass() {
                     />
                     
                     <div className="space-y-3 pt-2">
-                      <FormLabel>Questions</FormLabel>
-                      <div className="flex items-end gap-2">
-                        <div className="flex-1">
-                          <Input 
-                            placeholder="Add a question" 
-                            value={newQuestion} 
-                            onChange={(e) => setNewQuestion(e.target.value)}
-                          />
+                      <FormLabel>Add Multiple Choice Question</FormLabel>
+                      <div className="space-y-4">
+                        <Input 
+                          placeholder="Enter your question" 
+                          value={newQuestion} 
+                          onChange={(e) => setNewQuestion(e.target.value)}
+                        />
+                        
+                        <div className="space-y-3">
+                          <FormLabel>Choices (select the correct answer)</FormLabel>
+                          {newChoices.map((choice, index) => (
+                            <div key={index} className="flex items-center gap-2">
+                              <RadioGroup 
+                                value={choice.isCorrect ? index.toString() : undefined}
+                                onValueChange={() => updateChoiceCorrect(index)}
+                                className="flex-shrink-0"
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value={index.toString()} />
+                                </div>
+                              </RadioGroup>
+                              <Input 
+                                placeholder={`Choice ${index + 1}`} 
+                                value={choice.text} 
+                                onChange={(e) => updateChoiceText(index, e.target.value)}
+                                className="flex-grow"
+                              />
+                            </div>
+                          ))}
                         </div>
-                        <Select value={questionType} onValueChange={(val) => setQuestionType(val as any)}>
-                          <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Question type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="text">Text Answer</SelectItem>
-                            <SelectItem value="multiple">Multiple Choice</SelectItem>
-                            <SelectItem value="scale">Scale (1-10)</SelectItem>
-                          </SelectContent>
-                        </Select>
+                      </div>
+                      
+                      <div className="flex justify-end pt-2">
                         <Button type="button" onClick={addQuestion}>
-                          <Plus size={16} /> Add
+                          <Plus size={16} /> Add Question
                         </Button>
                       </div>
                     </div>
@@ -557,21 +730,36 @@ export default function AddClass() {
                       <ScrollArea className="h-[300px]">
                         <div className="space-y-4">
                           {questions.map((q, index) => (
-                            <div key={index} className="flex items-center justify-between p-3 border rounded-md">
-                              <div className="space-y-1">
-                                <div className="font-medium">{q.question}</div>
-                                <Badge variant="outline">
-                                  {q.type === "text" ? "Text Answer" : 
-                                   q.type === "multiple" ? "Multiple Choice" : "Scale (1-10)"}
-                                </Badge>
+                            <div key={index} className="p-4 border rounded-md space-y-3">
+                              <div className="flex items-start justify-between">
+                                <div className="font-medium text-lg">{q.question}</div>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  onClick={() => removeQuestion(index)}
+                                  className="mt-[-4px]"
+                                >
+                                  <X size={16} />
+                                </Button>
                               </div>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                onClick={() => removeQuestion(index)}
-                              >
-                                <X size={16} />
-                              </Button>
+                              <div className="pl-4 space-y-2">
+                                {q.choices.map((choice, choiceIndex) => (
+                                  <div key={choiceIndex} className="flex items-center gap-2">
+                                    <div className={cn(
+                                      "w-5 h-5 rounded-full flex items-center justify-center text-xs border",
+                                      choice.isCorrect ? "bg-green-500 text-white border-green-500" : "border-gray-300"
+                                    )}>
+                                      {String.fromCharCode(65 + choiceIndex)}
+                                    </div>
+                                    <div>{choice.text}</div>
+                                    {choice.isCorrect && (
+                                      <Badge className="ml-2 bg-green-100 text-green-800 hover:bg-green-100">
+                                        Correct
+                                      </Badge>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -588,7 +776,7 @@ export default function AddClass() {
                   <Button variant="outline" onClick={() => setActiveTab("sessions")}>
                     Back
                   </Button>
-                  <Button onClick={onSubmitEvaluation} disabled={evaluationForm.getValues("title") === ""}>
+                  <Button onClick={onSubmitEvaluation}>
                     Continue
                   </Button>
                 </div>
