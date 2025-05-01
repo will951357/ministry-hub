@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import * as React from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
@@ -44,6 +43,8 @@ interface Class {
   description?: string;
   sideMaterial?: string;
   lessons?: ClassLesson[];
+  minGrade?: number; // Added missing property
+  minAttendance?: number; // Added missing property
 }
 
 interface Course {

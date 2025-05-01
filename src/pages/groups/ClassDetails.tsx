@@ -1,4 +1,3 @@
-
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -115,8 +114,8 @@ const ClassDetails = () => {
       description: classItem?.description || "",
       startDate: classItem ? new Date(classItem.startDate) : new Date(),
       endDate: classItem ? new Date(classItem.endDate) : new Date(),
-      minGrade: classItem?.minGrade || 70,
-      minAttendance: classItem?.presenceRate || 80,
+      minGrade: classItem?.minGrade || 70, // Now safely accessing optional property
+      minAttendance: classItem?.minAttendance || 80, // Now safely accessing optional property
       teacherId: 1
     }
   });
@@ -547,7 +546,7 @@ const ClassDetails = () => {
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Minimum Grade</p>
-                          <p>{classItem.minGrade || "70"}%</p>
+                          <p>{classItem.minGrade || "70"}%</p> {/* Now safely accessing optional property */}
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Presence Rate</p>
@@ -555,7 +554,7 @@ const ClassDetails = () => {
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Minimum Attendance</p>
-                          <p>{classItem.minAttendance || "80"}%</p>
+                          <p>{classItem.minAttendance || "80"}%</p> {/* Now safely accessing optional property */}
                         </div>
                       </div>
                     </div>
@@ -948,4 +947,3 @@ const ClassDetails = () => {
 };
 
 export default ClassDetails;
-
