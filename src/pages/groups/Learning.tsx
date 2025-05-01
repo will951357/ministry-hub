@@ -21,8 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { ChartCard } from "@/components/dashboard/ChartCard";
 
 interface Member {
   id: number;
@@ -588,55 +587,44 @@ export default function Learning() {
           </div>
         </div>
 
-        <Card className="mb-6 border-church-border">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Courses Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="flex items-center gap-2">
-                <div className="bg-church-accent/10 p-2 rounded-full">
-                  <Book className="h-6 w-6 text-church-accent" />
-                </div>
-                <div>
-                  <p className="text-sm text-church-secondary">Total Courses</p>
-                  <p className="text-2xl font-semibold">{coursesData.length}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="bg-primary/10 p-2 rounded-full">
-                  <CalendarIcon className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-church-secondary">Active Courses</p>
-                  <p className="text-2xl font-semibold">{activeCourses.length}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="bg-secondary/10 p-2 rounded-full">
-                  <FileText className="h-6 w-6 text-secondary" />
-                </div>
-                <div>
-                  <p className="text-sm text-church-secondary">Total Classes</p>
-                  <p className="text-2xl font-semibold">
-                    {coursesData.reduce((total, course) => total + course.classes.length, 0)}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="bg-green-500/10 p-2 rounded-full">
-                  <Users className="h-6 w-6 text-green-500" />
-                </div>
-                <div>
-                  <p className="text-sm text-church-secondary">Total Students</p>
-                  <p className="text-2xl font-semibold">
-                    {coursesData.reduce((total, course) => total + course.currentApplicants, 0)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Updated Courses Overview with individual cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <ChartCard 
+            title="Total Courses" 
+            description="All course offerings"
+            icon={<Book className="h-5 w-5" />}
+          >
+            <p className="text-2xl font-semibold">{coursesData.length}</p>
+          </ChartCard>
+          
+          <ChartCard 
+            title="Active Courses"
+            description="Currently running"
+            icon={<CalendarIcon className="h-5 w-5" />}
+          >
+            <p className="text-2xl font-semibold">{activeCourses.length}</p>
+          </ChartCard>
+          
+          <ChartCard 
+            title="Total Classes"
+            description="Individual class sessions"
+            icon={<FileText className="h-5 w-5" />}
+          >
+            <p className="text-2xl font-semibold">
+              {coursesData.reduce((total, course) => total + course.classes.length, 0)}
+            </p>
+          </ChartCard>
+          
+          <ChartCard 
+            title="Total Students"
+            description="Enrolled students"
+            icon={<Users className="h-5 w-5" />}
+          >
+            <p className="text-2xl font-semibold">
+              {coursesData.reduce((total, course) => total + course.currentApplicants, 0)}
+            </p>
+          </ChartCard>
+        </div>
 
         <div className="mb-6">
           <div className="flex justify-between items-center mb-4">
@@ -652,7 +640,7 @@ export default function Learning() {
                     <TableHead className="text-center">Classes</TableHead>
                     <TableHead className="text-center">Students</TableHead>
                     <TableHead className="text-center">Status</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
+                    <TableHead className="w-[140px] text-center">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -684,35 +672,37 @@ export default function Learning() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEditCourse(course);
-                            }}
-                          >
-                            <EditIcon className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => handleQuickAddClass(course, e)}
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => toggleExpandCourse(course.id)}
-                          >
-                            <ChevronDown
-                              className={cn(
-                                "h-4 w-4 transition-transform",
-                                expandedCourses.includes(course.id) && "rotate-180"
-                              )}
-                            />
-                          </Button>
+                          <div className="flex justify-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditCourse(course);
+                              }}
+                            >
+                              <EditIcon className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => handleQuickAddClass(course, e)}
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => toggleExpandCourse(course.id)}
+                            >
+                              <ChevronDown
+                                className={cn(
+                                  "h-4 w-4 transition-transform",
+                                  expandedCourses.includes(course.id) && "rotate-180"
+                                )}
+                              />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                       {expandedCourses.includes(course.id) && (
