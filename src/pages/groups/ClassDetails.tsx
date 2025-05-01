@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Plus, CalendarIcon, FileText, Users, Edit, X, Check, User, Award } from "lucide-react";
+import { Plus, CalendarIcon, FileText, Users, Edit, X, Check, User, Award, QrCode } from "lucide-react";
 import { coursesData, membersData } from "./Learning";
 import { format } from "date-fns";
 import { useState } from "react";
@@ -22,6 +22,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface QuestionChoice {
   text: string;
@@ -44,6 +45,7 @@ interface Session {
   description: string;
   sessionDate: Date;
   files: string[];
+  qrCodeData?: string;
 }
 
 // Extended member interface to include grades and attendance
@@ -83,6 +85,8 @@ const ClassDetails = () => {
   ]);
   const [questions, setQuestions] = useState<EvaluationQuestion[]>([]);
   const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
+  const [qrDialogOpen, setQrDialogOpen] = useState(false);
+  const [currentSessionIndex, setCurrentSessionIndex] = useState<number | null>(null);
 
   // Mock data for demonstration
   const course = coursesData.find(c => c.id === Number(courseId));
@@ -92,13 +96,15 @@ const ClassDetails = () => {
       title: "Introduction to Theology",
       description: "Overview of theological concepts and history",
       sessionDate: new Date(),
-      files: ["intro-slides.pdf", "reading-list.docx"]
+      files: ["intro-slides.pdf", "reading-list.docx"],
+      qrCodeData: `class-${classId}-session-1-${new Date().toISOString().split('T')[0]}`
     },
     {
       title: "Faith Foundations",
       description: "Core principles of faith and belief systems",
       sessionDate: new Date(new Date().setDate(new Date().getDate() + 7)),
-      files: ["foundations-handout.pdf"]
+      files: ["foundations-handout.pdf"],
+      qrCodeData: `class-${classId}-session-2-${new Date(new Date().setDate(new Date().getDate() + 7)).toISOString().split('T')[0]}`
     }
   ]);
   const [evaluations, setEvaluations] = useState<Evaluation[]>([
@@ -191,11 +197,16 @@ const ClassDetails = () => {
   };
 
   const handleAddSession = (data: any) => {
+    const sessionDate = data.sessionDate;
+    const formattedDate = sessionDate.toISOString().split('T')[0];
+    const qrCodeData = `class-${classId}-session-${sessions.length + 1}-${formattedDate}`;
+    
     const newSession = {
       title: data.title,
       description: data.description,
       sessionDate: data.sessionDate,
-      files: data.files ? Array.from(data.files).map((file: any) => file.name) : []
+      files: data.files ? Array.from(data.files).map((file: any) => file.name) : [],
+      qrCodeData: qrCodeData
     };
     
     setSessions([...sessions, newSession]);
@@ -371,6 +382,15 @@ const ClassDetails = () => {
       )
     );
     toast.success("Grade updated");
+  };
+
+  const showQRCode = (index: number) => {
+    setCurrentSessionIndex(index);
+    setQrDialogOpen(true);
+  };
+
+  const handleScanQRCodeAttendance = (sessionId: number) => {
+    toast.success("QR code ready for students to scan for attendance");
   };
 
   return (
@@ -768,6 +788,7 @@ const ClassDetails = () => {
                           <TableHead>Date</TableHead>
                           <TableHead>Summary</TableHead>
                           <TableHead>Supporting Files</TableHead>
+                          <TableHead>Attendance</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -789,6 +810,17 @@ const ClassDetails = () => {
                               ) : (
                                 <span className="text-muted-foreground">No files</span>
                               )}
+                            </TableCell>
+                            <TableCell>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => showQRCode(index)}
+                                className="flex items-center gap-1"
+                              >
+                                <QrCode className="h-4 w-4" />
+                                QR Attendance
+                              </Button>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -1180,6 +1212,43 @@ const ClassDetails = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* QR Code Dialog for Attendance */}
+        <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Scan for Attendance</DialogTitle>
+            </DialogHeader>
+            
+            {currentSessionIndex !== null && sessions[currentSessionIndex] && (
+              <div className="flex flex-col items-center space-y-4">
+                <div className="border-4 border-primary p-2 rounded-lg">
+                  <div className="bg-white p-4 rounded">
+                    {/* In a real app, this would be a generated QR code */}
+                    <div className="bg-[#000] text-white p-8 text-center">
+                      <QrCode className="h-32 w-32 mx-auto" />
+                      <p className="mt-2 text-xs">QR code for {sessions[currentSessionIndex].title}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-center text-sm text-muted-foreground">
+                  <p>Students can scan this QR code to mark their attendance</p>
+                  <p className="mt-2">Session: {sessions[currentSessionIndex].title}</p>
+                  <p>Date: {format(sessions[currentSessionIndex].sessionDate, "PPP")}</p>
+                </div>
+                <Button 
+                  className="w-full mt-2" 
+                  onClick={() => {
+                    toast.success("Attendance tracking activated. Students can now scan the QR code.");
+                  }}
+                >
+                  <QrCode className="h-4 w-4 mr-2" />
+                  Activate QR Code
+                </Button>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </MainLayout>
   );
