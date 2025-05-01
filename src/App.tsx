@@ -23,6 +23,7 @@ import Ministries from "./pages/Ministries";
 import MinistryDetails from "./pages/ministries/MinistryDetails";
 import Groups from "./pages/Groups";
 import GroupDetails from "./pages/groups/GroupDetails";
+import CreateGroup from "./pages/groups/CreateGroup";
 import Learning from "./pages/groups/Learning";
 import CourseEdit from "./pages/groups/CourseEdit";
 import Events from "./pages/Events";
@@ -103,6 +104,7 @@ const App = () => (
           <Route path="/ministries" element={<Ministries />} />
           <Route path="/ministries/:id" element={<MinistryDetails />} />
           <Route path="/groups" element={<Groups />} />
+          <Route path="/groups/create" element={<CreateGroup />} />
           <Route path="/groups/:id" element={<GroupDetails />} />
           <Route path="/groups/learning" element={<Learning />} />
           <Route path="/groups/learning/class/:courseId/:classId" element={<ClassDetails />} />

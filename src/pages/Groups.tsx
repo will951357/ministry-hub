@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -73,7 +72,6 @@ interface Group {
 
 export default function Groups() {
   const navigate = useNavigate();
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isNotificationDialogOpen, setIsNotificationDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGroups, setSelectedGroups] = useState<number[]>([]);
@@ -146,7 +144,7 @@ export default function Groups() {
               Manage all church groups and small groups.
             </p>
           </div>
-          <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <Button onClick={() => navigate("/groups/create")}>
             <Plus size={16} />
             <span>Create Group</span>
           </Button>
@@ -267,30 +265,6 @@ export default function Groups() {
           ))}
         </div>
       </div>
-
-      {/* Create group dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Create New Group</DialogTitle>
-            <DialogDescription>
-              Enter information for the new group
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-4">
-            <p className="text-sm text-muted-foreground">
-              This feature is coming soon. You'll be able to create and manage group details here.
-            </p>
-            
-            <div className="flex justify-end">
-              <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                Close
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Send notification dialog */}
       <Dialog open={isNotificationDialogOpen} onOpenChange={setIsNotificationDialogOpen}>
