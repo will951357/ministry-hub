@@ -11,12 +11,19 @@ import {
   Calendar, 
   Bell, 
   Check, 
-  UserPlus
+  UserPlus,
+  Pencil,
+  UserMinus,
+  Edit,
+  Trash2,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 // Sample groups data - this would be fetched from an API in a real app
 const groupsData = [
@@ -166,6 +173,11 @@ export default function GroupDetails() {
   const [isNotificationDialogOpen, setIsNotificationDialogOpen] = useState(false);
   const [notificationText, setNotificationText] = useState("");
   const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
+  const [isEditGroupDialogOpen, setIsEditGroupDialogOpen] = useState(false);
+  const [editedGroup, setEditedGroup] = useState<any>(null);
+  const [isEditMemberDialogOpen, setIsEditMemberDialogOpen] = useState(false);
+  const [currentEditMember, setCurrentEditMember] = useState<Member | null>(null);
+  const [availableRoles] = useState(["Leader", "Member", "Assistant"]);
 
   if (!group) {
     return (
@@ -212,6 +224,58 @@ export default function GroupDetails() {
     setNotificationText("");
   };
 
+  // New functions for editing group info
+  const handleEditGroup = () => {
+    setEditedGroup({
+      name: group.name,
+      description: group.description,
+      meetingDay: group.meetingDay,
+      meetingTime: group.meetingTime,
+      meetingLocation: group.meetingLocation,
+      status: group.status
+    });
+    setIsEditGroupDialogOpen(true);
+  };
+
+  const saveGroupChanges = () => {
+    // In a real app, this would update the database
+    toast.success("Group information updated successfully");
+    setIsEditGroupDialogOpen(false);
+  };
+
+  // Member management functions
+  const handleEditMember = (member: Member) => {
+    setCurrentEditMember(member);
+    setIsEditMemberDialogOpen(true);
+  };
+
+  const saveEditMember = () => {
+    if (!currentEditMember) return;
+
+    // Check if we're trying to set another member as Leader when one already exists
+    const newRole = currentEditMember.role;
+    if (newRole === "Leader") {
+      const existingLeader = group.membersList.find(
+        m => m.id !== currentEditMember.id && m.role === "Leader"
+      );
+      
+      if (existingLeader) {
+        toast.error("Only one member can be the leader. Please change the current leader's role first.");
+        return;
+      }
+    }
+    
+    // In a real app, this would update the database
+    toast.success(`${currentEditMember.name}'s role updated to ${currentEditMember.role}`);
+    setIsEditMemberDialogOpen(false);
+  };
+
+  const handleDeleteMember = (memberId: number) => {
+    // In a real app, this would update the database
+    const memberName = group.membersList.find(m => m.id === memberId)?.name;
+    toast.success(`${memberName} removed from the group`);
+  };
+
   return (
     <MainLayout>
       {/* Header */}
@@ -247,8 +311,12 @@ export default function GroupDetails() {
         {/* Information Tab */}
         <TabsContent value="information" className="space-y-6">
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-lg">Group Details</CardTitle>
+              <Button variant="outline" size="sm" onClick={handleEditGroup}>
+                <Edit size={16} className="mr-1" />
+                Edit Information
+              </Button>
             </CardHeader>
             <CardContent>
               <dl className="space-y-4">
@@ -294,16 +362,17 @@ export default function GroupDetails() {
           </div>
 
           <div className="border rounded-lg overflow-hidden">
-            <div className="grid grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_1fr_1fr_1fr_auto] gap-4 bg-muted p-3 px-4 border-b">
+            <div className="grid grid-cols-[auto_1fr_1fr_1fr_auto_auto] sm:grid-cols-[auto_1fr_1fr_1fr_auto_auto] gap-4 bg-muted p-3 px-4 border-b">
               <div></div>
               <div className="font-medium">Name</div>
               <div className="hidden sm:block font-medium">Email</div>
               <div className="hidden sm:block font-medium">Phone</div>
               <div className="font-medium">Role</div>
+              <div className="font-medium">Actions</div>
             </div>
             <div className="divide-y">
               {group.membersList.map((member) => (
-                <div key={member.id} className="grid grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_1fr_1fr_1fr_auto] gap-4 p-3 px-4 items-center hover:bg-muted/50">
+                <div key={member.id} className="grid grid-cols-[auto_1fr_1fr_1fr_auto_auto] sm:grid-cols-[auto_1fr_1fr_1fr_auto_auto] gap-4 p-3 px-4 items-center hover:bg-muted/50">
                   <div>
                     <input 
                       type="checkbox" 
@@ -318,6 +387,14 @@ export default function GroupDetails() {
                   <Badge variant={member.role === "Leader" ? "default" : "outline"}>
                     {member.role}
                   </Badge>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" onClick={() => handleEditMember(member)}>
+                      <Edit size={16} />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDeleteMember(member.id)}>
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -335,7 +412,7 @@ export default function GroupDetails() {
         <TabsContent value="events" className="space-y-4">
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-semibold">Events ({group.eventsList.length})</h2>
-            <Button variant="outline" onClick={() => toast.info("Creating new events feature coming soon")}>
+            <Button variant="outline" onClick={() => navigate("/events/create")}>
               <Calendar size={16} className="mr-1" />
               Add Event
             </Button>
@@ -359,7 +436,7 @@ export default function GroupDetails() {
                         </div>
                       </div>
                       <Button variant="outline" size="sm" className="mt-2 sm:mt-0" 
-                        onClick={() => toast.info("Event details feature coming soon")}>
+                        onClick={() => navigate(`/events/edit/${event.id}`)}>
                         Details
                       </Button>
                     </div>
@@ -413,6 +490,143 @@ export default function GroupDetails() {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Group Dialog */}
+      <Dialog open={isEditGroupDialogOpen} onOpenChange={setIsEditGroupDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Group Information</DialogTitle>
+            <DialogDescription>
+              Make changes to the group details below.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {editedGroup && (
+            <div className="space-y-4 py-2">
+              <div className="space-y-2">
+                <Label htmlFor="name">Group Name</Label>
+                <Input 
+                  id="name" 
+                  value={editedGroup.name}
+                  onChange={(e) => setEditedGroup({...editedGroup, name: e.target.value})}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <textarea
+                  id="description"
+                  className="w-full min-h-20 border rounded-md p-2"
+                  value={editedGroup.description}
+                  onChange={(e) => setEditedGroup({...editedGroup, description: e.target.value})}
+                />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="meetingDay">Meeting Day</Label>
+                  <Input 
+                    id="meetingDay" 
+                    value={editedGroup.meetingDay}
+                    onChange={(e) => setEditedGroup({...editedGroup, meetingDay: e.target.value})}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="meetingTime">Meeting Time</Label>
+                  <Input 
+                    id="meetingTime" 
+                    value={editedGroup.meetingTime}
+                    onChange={(e) => setEditedGroup({...editedGroup, meetingTime: e.target.value})}
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="meetingLocation">Meeting Location</Label>
+                <Input 
+                  id="meetingLocation" 
+                  value={editedGroup.meetingLocation}
+                  onChange={(e) => setEditedGroup({...editedGroup, meetingLocation: e.target.value})}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select
+                  value={editedGroup.status}
+                  onValueChange={(value) => setEditedGroup({...editedGroup, status: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => setIsEditGroupDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={saveGroupChanges}>
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Member Dialog */}
+      <Dialog open={isEditMemberDialogOpen} onOpenChange={setIsEditMemberDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Member Role</DialogTitle>
+            <DialogDescription>
+              Update the role for {currentEditMember?.name}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {currentEditMember && (
+            <div className="space-y-4 py-2">
+              <div className="space-y-2">
+                <Label htmlFor="memberRole">Role</Label>
+                <Select
+                  value={currentEditMember.role}
+                  onValueChange={(value) => setCurrentEditMember({...currentEditMember, role: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableRoles.map(role => (
+                      <SelectItem key={role} value={role}>{role}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                {currentEditMember.role === "Leader" && (
+                  <p className="text-xs text-amber-600 mt-2">
+                    Note: Only one member can be assigned as Leader.
+                  </p>
+                )}
+              </div>
+              
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => setIsEditMemberDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={saveEditMember}>
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </MainLayout>
