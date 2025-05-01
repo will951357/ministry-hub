@@ -155,8 +155,8 @@ const ClassDetails = () => {
       description: classItem?.description || "",
       startDate: classItem ? new Date(classItem.startDate) : new Date(),
       endDate: classItem ? new Date(classItem.endDate) : new Date(),
-      minGrade: classItem?.minGrade || 70, // Now safely accessing optional property
-      minAttendance: classItem?.minAttendance || 80, // Now safely accessing optional property
+      minGrade: classItem?.minGrade || 70, 
+      minAttendance: classItem?.minAttendance || 80,
       teacherId: 1
     }
   });
@@ -638,7 +638,7 @@ const ClassDetails = () => {
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Minimum Grade</p>
-                          <p>{classItem.minGrade || "70"}%</p> {/* Now safely accessing optional property */}
+                          <p>{classItem.minGrade || "70"}%</p>
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Presence Rate</p>
@@ -646,7 +646,7 @@ const ClassDetails = () => {
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Minimum Attendance</p>
-                          <p>{classItem.minAttendance || "80"}%</p> {/* Now safely accessing optional property */}
+                          <p>{classItem.minAttendance || "80"}%</p>
                         </div>
                       </div>
                     </div>
@@ -976,3 +976,213 @@ const ClassDetails = () => {
                       ))}
                     </div>
                   </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Students Tab */}
+          <TabsContent value="students" className="space-y-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Students</CardTitle>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleUpdateStudents}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Students
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {/* Students Overview */}
+                  <div>
+                    <h3 className="text-md font-medium mb-3">Students Overview</h3>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Student</TableHead>
+                          <TableHead>Attendance</TableHead>
+                          <TableHead>Average Grade</TableHead>
+                          <TableHead>Status</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {students.map((student) => (
+                          <TableRow key={student.id}>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <Avatar>
+                                  <AvatarImage src={student.avatar} alt={student.name} />
+                                  <AvatarFallback>{getInitials(student.name)}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <div className="font-medium">{student.name}</div>
+                                  <div className="text-sm text-muted-foreground">{student.email}</div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <div className={cn(
+                                  "w-full h-2 rounded-full",
+                                  student.attendance >= 80 ? "bg-green-200" : "bg-amber-200"
+                                )}>
+                                  <div 
+                                    className={cn(
+                                      "h-full rounded-full",
+                                      student.attendance >= 80 ? "bg-green-500" : "bg-amber-500"
+                                    )} 
+                                    style={{ width: `${student.attendance}%` }} 
+                                  />
+                                </div>
+                                <span className="font-medium text-sm">{student.attendance}%</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <div className={cn(
+                                  "w-full h-2 rounded-full",
+                                  student.averageGrade >= 80 ? "bg-green-200" :
+                                  student.averageGrade >= 70 ? "bg-amber-200" : "bg-red-200"
+                                )}>
+                                  <div 
+                                    className={cn(
+                                      "h-full rounded-full",
+                                      student.averageGrade >= 80 ? "bg-green-500" :
+                                      student.averageGrade >= 70 ? "bg-amber-500" : "bg-red-500"
+                                    )} 
+                                    style={{ width: `${student.averageGrade}%` }} 
+                                  />
+                                </div>
+                                <span className="font-medium text-sm">{student.averageGrade}%</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {student.attendance >= (classItem?.minAttendance || 80) && 
+                              student.averageGrade >= (classItem?.minGrade || 70) ? (
+                                <Badge className="bg-green-500">Passing</Badge>
+                              ) : (
+                                <Badge variant="destructive">At Risk</Badge>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {/* Attendance Tracking */}
+                  <div className="pt-4 border-t">
+                    <h3 className="text-md font-medium mb-3">Attendance Tracking</h3>
+                    <div className="border rounded-lg overflow-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-40">Student</TableHead>
+                            {sessions.map((session, index) => (
+                              <TableHead key={index} className="text-center">
+                                <div className="min-w-24">
+                                  <div className="text-xs whitespace-nowrap overflow-hidden text-ellipsis">
+                                    {session.title}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {format(session.sessionDate, "MMM d")}
+                                  </div>
+                                </div>
+                              </TableHead>
+                            ))}
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {students.map((student) => (
+                            <TableRow key={student.id}>
+                              <TableCell className="font-medium">{student.name}</TableCell>
+                              {student.sessionAttendance.map((attendance, sessionId) => (
+                                <TableCell key={sessionId} className="text-center py-2">
+                                  <Checkbox
+                                    className="mx-auto"
+                                    checked={attendance.attended}
+                                    onCheckedChange={() => toggleStudentAttendance(student.id, attendance.sessionId)}
+                                  />
+                                </TableCell>
+                              ))}
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+
+                  {/* Evaluation Grades */}
+                  <div className="pt-4 border-t">
+                    <h3 className="text-md font-medium mb-3">Evaluation Grades</h3>
+                    <div className="border rounded-lg overflow-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-40">Student</TableHead>
+                            {evaluations.map((evaluation, index) => (
+                              <TableHead key={index} className="text-center">
+                                <div className="min-w-24">
+                                  <div className="whitespace-nowrap overflow-hidden text-ellipsis">
+                                    {evaluation.title}
+                                  </div>
+                                </div>
+                              </TableHead>
+                            ))}
+                            <TableHead className="text-center">Average</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {students.map((student) => (
+                            <TableRow key={student.id}>
+                              <TableCell className="font-medium">{student.name}</TableCell>
+                              {evaluations.map((evaluation, evalIndex) => {
+                                const gradeEntry = student.evaluationGrades.find(
+                                  g => g.evaluationId === evalIndex + 1
+                                );
+                                return (
+                                  <TableCell key={evalIndex} className="text-center py-2">
+                                    <Input
+                                      type="number"
+                                      min={0}
+                                      max={100}
+                                      value={gradeEntry?.grade || ""}
+                                      onChange={(e) => updateStudentGrade(
+                                        student.id, 
+                                        evalIndex + 1, 
+                                        parseInt(e.target.value) || 0
+                                      )}
+                                      className="w-16 h-8 text-center mx-auto"
+                                    />
+                                  </TableCell>
+                                );
+                              })}
+                              <TableCell className="text-center">
+                                <Badge className={cn(
+                                  student.averageGrade >= 80 ? "bg-green-500" :
+                                  student.averageGrade >= 70 ? "bg-amber-500" : "bg-red-500"
+                                )}>
+                                  {student.averageGrade}%
+                                </Badge>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </MainLayout>
+  );
+};
+
+export default ClassDetails;
