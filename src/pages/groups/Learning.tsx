@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import * as React from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
@@ -64,7 +65,8 @@ interface Course {
   expanded?: boolean;
 }
 
-const membersData: Member[] = [
+// Export the member data so it can be imported by other components
+export const membersData: Member[] = [
   {
     id: 1,
     name: "John Smith",

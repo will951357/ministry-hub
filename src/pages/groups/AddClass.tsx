@@ -20,6 +20,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useNavigate, useParams } from "react-router-dom";
+// Fixed import - importing from the properly exported membersData
 import { membersData } from "@/pages/groups/Learning";
 
 interface ClassFormValues {
