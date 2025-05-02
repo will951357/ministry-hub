@@ -301,7 +301,11 @@ export const AdminAccess = () => {
     return <Badge variant="outline">{level.name}</Badge>;
   };
   
-  const togglePermission = (permissionId: string, targetState: AccessLevel) => {
+  // Modified version of togglePermission that accepts either AccessLevel or Omit<AccessLevel, "id">
+  const togglePermission = (
+    permissionId: string, 
+    targetState: AccessLevel | Omit<AccessLevel, "id">
+  ) => {
     const currentPermissions = [...targetState.permissions];
     
     if (currentPermissions.includes(permissionId)) {
@@ -780,3 +784,4 @@ export const AdminAccess = () => {
     </>
   );
 };
+
