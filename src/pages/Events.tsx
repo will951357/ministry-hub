@@ -1,6 +1,7 @@
+
 import React, { useState, useMemo } from 'react';
-import { format, isSameDay } from "date-fns";
-import { Calendar as CalendarIcon, MapPin, Users, DollarSign, Eye, EyeOff, CircleCheck, CircleX, CircleSlash, Download, Bell, Search, Plus, Filter, QrCode, Edit, List } from "lucide-react";
+import { format, isSameDay, isSameMonth } from "date-fns";
+import { Calendar as CalendarIcon, MapPin, Users, DollarSign, Eye, EyeOff, CircleCheck, CircleX, CircleSlash, Download, Bell, Search, Plus, Filter, QrCode, Edit } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ import {
 } from '@/types/event';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { DataFilters, FilterValues } from "@/components/shared/DataFilters";
 
 export const sampleEvents: Event[] = [
   {
@@ -187,7 +189,7 @@ export const sampleEvents: Event[] = [
 const Events = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedMonth, setSelectedMonth] = useState<Date | undefined>(new Date());
   const [searchTerm, setSearchTerm] = useState('');
   const [visibilityFilter, setVisibilityFilter] = useState<EventVisibility | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<EventStatus | 'all'>('all');
@@ -196,32 +198,105 @@ const Events = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [showEventDetails, setShowEventDetails] = useState(false);
   const [showCheckinQR, setShowCheckinQR] = useState(false);
+  const [filterValues, setFilterValues] = useState<FilterValues>({});
+
+  const filterOptions = [
+    {
+      id: "date",
+      type: "date" as const,
+      label: "Date",
+      description: "Filter by event date"
+    },
+    {
+      id: "status",
+      type: "payment" as const,
+      label: "Status",
+      description: "Filter by event status"
+    },
+    {
+      id: "price",
+      type: "amount" as const,
+      label: "Price",
+      description: "Filter by event price"
+    }
+  ];
+
+  const statusOptions = [
+    { value: "confirmed", label: "Confirmed" },
+    { value: "canceled", label: "Canceled" },
+    { value: "sold-out", label: "Sold Out" }
+  ];
+
+  const handleFilterChange = (filters: FilterValues) => {
+    setFilterValues(filters);
+  };
 
   const filteredEvents = useMemo(() => {
     return sampleEvents.filter(event => {
+      // Base text search filter
       const matchesSearch = searchTerm === '' || 
         event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.description.toLowerCase().includes(searchTerm.toLowerCase());
         
+      // Original filters
       const matchesVisibility = visibilityFilter === 'all' || event.visibility === visibilityFilter;
-      
       const matchesStatus = statusFilter === 'all' || event.status === statusFilter;
-      
       const matchesPrice = 
         priceFilter === 'all' || 
         (priceFilter === 'free' && event.price === 0) ||
         (priceFilter === 'paid' && event.price > 0);
-        
-      return matchesSearch && matchesVisibility && matchesStatus && matchesPrice;
-    });
-  }, [searchTerm, visibilityFilter, statusFilter, priceFilter]);
+      
+      // New DataFilters filters
+      let matchesDateFilter = true;
+      let matchesStatusFilter = true;
+      let matchesPriceFilter = true;
 
-  const eventsByDate = useMemo(() => {
+      // Date filter from DataFilters
+      if (filterValues.dateCondition && filterValues.startDate) {
+        if (filterValues.dateCondition === 'on') {
+          matchesDateFilter = isSameMonth(event.date, filterValues.startDate);
+        } else if (filterValues.dateCondition === 'between' && filterValues.endDate) {
+          const eventDate = new Date(event.date);
+          const startDate = new Date(filterValues.startDate);
+          const endDate = new Date(filterValues.endDate);
+          matchesDateFilter = eventDate >= startDate && eventDate <= endDate;
+        }
+      }
+
+      // Status filter from DataFilters
+      if (filterValues.paymentMethod) {
+        matchesStatusFilter = event.status === filterValues.paymentMethod;
+      }
+
+      // Price filter from DataFilters
+      if (filterValues.amountCondition && filterValues.amountValue !== undefined) {
+        if (filterValues.amountCondition === 'lt') {
+          matchesPriceFilter = event.price < filterValues.amountValue;
+        } else if (filterValues.amountCondition === 'gt') {
+          matchesPriceFilter = event.price > filterValues.amountValue;
+        } else if (filterValues.amountCondition === 'between' && filterValues.amountMax !== undefined) {
+          matchesPriceFilter = event.price >= filterValues.amountValue && event.price <= filterValues.amountMax;
+        }
+      }
+        
+      return matchesSearch && 
+             matchesVisibility && 
+             matchesStatus && 
+             matchesPrice && 
+             matchesDateFilter && 
+             matchesStatusFilter && 
+             matchesPriceFilter;
+    });
+  }, [searchTerm, visibilityFilter, statusFilter, priceFilter, filterValues, selectedMonth]);
+
+  const eventsByMonth = useMemo(() => {
+    if (!selectedMonth) return filteredEvents;
+    
     return filteredEvents.filter(event => 
-      selectedDate ? isSameDay(event.date, selectedDate) : true
+      isSameMonth(event.date, selectedMonth)
     );
-  }, [filteredEvents, selectedDate]);
+  }, [filteredEvents, selectedMonth]);
 
   const getStatusBadge = (status: EventStatus) => {
     switch(status) {
@@ -303,26 +378,6 @@ const Events = () => {
 
           <div className="space-y-4">
             <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
-              <div className="flex items-center gap-3">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="gap-2">
-                      <CalendarIcon className="h-4 w-4" />
-                      {selectedDate ? format(selectedDate, 'PPP') : 'Pick a date'}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={selectedDate}
-                      onSelect={setSelectedDate}
-                      initialFocus
-                      className="pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
               <div className="relative flex items-center gap-2 flex-1">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -400,6 +455,12 @@ const Events = () => {
               </div>
             </div>
             
+            <DataFilters 
+              onFilterChange={handleFilterChange}
+              filterOptions={filterOptions}
+              paymentMethods={statusOptions}
+            />
+
             <div className="flex flex-wrap gap-2">
               {visibilityFilter !== 'all' || statusFilter !== 'all' || priceFilter !== 'all' ? (
                 <>
@@ -442,15 +503,15 @@ const Events = () => {
             <Card>
               <CardHeader className="py-4">
                 <CardTitle>
-                  {selectedDate ? (
-                    <>Events on {format(selectedDate, "MMMM d, yyyy")}</>
+                  {selectedMonth ? (
+                    <>Events in {format(selectedMonth, "MMMM yyyy")}</>
                   ) : (
                     <>All Events</>
                   )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {eventsByDate.length > 0 ? (
+                {eventsByMonth.length > 0 ? (
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -464,7 +525,7 @@ const Events = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {eventsByDate.map((event) => (
+                      {eventsByMonth.map((event) => (
                         <TableRow key={event.id}>
                           <TableCell>
                             <div className="font-medium hover:text-church-accent cursor-pointer" onClick={() => handleViewDetails(event)}>
@@ -557,7 +618,7 @@ const Events = () => {
                         setVisibilityFilter('all');
                         setStatusFilter('all');
                         setPriceFilter('all');
-                        setSelectedDate(undefined);
+                        setSelectedMonth(undefined);
                       }}
                     >
                       Clear all filters

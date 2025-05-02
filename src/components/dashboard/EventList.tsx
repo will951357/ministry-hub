@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,8 @@ import { EventListItem } from '../events/EventListItem';
 import { EventDetailsModal } from '../events/EventDetailsModal';
 import { CheckinQRModal } from '../events/CheckinQRModal';
 import { CancelEventDialog } from '../events/CancelEventDialog';
-import { QrCode, Edit } from 'lucide-react';
+import { DataFilters, FilterValues } from "@/components/shared/DataFilters";
+import { isSameMonth } from 'date-fns';
 
 // Example events data with more realistic information
 const events = [
@@ -96,7 +98,53 @@ export function EventList() {
   const [selectedEvent, setSelectedEvent] = useState<typeof events[0] | null>(null);
   const [showEventDetails, setShowEventDetails] = useState(false);
   const [showCheckinQR, setShowCheckinQR] = useState(false);
+  const [filterValues, setFilterValues] = useState<FilterValues>({});
   const { toast } = useToast();
+
+  const filterOptions = [
+    {
+      id: "date",
+      type: "date" as const,
+      label: "Date",
+      description: "Filter by event date"
+    },
+    {
+      id: "category",
+      type: "payment" as const,
+      label: "Category",
+      description: "Filter by event category"
+    }
+  ];
+
+  const categoryOptions = [
+    { value: "worship", label: "Worship" },
+    { value: "youth", label: "Youth" },
+    { value: "leadership", label: "Leadership" },
+    { value: "prayer", label: "Prayer" }
+  ];
+
+  const handleFilterChange = (filters: FilterValues) => {
+    setFilterValues(filters);
+  };
+
+  const filteredEvents = React.useMemo(() => {
+    return events.filter(event => {
+      // Apply date filter
+      let matchesDateFilter = true;
+      if (filterValues.dateCondition && filterValues.startDate) {
+        if (filterValues.dateCondition === 'on') {
+          matchesDateFilter = isSameMonth(event.date, filterValues.startDate);
+        } else if (filterValues.dateCondition === 'between' && filterValues.endDate) {
+          const eventDate = new Date(event.date);
+          const startDate = new Date(filterValues.startDate);
+          const endDate = new Date(filterValues.endDate);
+          matchesDateFilter = eventDate >= startDate && eventDate <= endDate;
+        }
+      }
+
+      return matchesDateFilter;
+    });
+  }, [filterValues]);
 
   const handleCancelEvent = (eventId: number) => {
     toast({
@@ -132,8 +180,14 @@ export function EventList() {
           </Button>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {events.map((event) => (
+          <DataFilters 
+            onFilterChange={handleFilterChange} 
+            filterOptions={filterOptions}
+            paymentMethods={categoryOptions}
+          />
+
+          <div className="space-y-4 mt-4">
+            {filteredEvents.map((event) => (
               <EventListItem
                 key={event.id}
                 event={event}
@@ -143,6 +197,12 @@ export function EventList() {
                 onCancelEvent={handleCancelEvent}
               />
             ))}
+            
+            {filteredEvents.length === 0 && (
+              <div className="text-center py-6 text-muted-foreground">
+                No events found matching your filters.
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
