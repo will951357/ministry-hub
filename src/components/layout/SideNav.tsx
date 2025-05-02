@@ -1,3 +1,4 @@
+
 import { useState, useEffect, MouseEvent } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -289,7 +290,9 @@ export function SideNav({ isOpen, setIsOpen, isMobileView }: SideNavProps) {
                 <DropdownMenuContent align="start" className="bg-white border-church-border">
                   <DropdownMenuLabel className="text-church-primary">My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator className="bg-church-border" />
-                  <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted" onClick={() => handleMenuItemClick(false)}>Profile</DropdownMenuItem>
+                  <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted" asChild>
+                    <Link to="/profile">Profile</Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted" onClick={() => handleMenuItemClick(false)}>Switch Church</DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-church-border" />
                   <DropdownMenuItem className="text-church-secondary hover:text-church-primary hover:bg-church-muted" onClick={() => handleMenuItemClick(false)}>Log out</DropdownMenuItem>

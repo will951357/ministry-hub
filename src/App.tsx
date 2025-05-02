@@ -46,6 +46,7 @@ import { CreateEvent } from "./pages/events/CreateEvent";
 import DonationForm from "./pages/finance/DonationForm";
 import TitheForm from "./pages/finance/TitheForm";
 import FundForm from "./pages/finance/FundForm";
+import ChurchProfile from "./pages/profile/ChurchProfile";
 
 const queryClient = new QueryClient();
 
@@ -101,6 +102,9 @@ const App = () => (
             <Route path="blog/new" element={<NewPost />} />
             <Route path="app-manager" element={<AppManager />} />
           </Route>
+          
+          {/* Profile section */}
+          <Route path="/profile" element={<ChurchProfile />} />
           
           {/* Using real components */}
           <Route path="/ministries" element={<Ministries />} />
