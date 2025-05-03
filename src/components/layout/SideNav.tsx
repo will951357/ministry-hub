@@ -1,4 +1,3 @@
-
 import { useState, useEffect, MouseEvent } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -26,7 +25,8 @@ import {
   Book,
   GraduationCap,
   Calculator,
-  LayoutGrid
+  LayoutGrid,
+  CalendarDays
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -137,7 +137,7 @@ export function SideNav({ isOpen, setIsOpen, isMobileView }: SideNavProps) {
         { id: 'learning', label: 'Learning', icon: <GraduationCap size={18} />, href: '/groups/learning' },
       ]
     },
-    { id: 'events', label: 'Events', icon: <Calendar size={20} />, href: '/events' },
+    { id: 'events', label: 'Events', icon: <CalendarDays size={20} />, href: '/events' },
   ];
 
   return (
