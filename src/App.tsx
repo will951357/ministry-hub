@@ -47,6 +47,7 @@ import DonationForm from "./pages/finance/DonationForm";
 import TitheForm from "./pages/finance/TitheForm";
 import FundForm from "./pages/finance/FundForm";
 import ChurchProfile from "./pages/profile/ChurchProfile";
+import Notifications from "./pages/Notifications";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +62,9 @@ const App = () => (
           
           {/* Calendar section */}
           <Route path="/calendar" element={<Calendar />} />
+          
+          {/* Add Notifications route */}
+          <Route path="/notifications" element={<Notifications />} />
           
           {/* People section */}
           <Route path="/people" element={<People />}>
