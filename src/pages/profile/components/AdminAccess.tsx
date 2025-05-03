@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -301,11 +300,11 @@ export const AdminAccess = () => {
     return <Badge variant="outline">{level.name}</Badge>;
   };
   
-  // Modified version of togglePermission that accepts either AccessLevel or Omit<AccessLevel, "id">
-  const togglePermission = (
+  // Modified version of togglePermission that safely handles different types
+  const togglePermission = <T extends { permissions: string[] }>(
     permissionId: string, 
-    targetState: AccessLevel | Omit<AccessLevel, "id">
-  ) => {
+    targetState: T
+  ): T => {
     const currentPermissions = [...targetState.permissions];
     
     if (currentPermissions.includes(permissionId)) {
@@ -647,9 +646,12 @@ export const AdminAccess = () => {
                                       id={`edit-perm-${permission.id}`}
                                       checked={editingAccessLevel.permissions.includes(permission.id)}
                                       onCheckedChange={() => {
-                                        setEditingAccessLevel(
-                                          togglePermission(permission.id, editingAccessLevel)
-                                        );
+                                        if (editingAccessLevel) {
+                                          setEditingAccessLevel(prev => {
+                                            if (!prev) return prev;
+                                            return togglePermission(permission.id, prev);
+                                          });
+                                        }
                                       }}
                                       disabled={editingAccessLevel.id === 1} // Can't change Full Access perms
                                     />
@@ -784,4 +786,3 @@ export const AdminAccess = () => {
     </>
   );
 };
-
