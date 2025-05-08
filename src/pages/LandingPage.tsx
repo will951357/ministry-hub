@@ -1,12 +1,13 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { ArrowRight, Calendar, DollarSign, Landmark, Users, Check, ExternalLink, Smartphone, Church, Heart, Globe } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useState } from "react";
 
 export default function LandingPage() {
   const isMobile = useIsMobile();
+  const [activeFeature, setActiveFeature] = useState<string | null>(null);
   
   return (
     <div className="min-h-screen bg-white">
@@ -38,7 +39,7 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero Section - Updated for Impact and Growth Focus */}
+      {/* Hero Section - Simplified and Growth Focused */}
       <section className="relative py-20 bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -86,31 +87,6 @@ export default function LandingPage() {
                 <span>14-day free trial</span>
               </div>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {/* Mobile App Preview */}
-              <div className="col-span-2 bg-white rounded-xl shadow-lg p-4 flex flex-col items-center">
-                <Smartphone className="h-8 w-8 text-church-accent mb-2" />
-                <h3 className="font-semibold mb-1">Mobile App</h3>
-                <p className="text-sm text-church-secondary text-center mb-3">Engage your congregation on the go</p>
-                <img 
-                  src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81" 
-                  alt="Mobile app preview" 
-                  className="rounded-lg h-36 object-cover w-full"
-                />
-              </div>
-              {/* Community Growth */}
-              <div className="bg-white rounded-xl shadow-lg p-4 flex flex-col items-center">
-                <Users className="h-8 w-8 text-church-accent mb-2" />
-                <h3 className="font-semibold mb-1">Community</h3>
-                <p className="text-sm text-church-secondary text-center">Build deeper connections</p>
-              </div>
-              {/* Global Impact */}
-              <div className="bg-white rounded-xl shadow-lg p-4 flex flex-col items-center">
-                <Globe className="h-8 w-8 text-church-accent mb-2" />
-                <h3 className="font-semibold mb-1">Global Reach</h3>
-                <p className="text-sm text-church-secondary text-center">Extend your ministry's impact</p>
-              </div>
-            </div>
           </div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent"></div>
@@ -140,7 +116,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Features Section with Interactive Mobile App Showcase */}
       <section id="features" className="py-20">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
@@ -150,78 +126,238 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <FeatureCard
-              icon={<Users className="h-10 w-10 text-church-accent" />}
-              title="Member Management"
-              description="Track member information, attendance, and spiritual journeys all in one place."
-              link="/people"
-            />
-            <FeatureCard
-              icon={<Calendar className="h-10 w-10 text-church-accent" />}
-              title="Event Planning"
-              description="Organize services, meetings, and special events with easy scheduling tools."
-              link="/events"
-            />
-            <FeatureCard
-              icon={<DollarSign className="h-10 w-10 text-church-accent" />}
-              title="Financial Tracking"
-              description="Manage tithes, donations, and expenses with comprehensive financial tools."
-              link="/finance"
-            />
-            <FeatureCard
-              icon={<Landmark className="h-10 w-10 text-church-accent" />}
-              title="Ministry Groups"
-              description="Coordinate small groups, ministries, and volunteer teams effectively."
-              link="/groups"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Mobile App Section */}
-      <section className="py-16 bg-church-muted">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-block p-1 px-3 mb-6 rounded-full bg-blue-50 border border-blue-100">
-                <div className="flex items-center space-x-2 text-sm font-medium text-blue-700">
-                  <Smartphone className="h-4 w-4" />
-                  <span>Mobile Experience</span>
-                </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Features Column */}
+            <div className="col-span-1 lg:col-span-1">
+              <div className="space-y-4">
+                <FeatureButton
+                  icon={<Smartphone className="h-6 w-6 text-church-accent" />}
+                  title="Mobile App"
+                  description="Engage your congregation on the go"
+                  isActive={activeFeature === 'mobile'}
+                  onClick={() => setActiveFeature(activeFeature === 'mobile' ? null : 'mobile')}
+                />
+                
+                <FeatureButton
+                  icon={<Users className="h-6 w-6 text-church-accent" />}
+                  title="Member Management"
+                  description="Track member information and spiritual journeys"
+                  isActive={activeFeature === 'members'}
+                  onClick={() => setActiveFeature(activeFeature === 'members' ? null : 'members')}
+                />
+                
+                <FeatureButton
+                  icon={<Calendar className="h-6 w-6 text-church-accent" />}
+                  title="Event Planning"
+                  description="Organize services and special events"
+                  isActive={activeFeature === 'events'}
+                  onClick={() => setActiveFeature(activeFeature === 'events' ? null : 'events')}
+                />
+                
+                <FeatureButton
+                  icon={<DollarSign className="h-6 w-6 text-church-accent" />}
+                  title="Financial Tracking"
+                  description="Manage tithes, donations, and expenses"
+                  isActive={activeFeature === 'finance'}
+                  onClick={() => setActiveFeature(activeFeature === 'finance' ? null : 'finance')}
+                />
+                
+                <FeatureButton
+                  icon={<Landmark className="h-6 w-6 text-church-accent" />}
+                  title="Ministry Groups"
+                  description="Coordinate small groups and volunteer teams"
+                  isActive={activeFeature === 'groups'}
+                  onClick={() => setActiveFeature(activeFeature === 'groups' ? null : 'groups')}
+                />
               </div>
-              <h2 className="text-3xl font-bold text-church-primary mb-4">Take Your Ministry Everywhere You Go</h2>
-              <p className="text-lg text-church-secondary mb-6">
-                Connect with your congregation anytime, anywhere with our powerful mobile app. Send notifications, manage events, and track attendance on the go.
-              </p>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-church-accent mr-2 mt-0.5" />
-                  <span>Real-time notifications and updates</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-church-accent mr-2 mt-0.5" />
-                  <span>Mobile check-in for events and services</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-church-accent mr-2 mt-0.5" />
-                  <span>Secure giving and donation tracking</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-church-accent mr-2 mt-0.5" />
-                  <span>Member directory and communication</span>
-                </li>
-              </ul>
-              <Button className="bg-church-accent hover:bg-church-accent/90">
-                Learn More About Mobile Features
-              </Button>
             </div>
-            <div className="flex justify-center">
-              <img 
-                src="https://images.unsplash.com/photo-1551038247-3d9af20df552" 
-                alt="Mobile app on a smartphone" 
-                className="rounded-xl shadow-xl max-w-sm"
-              />
+
+            {/* Feature Details Column */}
+            <div className="col-span-1 lg:col-span-2">
+              <div className="bg-white rounded-xl shadow-lg p-6 h-full overflow-hidden transition-all duration-500 transform">
+                {activeFeature === null && (
+                  <div className="h-full flex flex-col items-center justify-center text-church-secondary space-y-4 animate-fade-in">
+                    <ArrowRight className="h-8 w-8 text-church-accent animate-pulse" />
+                    <p className="text-lg">Select a feature to learn more</p>
+                  </div>
+                )}
+                
+                {activeFeature === 'mobile' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center animate-fade-in">
+                    <div>
+                      <div className="inline-block p-1 px-3 mb-4 rounded-full bg-blue-50 border border-blue-100">
+                        <div className="flex items-center space-x-2 text-sm font-medium text-blue-700">
+                          <Smartphone className="h-4 w-4" />
+                          <span>Mobile Experience</span>
+                        </div>
+                      </div>
+                      <h3 className="text-2xl font-bold text-church-primary mb-4">Take Your Ministry Everywhere</h3>
+                      <p className="text-church-secondary mb-6">
+                        Connect with your congregation anytime, anywhere with our powerful mobile app. Send notifications, manage events, and track attendance on the go.
+                      </p>
+                      <ul className="space-y-3 mb-6">
+                        <li className="flex items-start">
+                          <Check className="h-5 w-5 text-church-accent mr-2 mt-0.5" />
+                          <span>Real-time notifications and updates</span>
+                        </li>
+                        <li className="flex items-start">
+                          <Check className="h-5 w-5 text-church-accent mr-2 mt-0.5" />
+                          <span>Mobile check-in for events</span>
+                        </li>
+                        <li className="flex items-start">
+                          <Check className="h-5 w-5 text-church-accent mr-2 mt-0.5" />
+                          <span>Secure giving and donation tracking</span>
+                        </li>
+                        <li className="flex items-start">
+                          <Check className="h-5 w-5 text-church-accent mr-2 mt-0.5" />
+                          <span>Member directory and communication</span>
+                        </li>
+                      </ul>
+                      <Button className="bg-church-accent hover:bg-church-accent/90">
+                        Download Our App
+                      </Button>
+                    </div>
+                    <div className="flex justify-center">
+                      <div className="relative">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-church-accent to-blue-500 rounded-2xl blur opacity-30 animate-pulse"></div>
+                        <img 
+                          src="https://images.unsplash.com/photo-1551038247-3d9af20df552" 
+                          alt="Mobile app on a smartphone" 
+                          className="relative rounded-xl shadow-xl max-w-xs w-full h-auto object-contain z-10 transform transition-all duration-500 hover:scale-105"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeFeature === 'members' && (
+                  <div className="animate-fade-in">
+                    <h3 className="text-2xl font-bold text-church-primary mb-4">Member Management</h3>
+                    <p className="text-church-secondary mb-6">
+                      Build a stronger community by tracking member information, attendance patterns, and spiritual journeys all in one place.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      <div className="bg-church-muted p-4 rounded-lg">
+                        <h4 className="font-semibold mb-2 text-church-primary">Member Profiles</h4>
+                        <p className="text-church-secondary">Comprehensive profiles with family connections, groups, and service history.</p>
+                      </div>
+                      <div className="bg-church-muted p-4 rounded-lg">
+                        <h4 className="font-semibold mb-2 text-church-primary">Attendance Tracking</h4>
+                        <p className="text-church-secondary">Monitor attendance trends and identify disengaged members.</p>
+                      </div>
+                      <div className="bg-church-muted p-4 rounded-lg">
+                        <h4 className="font-semibold mb-2 text-church-primary">Communication Tools</h4>
+                        <p className="text-church-secondary">Send targeted emails and SMS messages to specific groups.</p>
+                      </div>
+                      <div className="bg-church-muted p-4 rounded-lg">
+                        <h4 className="font-semibold mb-2 text-church-primary">Connection Tracking</h4>
+                        <p className="text-church-secondary">Track spiritual growth and discipleship progress.</p>
+                      </div>
+                    </div>
+                    <img 
+                      src="https://images.unsplash.com/photo-1527266237111-a4989d028b4b?auto=format&fit=crop&w=800" 
+                      alt="Member management interface" 
+                      className="rounded-lg w-full h-48 object-cover"
+                    />
+                  </div>
+                )}
+
+                {activeFeature === 'events' && (
+                  <div className="animate-fade-in">
+                    <h3 className="text-2xl font-bold text-church-primary mb-4">Event Planning</h3>
+                    <p className="text-church-secondary mb-6">
+                      Schedule, promote, and manage all your church events with powerful and intuitive tools.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      <div className="bg-church-muted p-4 rounded-lg">
+                        <h4 className="font-semibold mb-2 text-church-primary">Calendar Management</h4>
+                        <p className="text-church-secondary">Centralized calendar for all church events and room bookings.</p>
+                      </div>
+                      <div className="bg-church-muted p-4 rounded-lg">
+                        <h4 className="font-semibold mb-2 text-church-primary">Online Registration</h4>
+                        <p className="text-church-secondary">Simple registration forms and attendance tracking.</p>
+                      </div>
+                      <div className="bg-church-muted p-4 rounded-lg">
+                        <h4 className="font-semibold mb-2 text-church-primary">Check-in System</h4>
+                        <p className="text-church-secondary">Secure and efficient check-in for children and events.</p>
+                      </div>
+                      <div className="bg-church-muted p-4 rounded-lg">
+                        <h4 className="font-semibold mb-2 text-church-primary">Volunteer Coordination</h4>
+                        <p className="text-church-secondary">Manage event volunteers and their assignments.</p>
+                      </div>
+                    </div>
+                    <img 
+                      src="https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?auto=format&fit=crop&w=800" 
+                      alt="Event calendar interface" 
+                      className="rounded-lg w-full h-48 object-cover"
+                    />
+                  </div>
+                )}
+
+                {activeFeature === 'finance' && (
+                  <div className="animate-fade-in">
+                    <h3 className="text-2xl font-bold text-church-primary mb-4">Financial Tracking</h3>
+                    <p className="text-church-secondary mb-6">
+                      Manage your church finances with confidence and transparency.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      <div className="bg-church-muted p-4 rounded-lg">
+                        <h4 className="font-semibold mb-2 text-church-primary">Online Giving</h4>
+                        <p className="text-church-secondary">Secure donations and recurring giving options.</p>
+                      </div>
+                      <div className="bg-church-muted p-4 rounded-lg">
+                        <h4 className="font-semibold mb-2 text-church-primary">Fund Accounting</h4>
+                        <p className="text-church-secondary">Track designated funds and manage your budget.</p>
+                      </div>
+                      <div className="bg-church-muted p-4 rounded-lg">
+                        <h4 className="font-semibold mb-2 text-church-primary">Pledge Management</h4>
+                        <p className="text-church-secondary">Track giving campaigns and capital projects.</p>
+                      </div>
+                      <div className="bg-church-muted p-4 rounded-lg">
+                        <h4 className="font-semibold mb-2 text-church-primary">Financial Reports</h4>
+                        <p className="text-church-secondary">Clear insights with customizable reports.</p>
+                      </div>
+                    </div>
+                    <img 
+                      src="https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?auto=format&fit=crop&w=800" 
+                      alt="Financial dashboard" 
+                      className="rounded-lg w-full h-48 object-cover"
+                    />
+                  </div>
+                )}
+
+                {activeFeature === 'groups' && (
+                  <div className="animate-fade-in">
+                    <h3 className="text-2xl font-bold text-church-primary mb-4">Ministry Groups</h3>
+                    <p className="text-church-secondary mb-6">
+                      Foster deeper community connections through organized ministry groups and teams.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      <div className="bg-church-muted p-4 rounded-lg">
+                        <h4 className="font-semibold mb-2 text-church-primary">Small Groups</h4>
+                        <p className="text-church-secondary">Organize and manage home groups and Bible studies.</p>
+                      </div>
+                      <div className="bg-church-muted p-4 rounded-lg">
+                        <h4 className="font-semibold mb-2 text-church-primary">Service Teams</h4>
+                        <p className="text-church-secondary">Coordinate volunteers and ministry teams.</p>
+                      </div>
+                      <div className="bg-church-muted p-4 rounded-lg">
+                        <h4 className="font-semibold mb-2 text-church-primary">Communication Tools</h4>
+                        <p className="text-church-secondary">Group messaging and resource sharing.</p>
+                      </div>
+                      <div className="bg-church-muted p-4 rounded-lg">
+                        <h4 className="font-semibold mb-2 text-church-primary">Accountability</h4>
+                        <p className="text-church-secondary">Track progress and foster spiritual growth.</p>
+                      </div>
+                    </div>
+                    <img 
+                      src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800" 
+                      alt="Small group meeting" 
+                      className="rounded-lg w-full h-48 object-cover"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -429,7 +565,7 @@ export default function LandingPage() {
               <a href="#" className="text-gray-400 hover:text-white transition-colors">
                 <span className="sr-only">Instagram</span>
                 <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clipRule="evenodd" />
+                  <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.045-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clipRule="evenodd" />
                 </svg>
               </a>
               <a href="#" className="text-gray-400 hover:text-white transition-colors">
@@ -443,6 +579,33 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
+  );
+}
+
+// Feature Button Component for interactive selection
+function FeatureButton({ icon, title, description, isActive, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full text-left p-4 rounded-lg transition-all duration-300 flex items-start space-x-4 ${
+        isActive 
+          ? 'bg-church-primary text-white shadow-lg transform scale-105' 
+          : 'bg-white hover:bg-church-muted border border-church-border'
+      }`}
+    >
+      <div className={`p-2 rounded-full ${isActive ? 'bg-white bg-opacity-20' : 'bg-church-muted'}`}>
+        {icon}
+      </div>
+      <div>
+        <h3 className={`font-semibold ${isActive ? 'text-white' : 'text-church-primary'}`}>{title}</h3>
+        <p className={`text-sm ${isActive ? 'text-white text-opacity-90' : 'text-church-secondary'}`}>
+          {description}
+        </p>
+      </div>
+      <div className="ml-auto">
+        <ArrowRight className={`h-5 w-5 transform transition-transform duration-300 ${isActive ? 'text-white rotate-90' : 'text-church-accent'}`} />
+      </div>
+    </button>
   );
 }
 
@@ -469,7 +632,7 @@ function TestimonialCard({ quote, name, church, size }) {
       <CardContent className="pt-6">
         <div className="mb-4 text-church-accent">
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-            <path d="M11.192 15.757c0-.88-.23-1.618-.69-2.217-.326-.412-.768-.683-1.327-.812-.55-.128-1.07-.137-1.54-.028-.16.032-.52.112-1.08.239-.63.148-1.16.287-1.59.414L4 10.994c.9-.37 1.96-.75 3.22-1.15 1.55-.47 2.67-.94 3.37-1.41.7-.48 1.31-1.09 1.84-1.84.71-1.08 1.06-2.28 1.06-3.6 0-1.6-.52-2.95-1.57-4.05C10.88-.13 9.6-.65 8.07-.65c-1.4 0-2.54.44-3.42 1.31-.88.87-1.32 1.99-1.32 3.35 0 1.28.42 2.33 1.25 3.17.84.84 1.89 1.26 3.16 1.26.95 0 1.739-.216 2.37-.65.61-.43 1.05-1.06 1.32-1.88.26 0 .38.26.38.78 0 1.82-.69 3.51-2.08 5.08-1.39 1.56-3.2 2.66-5.43 3.29L4 11.698c2.29-.82 4.02-1.74 5.18-2.76 1.17-1.02 1.76-2.17 1.76-3.44 0-.05-.01-.08-.01-.11-.5.03-1.07.05-1.71.05-1.55 0-2.86-.46-3.93-1.37-.88-.74-1.32-1.73-1.32-2.96 0-1.24.42-2.26 1.28-3.06.85-.8 1.95-1.21 3.31-1.21 1.36 0 2.49.45 3.34 1.35.85.9 1.28 2.04 1.28 3.42 0 2.1-.6 4-1.8 5.67-1.21 1.67-2.79 2.91-4.73 3.71l-3.43 1.38L0 15.82c1.38-.41 2.89-.99 4.53-1.72 1.62-.73 2.68-1.38 3.18-1.96.39-.45.66-.94.84-1.48.26.2.49.39.67.57.42.41.65.97.71 1.69.57-.92.94-1.78 1.09-2.58.83.9 1.14 1.94 1.14 3.54v1.89c0 .95.09 1.66.27 2.14.14.38.37.7.69.96.42.32.89.48 1.42.48.52 0 .96-.16 1.33-.47.36-.31.61-.72.73-1.23.16-.62.24-1.5.24-2.66v-1.99c0-1.19-.21-2.18-.63-2.99-.4-.81-1.02-1.39-1.88-1.77.25-.21.5-.42.76-.62.46-.36.93-.61 1.4-.73L16 10.424c-1.37.42-2.71 1.16-4.03 2.23-1.32 1.07-1.97 2.27-1.97 3.61 0 .29.04.58.13.85.09.29.24.53.43.74.2.22.45.39.74.52.29.12.62.18.99.18.91 0 1.67-.37 2.29-1.11.61-.75.92-1.66.92-2.75v-1.79c0-1.32-.36-2.32-1.08-2.98-.71-.66-1.64-.99-2.77-.99-.77 0-1.45.17-2.04.51-.59.33-1.09.8-1.49 1.39-.01-.38-.05-.79-.13-1.24-.07-.44-.19-.81-.34-1.11L8.7 9.424c.45-.14.79-.35 1.04-.63.25-.27.44-.6.57-1 .01.3.02.59.05.89.02.29.07.55.14.77l.27.27c.13.14.3.25.51.32.21.07.43.11.65.11.54 0 1.02-.2 1.44-.6l.09-.37c.02-.11.03-.24.03-.38zm3.15 0c0-1.51-.39-2.85-1.17-4.03-.78-1.16-1.95-2.01-3.48-2.55l.97-1.12c2.04.59 3.62 1.61 4.73 3.05 1.1 1.44 1.66 3.17 1.66 5.16 0 2.26-.81 4.05-2.43 5.38-1.63 1.33-3.42 2-5.38 2s-3.63-.64-4.98-1.91c-1.34-1.27-2.01-2.92-2.01-4.94 0-1.63.49-3.02 1.45-4.17.97-1.15 2.32-2.01 4.06-2.59l.63 1.22c-1.38.47-2.43 1.14-3.17 2.01-.73.88-1.1 1.95-1.1 3.22 0 1.609.55 2.869 1.65 3.779 1.1.91 2.34 1.36 3.7 1.36s2.69-.5 3.79-1.5 1.65-2.31 1.65-3.93v-.57c0-.38-.07-.72-.21-1.03-.13-.3-.35-.54-.65-.71-.3-.17-.65-.26-1.06-.26-.47 0-.88.1-1.23.29-.36.19-.65.51-.89.96-.23.45-.35.99-.35 1.63 0 .66.13 1.15.38 1.47.25.31.59.47 1.04.47.35 0 .67-.13.96-.38.28-.25.48-.63.59-1.12l1.43.39c-.19.82-.57 1.48-1.14 1.97-.56.49-1.24.74-2.02.74-.8 0-1.49-.28-2.06-.85-.58-.57-.87-1.41-.87-2.52 0-1.25.32-2.26.96-3.04.65-.78 1.51-1.17 2.58-1.17 1.1 0 1.99.29 2.65.88.67.59 1 1.4 1 2.43 0 .15-.01.3-.04.46h.02z" />
+            <path d="M11.192 15.757c0-.88-.23-1.618-.69-2.217-.326-.412-.768-.683-1.327-.812-.55-.128-1.07-.137-1.54-.028-.16.032-.52.112-1.08.239-.63.148-1.16.287-1.59.414L4 10.994c.9-.37 1.96-.75 3.22-1.15 1.55-.47 2.67-.94 3.37-1.41.7-.48 1.31-1.09 1.84-1.84.71-1.08 1.06-2.28 1.06-3.6 0-1.6-.52-2.95-1.57-4.05C10.88-.13 9.6-.65 8.07-.65c-1.4 0-2.54.44-3.42 1.31-.88.87-1.32 1.99-1.32 3.35 0 1.28.42 2.33 1.25 3.17.84.84 1.89 1.26 3.16 1.26.95 0 1.739-.216 2.37-.65.61-.43 1.05-1.06 1.32-1.88.26 0 .38.26.38.78 0 1.82-.69 3.51-2.08 5.08-1.39 1.56-3.2 2.66-5.43 3.29L4 11.698c2.29-.82 4.02-1.74 5.18-2.76 1.17-1.02 1.76-2.17 1.76-3.44 0-.05-.01-.08-.01-.11-.5.03-1.07.05-1.71.05-1.55 0-2.86-.46-3.93-1.37-.88-.74-1.32-1.73-1.32-2.96 0-1.24.42-2.26.96-3.04.65-.78 1.51-1.17 2.58-1.17 1.1 0 1.99.29 2.65.88.67.59 1 1.4 1 2.43 0 .15-.01.3-.04.46h.02z" />
           </svg>
         </div>
         <p className="text-church-secondary italic mb-6">{quote}</p>
