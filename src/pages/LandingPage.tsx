@@ -1,13 +1,14 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { ArrowRight, Calendar, DollarSign, Landmark, Users, Check, ExternalLink, Smartphone, Church, Heart, Globe } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function LandingPage() {
   const isMobile = useIsMobile();
-  const [activeFeature, setActiveFeature] = useState<string | null>(null);
+  const [activeFeature, setActiveFeature] = useState<string | null>("mobile");
   
   return (
     <div className="min-h-screen bg-white">
@@ -39,8 +40,8 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero Section - Simplified and Growth Focused */}
-      <section className="relative py-20 bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 overflow-hidden">
+      {/* Hero Section - Updated with softer gradient background */}
+      <section className="relative py-20 bg-gradient-to-r from-[#F2F7FB] via-[#F7F9FD] to-[#F2F7FB] overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
             <path d="M0,0 L100,0 L100,100 L0,100 Z" fill="url(#grid)" />
