@@ -2,9 +2,12 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { ArrowRight, Calendar, DollarSign, Landmark, Users, Check, ExternalLink } from "lucide-react";
+import { ArrowRight, Calendar, DollarSign, Landmark, Users, Check, ExternalLink, Smartphone, Church, Heart, Globe } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function LandingPage() {
+  const isMobile = useIsMobile();
+  
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -35,42 +38,82 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-church-muted to-white py-20">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-bold text-church-primary leading-tight">
-                Simplify Your Church Management
-              </h1>
-              <p className="mt-4 text-xl text-church-secondary">
-                Everything your ministry needs - members, events, finances, and more in one place
-              </p>
-              <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                <Link to="/dashboard">
-                  <Button size="lg" className="w-full sm:w-auto">
-                    Start Free Trial
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-                <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                  Schedule a Demo
-                </Button>
+      {/* Hero Section - Updated for Impact and Growth Focus */}
+      <section className="relative py-20 bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path d="M0,0 L100,0 L100,100 L0,100 Z" fill="url(#grid)" />
+          </svg>
+          <defs>
+            <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
+              <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" strokeWidth="0.5" />
+            </pattern>
+          </defs>
+        </div>
+        <div className="container mx-auto px-6 relative">
+          <div className="text-center max-w-3xl mx-auto">
+            <div className="inline-block p-1 px-3 mb-6 rounded-full bg-blue-50 border border-blue-100">
+              <div className="flex items-center space-x-2 text-sm font-medium text-blue-700">
+                <Church className="h-4 w-4" />
+                <span>Built specifically for growing ministries</span>
               </div>
-              <div className="mt-6 flex items-center text-sm text-church-secondary">
+            </div>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-church-primary leading-tight mb-4">
+              Grow Your Church Community and Impact
+            </h1>
+            <p className="mt-4 text-xl text-church-secondary mb-8 max-w-2xl mx-auto">
+              Strengthen connections, inspire engagement, and expand your ministry's reach—all through one powerful platform.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
+              <Link to="/dashboard">
+                <Button size="lg" className="w-full sm:w-auto">
+                  Start Free Trial
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+              <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                Schedule a Demo
+              </Button>
+            </div>
+            <div className="flex justify-center text-sm text-church-secondary mb-10">
+              <div className="flex items-center">
                 <Check className="h-4 w-4 mr-2 text-church-accent" />
                 <span>No credit card required</span>
               </div>
+              <div className="mx-3">•</div>
+              <div className="flex items-center">
+                <Check className="h-4 w-4 mr-2 text-church-accent" />
+                <span>14-day free trial</span>
+              </div>
             </div>
-            <div className="hidden md:block">
-              <img
-                src="https://images.unsplash.com/photo-1460925895917-afdab827c52f"
-                alt="Church Management Dashboard"
-                className="rounded-lg shadow-xl"
-              />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {/* Mobile App Preview */}
+              <div className="col-span-2 bg-white rounded-xl shadow-lg p-4 flex flex-col items-center">
+                <Smartphone className="h-8 w-8 text-church-accent mb-2" />
+                <h3 className="font-semibold mb-1">Mobile App</h3>
+                <p className="text-sm text-church-secondary text-center mb-3">Engage your congregation on the go</p>
+                <img 
+                  src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81" 
+                  alt="Mobile app preview" 
+                  className="rounded-lg h-36 object-cover w-full"
+                />
+              </div>
+              {/* Community Growth */}
+              <div className="bg-white rounded-xl shadow-lg p-4 flex flex-col items-center">
+                <Users className="h-8 w-8 text-church-accent mb-2" />
+                <h3 className="font-semibold mb-1">Community</h3>
+                <p className="text-sm text-church-secondary text-center">Build deeper connections</p>
+              </div>
+              {/* Global Impact */}
+              <div className="bg-white rounded-xl shadow-lg p-4 flex flex-col items-center">
+                <Globe className="h-8 w-8 text-church-accent mb-2" />
+                <h3 className="font-semibold mb-1">Global Reach</h3>
+                <p className="text-sm text-church-secondary text-center">Extend your ministry's impact</p>
+              </div>
             </div>
           </div>
         </div>
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent"></div>
       </section>
 
       {/* Stats Section */}
@@ -132,6 +175,54 @@ export default function LandingPage() {
               description="Coordinate small groups, ministries, and volunteer teams effectively."
               link="/groups"
             />
+          </div>
+        </div>
+      </section>
+
+      {/* Mobile App Section */}
+      <section className="py-16 bg-church-muted">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="inline-block p-1 px-3 mb-6 rounded-full bg-blue-50 border border-blue-100">
+                <div className="flex items-center space-x-2 text-sm font-medium text-blue-700">
+                  <Smartphone className="h-4 w-4" />
+                  <span>Mobile Experience</span>
+                </div>
+              </div>
+              <h2 className="text-3xl font-bold text-church-primary mb-4">Take Your Ministry Everywhere You Go</h2>
+              <p className="text-lg text-church-secondary mb-6">
+                Connect with your congregation anytime, anywhere with our powerful mobile app. Send notifications, manage events, and track attendance on the go.
+              </p>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start">
+                  <Check className="h-5 w-5 text-church-accent mr-2 mt-0.5" />
+                  <span>Real-time notifications and updates</span>
+                </li>
+                <li className="flex items-start">
+                  <Check className="h-5 w-5 text-church-accent mr-2 mt-0.5" />
+                  <span>Mobile check-in for events and services</span>
+                </li>
+                <li className="flex items-start">
+                  <Check className="h-5 w-5 text-church-accent mr-2 mt-0.5" />
+                  <span>Secure giving and donation tracking</span>
+                </li>
+                <li className="flex items-start">
+                  <Check className="h-5 w-5 text-church-accent mr-2 mt-0.5" />
+                  <span>Member directory and communication</span>
+                </li>
+              </ul>
+              <Button className="bg-church-accent hover:bg-church-accent/90">
+                Learn More About Mobile Features
+              </Button>
+            </div>
+            <div className="flex justify-center">
+              <img 
+                src="https://images.unsplash.com/photo-1551038247-3d9af20df552" 
+                alt="Mobile app on a smartphone" 
+                className="rounded-xl shadow-xl max-w-sm"
+              />
+            </div>
           </div>
         </div>
       </section>
