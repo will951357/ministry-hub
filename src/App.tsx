@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Index, NotFound } from "./pages";
+import { NotFound } from "./pages";
 import People from "./pages/People";
 import Members from "./pages/people/Members";
 import EditMember from "./pages/people/EditMember";
@@ -48,6 +48,8 @@ import TitheForm from "./pages/finance/TitheForm";
 import FundForm from "./pages/finance/FundForm";
 import ChurchProfile from "./pages/profile/ChurchProfile";
 import Notifications from "./pages/Notifications";
+import LandingPage from "./pages/LandingPage";
+import Dashboard from "./pages/Dashboard";
 
 const queryClient = new QueryClient();
 
@@ -58,7 +60,11 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          {/* Landing page is now the root route */}
+          <Route path="/" element={<LandingPage />} />
+          
+          {/* Dashboard moved to its own route */}
+          <Route path="/dashboard" element={<Dashboard />} />
           
           {/* Calendar section */}
           <Route path="/calendar" element={<Calendar />} />
