@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
@@ -11,6 +12,101 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+
+// Helper components for the landing page
+const TestimonialCard = ({ quote, name, church, size }: { quote: string; name: string; church: string; size: string }) => (
+  <Card className="h-full">
+    <CardContent className="p-6 flex flex-col h-full">
+      <div className="flex-grow mb-4">
+        <p className="italic text-church-secondary">{quote}</p>
+      </div>
+      <div>
+        <p className="font-semibold text-church-primary">{name}</p>
+        <p className="text-sm text-church-secondary">{church}</p>
+        <p className="text-xs text-church-secondary/70">{size}</p>
+      </div>
+    </CardContent>
+  </Card>
+);
+
+const PricingCard = ({ 
+  tier, 
+  price, 
+  description, 
+  features, 
+  buttonText, 
+  popular 
+}: { 
+  tier: string; 
+  price: string; 
+  description: string; 
+  features: string[]; 
+  buttonText: string; 
+  popular: boolean;
+}) => (
+  <Card className={`relative h-full ${popular ? "border-church-accent shadow-lg" : ""}`}>
+    {popular && (
+      <div className="absolute -top-4 left-0 right-0 flex justify-center">
+        <span className="bg-church-accent text-white text-xs font-semibold py-1 px-3 rounded-full">
+          Most Popular
+        </span>
+      </div>
+    )}
+    <CardContent className={`p-6 ${popular ? "pt-8" : ""}`}>
+      <div className="text-center mb-6">
+        <h3 className="text-xl font-bold text-church-primary mb-1">{tier}</h3>
+        <div className="text-3xl font-bold text-church-primary mb-2">{price}<span className="text-sm font-normal text-church-secondary">/month</span></div>
+        <p className="text-church-secondary text-sm">{description}</p>
+      </div>
+      <div className="mb-6">
+        <ul className="space-y-2">
+          {features.map((feature, index) => (
+            <li key={index} className="flex items-start">
+              <Check className="h-5 w-5 text-church-accent mr-2 mt-0.5" />
+              <span>{feature}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="text-center">
+        <Button className={popular ? "bg-church-accent hover:bg-church-accent/90 w-full" : "w-full"}>
+          {buttonText}
+        </Button>
+      </div>
+    </CardContent>
+  </Card>
+);
+
+const FaqItem = ({ question, answer }: { question: string; answer: string }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div className="bg-white rounded-lg overflow-hidden shadow-sm">
+      <button
+        className="w-full text-left p-4 flex justify-between items-center focus:outline-none"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className="font-medium text-church-primary">{question}</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className={`h-5 w-5 transition-transform ${isOpen ? "transform rotate-180" : ""}`}
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fillRule="evenodd"
+            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </button>
+      {isOpen && (
+        <div className="p-4 pt-0 text-church-secondary">
+          <p>{answer}</p>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default function LandingPage() {
   const isMobile = useIsMobile();
@@ -643,4 +739,54 @@ export default function LandingPage() {
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-lg
+              <h3 className="text-lg font-bold mb-4">MinistryHub</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">About Us</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Our Team</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Careers</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Contact</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold mb-4">Resources</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Blog</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Help Center</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Webinars</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Guides</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold mb-4">Legal</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Security</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold mb-4">Connect</h3>
+              <div className="flex space-x-4 mb-4">
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-facebook"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                </a>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-twitter"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+                </a>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-instagram"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                </a>
+              </div>
+              <p className="text-sm text-gray-400">
+                Subscribe to our newsletter for updates on new features and resources.
+              </p>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
+            <p>© {new Date().getFullYear()} MinistryHub. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
