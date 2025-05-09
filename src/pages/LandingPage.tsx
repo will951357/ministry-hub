@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
@@ -350,7 +349,7 @@ export default function LandingPage() {
             {/* Feature Details Column with Carousel */}
             <div className="col-span-1 lg:col-span-8">
               <div className="bg-white rounded-xl shadow-lg p-6 h-full overflow-hidden transition-all duration-500 transform">
-                <Carousel className="w-full h-full" onSelect={(index) => {
+                <Carousel className="w-full h-full" onSelect={(index: number) => {
                   // Map index to feature name
                   const features = ['mobile', 'members', 'events', 'finance', 'classes', 'groups'];
                   if (index >= 0 && index < features.length) {
