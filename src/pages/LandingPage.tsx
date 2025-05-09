@@ -1,10 +1,16 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { ArrowRight, Calendar, DollarSign, Landmark, Users, Check, ExternalLink, Smartphone, Church, Heart, Globe, BookOpen } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useEffect } from "react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 export default function LandingPage() {
   const isMobile = useIsMobile();
@@ -40,7 +46,7 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero Section - Updated with softer gradient background */}
+      {/* Hero Section - with softer gradient background */}
       <section className="relative py-20 bg-gradient-to-r from-[#F8FAFC] via-[#F9FAFB] to-[#F8FAFC] overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -117,7 +123,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features Section with Interactive Mobile App Showcase */}
+      {/* Features Section with Carousel Showcase */}
       <section id="features" className="py-20">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
@@ -127,62 +133,72 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Features Column */}
-            <div className="col-span-1 lg:col-span-1">
-              <div className="space-y-4">
-                <FeatureButton
-                  icon={<Smartphone className="h-6 w-6 text-church-accent" />}
-                  title="Mobile App"
-                  description="Engage your congregation on the go"
-                  isActive={activeFeature === 'mobile'}
-                  onClick={() => setActiveFeature(activeFeature === 'mobile' ? null : 'mobile')}
-                />
-                
-                <FeatureButton
-                  icon={<Users className="h-6 w-6 text-church-accent" />}
-                  title="Member Management"
-                  description="Track member information and spiritual journeys"
-                  isActive={activeFeature === 'members'}
-                  onClick={() => setActiveFeature(activeFeature === 'members' ? null : 'members')}
-                />
-                
-                <FeatureButton
-                  icon={<Calendar className="h-6 w-6 text-church-accent" />}
-                  title="Event Planning"
-                  description="Organize services and special events"
-                  isActive={activeFeature === 'events'}
-                  onClick={() => setActiveFeature(activeFeature === 'events' ? null : 'events')}
-                />
-                
-                <FeatureButton
-                  icon={<DollarSign className="h-6 w-6 text-church-accent" />}
-                  title="Financial Tracking"
-                  description="Manage tithes, donations, and expenses"
-                  isActive={activeFeature === 'finance'}
-                  onClick={() => setActiveFeature(activeFeature === 'finance' ? null : 'finance')}
-                />
-                
-                <FeatureButton
-                  icon={<BookOpen className="h-6 w-6 text-church-accent" />}
-                  title="Classes Management"
-                  description="Create and manage learning programs"
-                  isActive={activeFeature === 'classes'}
-                  onClick={() => setActiveFeature(activeFeature === 'classes' ? null : 'classes')}
-                />
-                
-                <FeatureButton
-                  icon={<Landmark className="h-6 w-6 text-church-accent" />}
-                  title="Ministry Groups"
-                  description="Coordinate small groups and volunteer teams"
-                  isActive={activeFeature === 'groups'}
-                  onClick={() => setActiveFeature(activeFeature === 'groups' ? null : 'groups')}
-                />
-              </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Features Carousel */}
+            <div className="col-span-1 lg:col-span-4">
+              <Carousel className="w-full">
+                <CarouselContent>
+                  <CarouselItem onClick={() => setActiveFeature('mobile')} className="cursor-pointer">
+                    <FeatureCard
+                      icon={<Smartphone className="h-10 w-10 text-church-accent" />}
+                      title="Mobile App"
+                      description="Engage your congregation on the go"
+                      isActive={activeFeature === 'mobile'}
+                    />
+                  </CarouselItem>
+                  
+                  <CarouselItem onClick={() => setActiveFeature('members')} className="cursor-pointer">
+                    <FeatureCard
+                      icon={<Users className="h-10 w-10 text-church-accent" />}
+                      title="Member Management"
+                      description="Track member information and spiritual journeys"
+                      isActive={activeFeature === 'members'}
+                    />
+                  </CarouselItem>
+                  
+                  <CarouselItem onClick={() => setActiveFeature('events')} className="cursor-pointer">
+                    <FeatureCard
+                      icon={<Calendar className="h-10 w-10 text-church-accent" />}
+                      title="Event Planning"
+                      description="Organize services and special events"
+                      isActive={activeFeature === 'events'}
+                    />
+                  </CarouselItem>
+                  
+                  <CarouselItem onClick={() => setActiveFeature('finance')} className="cursor-pointer">
+                    <FeatureCard
+                      icon={<DollarSign className="h-10 w-10 text-church-accent" />}
+                      title="Financial Tracking"
+                      description="Manage tithes, donations, and expenses"
+                      isActive={activeFeature === 'finance'}
+                    />
+                  </CarouselItem>
+                  
+                  <CarouselItem onClick={() => setActiveFeature('classes')} className="cursor-pointer">
+                    <FeatureCard
+                      icon={<BookOpen className="h-10 w-10 text-church-accent" />}
+                      title="Classes Management"
+                      description="Create and manage learning programs"
+                      isActive={activeFeature === 'classes'}
+                    />
+                  </CarouselItem>
+                  
+                  <CarouselItem onClick={() => setActiveFeature('groups')} className="cursor-pointer">
+                    <FeatureCard
+                      icon={<Landmark className="h-10 w-10 text-church-accent" />}
+                      title="Ministry Groups"
+                      description="Coordinate small groups and volunteer teams"
+                      isActive={activeFeature === 'groups'}
+                    />
+                  </CarouselItem>
+                </CarouselContent>
+                <CarouselPrevious className="lg:-left-2" />
+                <CarouselNext className="lg:-right-2" />
+              </Carousel>
             </div>
 
             {/* Feature Details Column */}
-            <div className="col-span-1 lg:col-span-2">
+            <div className="col-span-1 lg:col-span-8">
               <div className="bg-white rounded-xl shadow-lg p-6 h-full overflow-hidden transition-all duration-500 transform">
                 {activeFeature === null && (
                   <div className="h-full flex flex-col items-center justify-center text-church-secondary space-y-4 animate-fade-in">
@@ -616,7 +632,7 @@ export default function LandingPage() {
               <a href="#" className="text-gray-400 hover:text-white transition-colors">
                 <span className="sr-only">Instagram</span>
                 <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63z" clipRule="evenodd" />
+                  <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363-.416-2.427-.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63z" clipRule="evenodd" />
                   <path d="M17.25 8.75a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm-7.5 6a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z" />
                 </svg>
               </a>
@@ -634,7 +650,35 @@ export default function LandingPage() {
   );
 }
 
-// Feature Button Component
+// Feature Card Component for Carousel
+function FeatureCard({ icon, title, description, isActive }: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  isActive: boolean;
+}) {
+  return (
+    <div 
+      className={`w-full h-full p-6 rounded-lg transition-all duration-300 ${
+        isActive 
+          ? "bg-white shadow-md border-l-4 border-church-accent" 
+          : "bg-church-muted hover:bg-white/80 hover:shadow-sm"
+      }`}
+    >
+      <div className="flex flex-col items-center text-center">
+        <div className="mb-4">
+          {icon}
+        </div>
+        <h3 className={`font-semibold text-lg mb-2 ${isActive ? "text-church-accent" : "text-church-primary"}`}>
+          {title}
+        </h3>
+        <p className="text-church-secondary">{description}</p>
+      </div>
+    </div>
+  );
+}
+
+// FeatureButton Component (keeping for reference)
 function FeatureButton({ icon, title, description, isActive, onClick }: {
   icon: React.ReactNode;
   title: string;
