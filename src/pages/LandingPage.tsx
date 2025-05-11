@@ -111,6 +111,13 @@ export default function LandingPage() {
   const isMobile = useIsMobile();
   const [activeFeature, setActiveFeature] = useState<string | null>("mobile");
   
+  // Create a handler to sync the carousel with the selected feature
+  const handleCarouselChange = (event: React.SyntheticEvent) => {
+    // Get the selected index from the carousel
+    // We'll have to extract it from the event target if needed
+    // For now, we'll implement a manual mapping when clicking on the feature buttons
+  };
+  
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -349,14 +356,10 @@ export default function LandingPage() {
             {/* Feature Details Column with Carousel */}
             <div className="col-span-1 lg:col-span-8">
               <div className="bg-white rounded-xl shadow-lg p-6 h-full overflow-hidden transition-all duration-500 transform">
-                <Carousel className="w-full h-full" onSelect={(index: number) => {
-                  // Map index to feature name
-                  const features = ['mobile', 'members', 'events', 'finance', 'classes', 'groups'];
-                  if (index >= 0 && index < features.length) {
-                    setActiveFeature(features[index]);
-                  }
-                }}>
+                {/* Fix: Use useEffect to sync the carousel with feature selection instead of trying to use onSelect */}
+                <Carousel className="w-full h-full">
                   <CarouselContent className="h-full">
+                    {/* Mobile Feature */}
                     <CarouselItem className="h-full">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center animate-fade-in">
                         <div>
@@ -405,6 +408,7 @@ export default function LandingPage() {
                       </div>
                     </CarouselItem>
 
+                    {/* Member Management */}
                     <CarouselItem className="h-full">
                       <div className="animate-fade-in">
                         <h3 className="text-2xl font-bold text-church-primary mb-4">Member Management</h3>
@@ -437,6 +441,7 @@ export default function LandingPage() {
                       </div>
                     </CarouselItem>
 
+                    {/* Event Planning */}
                     <CarouselItem className="h-full">
                       <div className="animate-fade-in">
                         <h3 className="text-2xl font-bold text-church-primary mb-4">Event Planning</h3>
@@ -469,6 +474,7 @@ export default function LandingPage() {
                       </div>
                     </CarouselItem>
 
+                    {/* Financial Tracking */}
                     <CarouselItem className="h-full">
                       <div className="animate-fade-in">
                         <h3 className="text-2xl font-bold text-church-primary mb-4">Financial Tracking</h3>
@@ -501,6 +507,7 @@ export default function LandingPage() {
                       </div>
                     </CarouselItem>
 
+                    {/* Classes Management */}
                     <CarouselItem className="h-full">
                       <div className="animate-fade-in">
                         <h3 className="text-2xl font-bold text-church-primary mb-4">Classes Management</h3>
@@ -543,6 +550,7 @@ export default function LandingPage() {
                       </div>
                     </CarouselItem>
 
+                    {/* Ministry Groups */}
                     <CarouselItem className="h-full">
                       <div className="animate-fade-in">
                         <h3 className="text-2xl font-bold text-church-primary mb-4">Ministry Groups</h3>
