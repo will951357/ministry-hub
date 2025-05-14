@@ -4,12 +4,20 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSam
 import { cn } from "@/lib/utils";
 import { Event } from '@/types/event';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Plus } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface MonthCalendarViewProps {
   events: Event[];
@@ -27,6 +35,12 @@ export function MonthCalendarView({ events, selectedDate, onSelectDate, onAddEve
   
   const getEventsForDate = (date: Date) => {
     return events.filter(event => isSameDay(new Date(event.date), date));
+  };
+
+  // Function to handle adding an appointment
+  const handleAddAppointment = (date: Date) => {
+    // Navigate to appointment creation page with the date
+    window.location.href = `/people/appointments/create?date=${format(date, 'yyyy-MM-dd')}`;
   };
 
   return (
@@ -49,13 +63,14 @@ export function MonthCalendarView({ events, selectedDate, onSelectDate, onAddEve
       <div className="grid grid-cols-7 auto-rows-fr">
         {daysInMonth.map((day) => {
           const dayEvents = getEventsForDate(day);
+          const hasAppointments = dayEvents.length > 0;
           const isCurrentMonth = isSameMonth(day, selectedDate);
           
           return (
             <div
               key={day.toString()}
               className={cn(
-                "min-h-[80px] md:min-h-[120px] p-1 border border-border cursor-pointer",
+                "min-h-[80px] md:min-h-[120px] p-1 border border-border cursor-pointer relative group",
                 !isCurrentMonth && "bg-muted/20 text-muted-foreground",
                 isToday(day) && "bg-accent/20",
                 isSameDay(day, selectedDate) && "bg-primary/10"
@@ -69,6 +84,40 @@ export function MonthCalendarView({ events, selectedDate, onSelectDate, onAddEve
                 )}>
                   {format(day, 'd')}
                 </span>
+                
+                {/* Dropdown menu with plus icon */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button 
+                      className="h-6 w-6 rounded-full bg-background border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-muted opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 focus:outline-none"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="bg-popover w-48 z-50">
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem 
+                        className="cursor-pointer" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onAddEvent(day);
+                        }}
+                      >
+                        Add Event
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        className="cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddAppointment(day);
+                        }}
+                      >
+                        Add Appointment
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               
               <div className="mt-1 space-y-1">

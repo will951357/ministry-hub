@@ -15,6 +15,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Event } from '@/types/event';
+import { useNavigate } from 'react-router-dom';
+import { toast } from "@/hooks/use-toast";
 
 // Extend the Event type with an additional 'type' property
 interface CalendarEvent extends Event {
@@ -110,6 +112,7 @@ const Calendar = () => {
   const [selectedTypes, setSelectedTypes] = useState<('events' | 'birthdays' | 'appointments' | 'classes')[]>(['events', 'birthdays', 'appointments', 'classes']);
   const isMobile = useIsMobile();
   const [defaultView, setDefaultView] = useState<'month' | 'week' | 'day'>(isMobile ? 'day' : 'month');
+  const navigate = useNavigate();
 
   const filteredEvents = useMemo(() => 
     sampleEvents.filter(event => selectedTypes.includes(event.type)),
@@ -142,6 +145,15 @@ const Calendar = () => {
   const handleDayClick = (date: Date) => {
     setSelectedDate(date);
     setCalendarViewMode('day');
+  };
+
+  // Add function to handle adding a new event
+  const handleAddEvent = (date: Date) => {
+    navigate(`/events/create?date=${format(date, 'yyyy-MM-dd')}`);
+    toast({
+      title: "Creating new event",
+      description: `Adding event for ${format(date, 'MMMM d, yyyy')}`,
+    });
   };
 
   useEffect(() => {
@@ -270,7 +282,7 @@ const Calendar = () => {
                 events={filteredEvents}
                 selectedDate={selectedDate || new Date()} 
                 onSelectDate={handleDayClick}
-                onAddEvent={() => {}}
+                onAddEvent={handleAddEvent}
               />
             )}
             
@@ -279,7 +291,7 @@ const Calendar = () => {
                 events={filteredEvents}
                 selectedDate={selectedDate || new Date()}
                 onSelectEvent={() => {}}
-                onAddEvent={() => {}}
+                onAddEvent={handleAddEvent}
               />
             )}
             
@@ -288,7 +300,7 @@ const Calendar = () => {
                 events={filteredEvents}
                 selectedDate={selectedDate || new Date()}
                 onSelectEvent={() => {}}
-                onAddEvent={() => {}}
+                onAddEvent={handleAddEvent}
               />
             )}
           </div>
