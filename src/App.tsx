@@ -50,6 +50,7 @@ import ChurchProfile from "./pages/profile/ChurchProfile";
 import Notifications from "./pages/Notifications";
 import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
+import SignIn from "./pages/auth/SignIn";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +63,9 @@ const App = () => (
         <Routes>
           {/* Landing page is now the root route */}
           <Route path="/" element={<LandingPage />} />
+          
+          {/* Authentication routes */}
+          <Route path="/signin" element={<SignIn />} />
           
           {/* Dashboard moved to its own route */}
           <Route path="/dashboard" element={<Dashboard />} />
