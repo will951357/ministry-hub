@@ -37,6 +37,7 @@ import { cn } from "@/lib/utils";
 import ChooseMemberDialog from "@/pages/people/ChooseMemberDialog";
 import AssignedMemberChip from "@/pages/people/AssignedMemberChip";
 import { formatToBRL, parseBRLString } from '@/utils/currency';
+import { ParticipantsModal } from '@/components/events/ParticipantsModal';
 
 interface CreateEventProps {
   defaultDate?: Date | null;
@@ -70,6 +71,15 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
   const [formData, setFormData] = useState<any>(null);
   const [showMemberDialog, setShowMemberDialog] = useState(false);
   const [selectedMembers, setSelectedMembers] = useState<MemberType[]>([]);
+  const [showParticipantsModal, setShowParticipantsModal] = useState(false);
+
+  // Mock participants data for existing events
+  const mockParticipants = [
+    { id: 1, name: "João Silva", email: "joao@example.com", checkedIn: true },
+    { id: 2, name: "Maria Santos", email: "maria@example.com", checkedIn: false },
+    { id: 3, name: "Pedro Oliveira", email: "pedro@example.com", checkedIn: true },
+    { id: 4, name: "Ana Costa", email: "ana@example.com", checkedIn: false },
+  ];
 
   useEffect(() => {
     if (eventId) {
@@ -203,16 +213,29 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
     <MainLayout>
       <div className="container mx-auto py-6">
         <div className="flex flex-col space-y-6">
-          <div className="flex items-center gap-1">
-            <Button 
-              variant="outline" 
-              size="icon" 
-              onClick={() => navigate('/events')}
-              className="h-8 w-8"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <h1 className="text-3xl font-bold">{eventId ? 'Edit Event' : 'Create New Event'}</h1>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1">
+              <Button 
+                variant="outline" 
+                size="icon" 
+                onClick={() => navigate('/events')}
+                className="h-8 w-8"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <h1 className="text-3xl font-bold">{eventId ? 'Edit Event' : 'Create New Event'}</h1>
+            </div>
+            
+            {eventId && (
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => setShowParticipantsModal(true)}
+              >
+                <Users className="h-4 w-4" />
+                View Participants
+              </Button>
+            )}
           </div>
 
           <Card>
@@ -431,6 +454,13 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
         onOpenChange={setShowMemberDialog}
         onChoose={handleAddMember}
         allowMultiple={true}
+      />
+
+      <ParticipantsModal
+        open={showParticipantsModal}
+        onOpenChange={setShowParticipantsModal}
+        eventTitle={name || 'Event'}
+        participants={eventId ? mockParticipants : []}
       />
     </MainLayout>
   );
