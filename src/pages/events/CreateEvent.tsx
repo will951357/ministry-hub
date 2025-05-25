@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from "react-router-dom";
-import { ChevronLeft, DollarSign, Users, ArrowLeft, CalendarIcon } from "lucide-react";
+import { ChevronLeft, DollarSign, Users, ArrowLeft, CalendarIcon, Mail, Check, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { sampleEvents } from '@/pages/Events';
 import {
@@ -37,7 +37,9 @@ import { cn } from "@/lib/utils";
 import ChooseMemberDialog from "@/pages/people/ChooseMemberDialog";
 import AssignedMemberChip from "@/pages/people/AssignedMemberChip";
 import { formatToBRL, parseBRLString } from '@/utils/currency';
-import { ParticipantsModal } from '@/components/events/ParticipantsModal';
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface CreateEventProps {
   defaultDate?: Date | null;
@@ -48,6 +50,14 @@ interface MemberType {
   name: string;
   email: string;
   photo?: string;
+}
+
+interface Participant {
+  id: number;
+  name: string;
+  email: string;
+  checkedIn: boolean;
+  avatar?: string;
 }
 
 export function CreateEvent({ defaultDate }: CreateEventProps) {
@@ -71,10 +81,10 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
   const [formData, setFormData] = useState<any>(null);
   const [showMemberDialog, setShowMemberDialog] = useState(false);
   const [selectedMembers, setSelectedMembers] = useState<MemberType[]>([]);
-  const [showParticipantsModal, setShowParticipantsModal] = useState(false);
+  const [showParticipants, setShowParticipants] = useState(false);
 
   // Mock participants data for existing events
-  const mockParticipants = [
+  const mockParticipants: Participant[] = [
     { id: 1, name: "João Silva", email: "joao@example.com", checkedIn: true },
     { id: 2, name: "Maria Santos", email: "maria@example.com", checkedIn: false },
     { id: 3, name: "Pedro Oliveira", email: "pedro@example.com", checkedIn: true },
@@ -209,6 +219,83 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
     setSelectedMembers(selectedMembers.filter(member => member.id !== memberId));
   };
 
+  const checkedInCount = mockParticipants.filter(p => p.checkedIn).length;
+
+  const renderParticipantsList = () => (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold">Event Participants</h3>
+          <p className="text-sm text-muted-foreground">
+            {mockParticipants.length} registered participants
+            {mockParticipants.length > 0 && (
+              <span className="ml-2">
+                • {checkedInCount} checked in
+              </span>
+            )}
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => setShowParticipants(false)}
+        >
+          Back to Event Details
+        </Button>
+      </div>
+      
+      <ScrollArea className="max-h-[500px]">
+        {mockParticipants.length > 0 ? (
+          <div className="space-y-3">
+            {mockParticipants.map((participant) => (
+              <div 
+                key={participant.id} 
+                className="flex items-center justify-between p-4 rounded-lg border bg-card"
+              >
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={participant.avatar} />
+                    <AvatarFallback className="text-sm">
+                      {participant.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0">
+                    <p className="font-medium truncate">{participant.name}</p>
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <Mail className="h-4 w-4" />
+                      <span className="truncate">{participant.email}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <Badge 
+                  variant={participant.checkedIn ? "default" : "secondary"}
+                  className={participant.checkedIn ? "bg-green-100 text-green-800 border-green-200" : ""}
+                >
+                  {participant.checkedIn ? (
+                    <>
+                      <Check className="h-4 w-4 mr-1" />
+                      Checked In
+                    </>
+                  ) : (
+                    <>
+                      <X className="h-4 w-4 mr-1" />
+                      Pending
+                    </>
+                  )}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 text-muted-foreground">
+            <Users className="h-16 w-16 mx-auto mb-4 opacity-50" />
+            <p>No participants registered yet</p>
+          </div>
+        )}
+      </ScrollArea>
+    </div>
+  );
+
   return (
     <MainLayout>
       <div className="container mx-auto py-6">
@@ -226,11 +313,11 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
               <h1 className="text-3xl font-bold">{eventId ? 'Edit Event' : 'Create New Event'}</h1>
             </div>
             
-            {eventId && (
+            {eventId && !showParticipants && (
               <Button
                 variant="outline"
                 className="gap-2"
-                onClick={() => setShowParticipantsModal(true)}
+                onClick={() => setShowParticipants(true)}
               >
                 <Users className="h-4 w-4" />
                 View Participants
@@ -240,195 +327,199 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
 
           <Card>
             <CardHeader>
-              <CardTitle>Event Details</CardTitle>
+              <CardTitle>{showParticipants ? 'Participants' : 'Event Details'}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 py-4">
-                <form onSubmit={handleSubmit}>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-1 gap-3">
-                      <Label htmlFor="name">Event Name</Label>
-                      <Input
-                        id="name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 gap-3">
-                      <Label htmlFor="description">Description</Label>
-                      <Textarea
-                        id="description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="grid gap-2">
-                        <Label>Date</Label>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "justify-start text-left font-normal",
-                                !date && "text-muted-foreground"
-                              )}
-                            >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {date ? format(date, "PPP") : <span>Pick a date</span>}
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0">
-                            <Calendar
-                              mode="single"
-                              selected={date}
-                              onSelect={setDate}
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
+              {showParticipants ? (
+                renderParticipantsList()
+              ) : (
+                <div className="grid gap-4 py-4">
+                  <form onSubmit={handleSubmit}>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-1 gap-3">
+                        <Label htmlFor="name">Event Name</Label>
+                        <Input
+                          id="name"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="grid grid-cols-1 gap-3">
+                        <Label htmlFor="description">Description</Label>
+                        <Textarea
+                          id="description"
+                          value={description}
+                          onChange={(e) => setDescription(e.target.value)}
+                        />
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="grid gap-2">
-                          <Label htmlFor="startTime">Start Time</Label>
-                          <Input
-                            id="startTime"
-                            type="time"
-                            value={startTime}
-                            onChange={(e) => setStartTime(e.target.value)}
-                          />
+                          <Label>Date</Label>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className={cn(
+                                  "justify-start text-left font-normal",
+                                  !date && "text-muted-foreground"
+                                )}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {date ? format(date, "PPP") : <span>Pick a date</span>}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0">
+                              <Calendar
+                                mode="single"
+                                selected={date}
+                                onSelect={setDate}
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="grid gap-2">
+                            <Label htmlFor="startTime">Start Time</Label>
+                            <Input
+                              id="startTime"
+                              type="time"
+                              value={startTime}
+                              onChange={(e) => setStartTime(e.target.value)}
+                            />
+                          </div>
+                          <div className="grid gap-2">
+                            <Label htmlFor="endTime">End Time</Label>
+                            <Input
+                              id="endTime"
+                              type="time"
+                              value={endTime}
+                              onChange={(e) => setEndTime(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 gap-3">
+                        <Label htmlFor="location">Location</Label>
+                        <Input
+                          id="location"
+                          value={location}
+                          onChange={(e) => setLocation(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="grid gap-2">
+                          <div className="flex items-center justify-between">
+                            <Label htmlFor="maxAttendees">Attendee Limit</Label>
+                            <div className="flex items-center space-x-2">
+                              <Switch
+                                id="hasAttendeeLimit"
+                                checked={hasAttendeeLimit}
+                                onCheckedChange={setHasAttendeeLimit}
+                              />
+                              <Label htmlFor="hasAttendeeLimit">Enable limit</Label>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Users className="text-muted-foreground" />
+                            <Input
+                              id="maxAttendees"
+                              type="number"
+                              placeholder="Maximum attendees"
+                              value={maxAttendees}
+                              onChange={(e) => handleMaxAttendeesChange(e.target.value)}
+                              disabled={!hasAttendeeLimit}
+                              min={1}
+                            />
+                          </div>
                         </div>
                         <div className="grid gap-2">
-                          <Label htmlFor="endTime">End Time</Label>
-                          <Input
-                            id="endTime"
-                            type="time"
-                            value={endTime}
-                            onChange={(e) => setEndTime(e.target.value)}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 gap-3">
-                      <Label htmlFor="location">Location</Label>
-                      <Input
-                        id="location"
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="grid gap-2">
-                        <div className="flex items-center justify-between">
-                          <Label htmlFor="maxAttendees">Attendee Limit</Label>
+                          <Label htmlFor="price">Price</Label>
                           <div className="flex items-center space-x-2">
-                            <Switch
-                              id="hasAttendeeLimit"
-                              checked={hasAttendeeLimit}
-                              onCheckedChange={setHasAttendeeLimit}
+                            <Input
+                              id="price"
+                              type="text"
+                              placeholder="R$ 0,00"
+                              value={formatToBRL(price)}
+                              onChange={(e) => handlePriceChange(e.target.value)}
                             />
-                            <Label htmlFor="hasAttendeeLimit">Enable limit</Label>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <Users className="text-muted-foreground" />
-                          <Input
-                            id="maxAttendees"
-                            type="number"
-                            placeholder="Maximum attendees"
-                            value={maxAttendees}
-                            onChange={(e) => handleMaxAttendeesChange(e.target.value)}
-                            disabled={!hasAttendeeLimit}
-                            min={1}
-                          />
-                        </div>
                       </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="price">Price</Label>
-                        <div className="flex items-center space-x-2">
-                          <Input
-                            id="price"
-                            type="text"
-                            placeholder="R$ 0,00"
-                            value={formatToBRL(price)}
-                            onChange={(e) => handlePriceChange(e.target.value)}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="grid gap-2">
-                        <div className="flex items-center justify-between">
-                          <Label htmlFor="hasCheckin">Check-in Required</Label>
-                          <Switch
-                            id="hasCheckin"
-                            checked={hasCheckin}
-                            onCheckedChange={setHasCheckin}
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="grid gap-2">
-                        <Label htmlFor="visibility">Visibility</Label>
-                        <RadioGroup
-                          id="visibility"
-                          value={visibility}
-                          onValueChange={(value) => setVisibility(value as 'public' | 'private')}
-                        >
-                          <div className="flex space-x-4">
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="public" id="public" />
-                              <Label htmlFor="public">Public</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="private" id="private" />
-                              <Label htmlFor="private">Private</Label>
-                            </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="grid gap-2">
+                          <div className="flex items-center justify-between">
+                            <Label htmlFor="hasCheckin">Check-in Required</Label>
+                            <Switch
+                              id="hasCheckin"
+                              checked={hasCheckin}
+                              onCheckedChange={setHasCheckin}
+                            />
                           </div>
-                        </RadioGroup>
-                      </div>
+                        </div>
+                        
+                        <div className="grid gap-2">
+                          <Label htmlFor="visibility">Visibility</Label>
+                          <RadioGroup
+                            id="visibility"
+                            value={visibility}
+                            onValueChange={(value) => setVisibility(value as 'public' | 'private')}
+                          >
+                            <div className="flex space-x-4">
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="public" id="public" />
+                                <Label htmlFor="public">Public</Label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="private" id="private" />
+                                <Label htmlFor="private">Private</Label>
+                              </div>
+                            </div>
+                          </RadioGroup>
+                        </div>
 
-                    </div>
-                    <div className="grid grid-cols-1 gap-3">
-                      <Label htmlFor="observations">Additional Notes</Label>
-                      <Textarea
-                        id="observations"
-                        value={observations}
-                        onChange={(e) => setObservations(e.target.value)}
-                        placeholder="Any additional information about the event"
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 gap-3">
-                      <Label>Responsible Members</Label>
-                      <div className="flex flex-wrap gap-2 mb-2">
-                        {selectedMembers.map((member) => (
-                          <AssignedMemberChip
-                            key={member.id}
-                            member={{
-                              name: member.name,
-                              email: member.email,
-                              photo: member.photo || ""
-                            }}
-                            onRemove={() => handleRemoveMember(member.id)}
-                          />
-                        ))}
                       </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="gap-2"
-                        onClick={() => setShowMemberDialog(true)}
-                      >
-                        <Users className="h-4 w-4" />
-                        Add Responsible Members
-                      </Button>
+                      <div className="grid grid-cols-1 gap-3">
+                        <Label htmlFor="observations">Additional Notes</Label>
+                        <Textarea
+                          id="observations"
+                          value={observations}
+                          onChange={(e) => setObservations(e.target.value)}
+                          placeholder="Any additional information about the event"
+                        />
+                      </div>
+                      <div className="grid grid-cols-1 gap-3">
+                        <Label>Responsible Members</Label>
+                        <div className="flex flex-wrap gap-2 mb-2">
+                          {selectedMembers.map((member) => (
+                            <AssignedMemberChip
+                              key={member.id}
+                              member={{
+                                name: member.name,
+                                email: member.email,
+                                photo: member.photo || ""
+                              }}
+                              onRemove={() => handleRemoveMember(member.id)}
+                            />
+                          ))}
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="gap-2"
+                          onClick={() => setShowMemberDialog(true)}
+                        >
+                          <Users className="h-4 w-4" />
+                          Add Responsible Members
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                  <Button type="submit">Create Event</Button>
-                </form>
-              </div>
+                    <Button type="submit">Create Event</Button>
+                  </form>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -454,13 +545,6 @@ export function CreateEvent({ defaultDate }: CreateEventProps) {
         onOpenChange={setShowMemberDialog}
         onChoose={handleAddMember}
         allowMultiple={true}
-      />
-
-      <ParticipantsModal
-        open={showParticipantsModal}
-        onOpenChange={setShowParticipantsModal}
-        eventTitle={name || 'Event'}
-        participants={eventId ? mockParticipants : []}
       />
     </MainLayout>
   );
