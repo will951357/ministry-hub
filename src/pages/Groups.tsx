@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, Calendar, Bell, Filter, Search } from "lucide-react";
+import { Plus, Users, Calendar, Bell, Filter, Search, UserPlus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from "react-router-dom";
+import { InviteMembersSheet } from "@/components/groups/InviteMembersSheet";
 
 // Sample groups data
 const groupsData = [
@@ -77,6 +78,8 @@ export default function Groups() {
   const [selectedGroups, setSelectedGroups] = useState<number[]>([]);
   const [isGroupSelectMode, setIsGroupSelectMode] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
+  const [isInviteMembersSheetOpen, setIsInviteMembersSheetOpen] = useState(false);
+  const [inviteGroupName, setInviteGroupName] = useState("");
   
   const activeGroups = groupsData.filter(group => group.status === "active");
   const totalEvents = groupsData.reduce((total, group) => total + group.events, 0);
@@ -133,6 +136,11 @@ export default function Groups() {
         group.description.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : groupsData;
+
+  const handleInviteMembers = (group: Group) => {
+    setInviteGroupName(group.name);
+    setIsInviteMembersSheetOpen(true);
+  };
 
   return (
     <MainLayout>
@@ -236,18 +244,32 @@ export default function Groups() {
                 </div>
                 
                 {/* Card Actions */}
-                <div className="flex justify-between items-center">
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSendNotification(group);
-                    }}
-                  >
-                    <Bell size={16} className="mr-1" />
-                    Notify
-                  </Button>
+                <div className="flex justify-between items-center gap-2">
+                  <div className="flex gap-1">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSendNotification(group);
+                      }}
+                    >
+                      <Bell size={16} className="mr-1" />
+                      Notify
+                    </Button>
+                    
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleInviteMembers(group);
+                      }}
+                    >
+                      <UserPlus size={16} className="mr-1" />
+                      Invite
+                    </Button>
+                  </div>
                   
                   <Button 
                     variant="outline" 
@@ -293,6 +315,13 @@ export default function Groups() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Invite Members Sheet */}
+      <InviteMembersSheet
+        isOpen={isInviteMembersSheetOpen}
+        onOpenChange={setIsInviteMembersSheetOpen}
+        groupName={inviteGroupName}
+      />
     </MainLayout>
   );
 }
